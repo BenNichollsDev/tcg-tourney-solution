@@ -1,3 +1,13 @@
 <Solution>
-  <Project Path="tcg-tourney-solution/tcg-tourney-solution.csproj" />
+  <Folder Name="/Solution Items/">
+    <File Path=".dockerignore" />
+    <File Path=".gitignore" />
+    <File Path="tcg.ems/Dockerfile" />
+    <File Path="tcg.website/Dockerfile" />
+  </Folder>
+  <Project Path="tcg.domain/tcg.domain.csproj" />
+  <Project Path="tcg.ems/tcg.ems.csproj" />
+  <Project Path="tcg.infrastructure/tcg.infrastructure.csproj" />
+  <Project Path="tcg.logic/tcg.logic.csproj" />
+  <Project Path="tcg.website/tcg.website.csproj" />
 </Solution>

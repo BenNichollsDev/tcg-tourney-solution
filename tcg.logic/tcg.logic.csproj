@@ -1,4 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<!-- References:
+[1]: Microsoft (2026) aspnetcore (Version 10.0.2). [Source Code] Available from: https://github.com/dotnet/aspnetcore [Accessed 30/01/2026].
+-->
+
+<!-- <-*****Microsoft (2026) [1] - START -->
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -7,3 +12,4 @@
   </PropertyGroup>
 
 </Project>
+<!-- <-*****Microsoft (2026) [1] - END -->

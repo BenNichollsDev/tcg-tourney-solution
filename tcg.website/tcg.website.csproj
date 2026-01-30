@@ -1,10 +1,25 @@
+<!-- References:
+[1]: Microsoft (2026) aspnetcore (Version 10.0.2). [Source Code] Available from: https://github.com/dotnet/aspnetcore [Accessed 30/01/2026].
+[2]: Microsoft (2026) Microsoft.EntityFrameworkCore (Version 10.0.2). [Source Code] Available from: https://www.nuget.org/packages/microsoft.entityframeworkcore [Accessed 30/01/2026].
+-->
+
+<!-- <-*****Microsoft (2026) [1] - START -->
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+	</PropertyGroup>
+
+	<ItemGroup>
+
+		<!-- <-*****Microsoft (2026) [1] - END -->
+
+		<!-- <-*****Microsoft (2026) [2] - START -->
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.2" />
+		<!-- <-*****Microsoft (2026) [2] - END -->
+	</ItemGroup>
 
 </Project>

@@ -1,9 +1,34 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<!-- References:
+[1]: Microsoft (2026) aspnetcore (Version 10.0.2). [Source Code] Available from: https://github.com/dotnet/aspnetcore [Accessed 30/01/2026].
+[2]: Microsoft (2026) dotnet (Version 10.0.2). [Source Code] Available from: https://github.com/dotnet/dotnet/tree/44525024595742ebe09023abe709df51de65009b [Accessed 30/01/2026].
+[3]: Microsoft (2026) Microsoft.EntityFrameworkCore (Version 10.0.2). [Source Code] Available from: https://www.nuget.org/packages/microsoft.entityframeworkcore [Accessed 30/01/2026].
+[4]: Rojansky, S., Drenski, A., Github, Inc., Deadfall, Y., Piening, B., Atef, R., Hellang, K., Kooijman, O., Jolly, C., Kazmin, N., Chang, C., Bernander, M., St-Georges, E., Maciej, G., Leconte, J. P., Proiete, C. A., Galadriel2143, Tey, .C, Meyerovb, Napadovsky, V., Scobei, Almeida, R., Kouros, K., Cremor, Kurnakovv, M., Hartmann, J., Aksamit, P., Lambson, B., Pian, S., Chomarat, J., Eugen, Sitnik, A., Zapp, G., Luthi, C., Haas, D., Jung, G., Floris, N., Maier, M., Irzak, V., Hiller, E., Brauer, K., Kurdikov, P., Tobias-walter-ecologic, Prabowo, M., KexyBiscuit, Redl, S., Artfulsage, Cleghorn, D., Ivanov, P., Brown, M., André, E., Prior, E., Cloudlucky, Kilin, A., Tiborfsk, Adolfsson, D., Fsibilla, Nathan-c, Dmitrynovik, Pafrench, Lüscher, P., Orace, Ruslan, Midgley, C., Mguinness (2026) efcore.pg (Version 10.0.1). [Source Code]. Available from: https://github.com/npgsql/efcore.pg [Accessed 30/01/2026].
+-->
+
+<!-- <-*****Microsoft (2026) [1] - START -->
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+
+	 <!-- <-*****Microsoft (2026) [1] - END -->
+	  
+	 <!-- <-*****Microsoft (2026) [2] - START -->
+    <PackageReference Include="Microsoft.AspNetCore.Components" Version="10.0.2" />
+     <!-- <-*****Microsoft (2026) [2] - END -->
+
+	 <!-- <-*****Microsoft (2026) [3] - START -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.2" />
+	 <!-- <-*****Microsoft (2026) [3] - END -->
+
+	 <!-- <-*****Rojansky et al. (2026) [4] - START -->
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
+	 <!-- <-*****Rojansky et al. (2026) [4] - END -->
+  </ItemGroup>
 
 </Project>
