@@ -2,8 +2,7 @@
   <Folder Name="/Solution Items/">
     <File Path=".dockerignore" />
     <File Path=".gitignore" />
-    <File Path="tcg.ems/Dockerfile" />
-    <File Path="tcg.website/Dockerfile" />
+    <File Path="docker-compose.yaml" />
   </Folder>
   <Project Path="tcg.domain/tcg.domain.csproj" />
   <Project Path="tcg.ems/tcg.ems.csproj" />

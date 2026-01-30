@@ -1,36 +1,34 @@
-# References:
-# [1]: Scriptbytes (2024) Blazor 8 Docker | Build a Blog - Ep 04.5 [Source Code]. Available at: https://www.youtube.com/watch?v=lDXdk9dS1lM [Accessed 26/12/2025].
+# See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
-
-#<-*****Scriptbytes (2024) [1] - START
-
-WORKDIR /src
-
-COPY . .
-
-#<-*****Scriptbytes (2024) [1] - END
-
-RUN dotnet restore fothebys.sln
-RUN dotnet build fothebys.sln -c Release -o /app/build
-
-#<-*****Scriptbytes (2024) [1] - START
-
-FROM build AS publish
-
-#<-*****Scriptbytes (2024) [1] - END
-
-RUN dotnet publish Fothebys.RMS/Fothebys.RMS.csproj -c Release -o /app/publish /p:UseAppHost=false
-
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
-
-#<-*****Scriptbytes (2024) [1] - START
-
+# This stage is used when running from VS in fast mode (Default for Debug configuration)
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
+USER $APP_UID
 WORKDIR /app
-
 EXPOSE 8080
+EXPOSE 8081
+
+
+# This stage is used to build the service project
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+ARG BUILD_CONFIGURATION=Release
+WORKDIR /src
+COPY ["tcg.ems/tcg.ems.csproj", "tcg.ems/"]
+RUN dotnet restore "./tcg.ems/tcg.ems.csproj"
+COPY . .
+WORKDIR "/src/tcg.ems"
+RUN dotnet build "./tcg.ems.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
+# This stage is used to publish the service project to be copied to the final stage
+FROM build AS publish
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish "./tcg.ems.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+
+# This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
+FROM base AS final
+WORKDIR /app
 COPY --from=publish /app/publish .
 
-#<-*****Scriptbytes (2024) [1] - END
+ENV DOTNET_RUNNING_IN_CONTAINER=true
+ENV DOTNET_URLS=http://+:8080
 
-ENTRYPOINT ["dotnet", "Fothebys.RMS.dll"]
+ENTRYPOINT ["dotnet", "tcg.ems.dll"]

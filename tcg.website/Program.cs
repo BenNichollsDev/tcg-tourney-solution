@@ -22,8 +22,17 @@ namespace tcg.website
                 app.UseHsts();
             }
 
+            ////below no ref
+            //if (builder.Environment.IsDevelopment())
+            //{
+            //    builder.Services.AddHttpsRedirection(options =>
+            //    {
+            //        options.HttpsPort = null; // disables HTTPS redirection
+            //    });
+            //}
+
             app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
             app.UseAntiforgery();
 

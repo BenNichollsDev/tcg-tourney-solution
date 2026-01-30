@@ -1,0 +1,94 @@
+#References:
+# [1]: Docker Docs (n.d.) Visualizing Your PostgreSQL Databases with PgAdmin [Online]. Available at: https://docs.docker.com/guides/pgadmin/ [Accessed 30/01/2026].
+# [2]: Khan, M. (2023) Mastering Containerization: Writing Dockerfile and Docker-Compose for PostgreSQL Bliss! [Online]. Available at: https://mehedi-khan.medium.com/mastering-containerization-writing-dockerfile-and-docker-compose-for-postgresql-bliss-94593b960fe7 [Accessed 30/01/2026].
+
+services:
+    website:
+        container_name: tcg_website
+        build:
+            context: .
+            dockerfile: tcg.website/Dockerfile
+        ports:
+            - "5000:8080"
+        depends_on:
+            - db
+        networks:
+            - tcg_network
+        environment:
+            - DOTNET_RUNNING_IN_CONTAINER=true
+            - DOTNET_URLS=http://+:8080
+            - ASPNETCORE_URLS=http://+:8080
+            - ASPNETCORE_ENVIRONMENT=Development
+            - DOTNET_USE_POLLING_FILE_WATCHER=true
+            - DOTNET_SKIP_FIRST_TIME_EXPERIENCE=true
+ 
+    ems:
+        container_name: tcg_ems
+        build:
+            context: .
+            dockerfile: tcg.ems/Dockerfile
+        ports:
+            - "5001:8080"
+        depends_on:
+            - db
+        networks:
+            - tcg_network
+        environment:
+            - DOTNET_RUNNING_IN_CONTAINER=true
+            - DOTNET_URLS=http://+:8080
+            - ASPNETCORE_URLS=http://+:8080
+            - ASPNETCORE_ENVIRONMENT=Development
+            - DOTNET_USE_POLLING_FILE_WATCHER=true
+            - DOTNET_SKIP_FIRST_TIME_EXPERIENCE=true
+
+    db:
+        container_name: tcg_db
+        image: postgres:18.1
+        
+        #<-*****Khan (2023) [2] - START
+        ports:
+            - "5432:5432"
+        #<-*****Khan (2023) [2] - END
+
+        volumes:
+            - postgres_data:/var/lib/postgresql
+            # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: secret
+            POSTGRES_DB: tcg_db
+        networks:
+            - tcg_network
+
+    pgadmin:
+        container_name: tcg_pgadmin
+        image: dpage/pgadmin4:9.11
+        
+        #<-*****Docker Docs (n.d.) [1] - START
+        ports:
+            - 5050:80
+        #<-*****Docker Docs (n.d.) [1] - END
+
+        volumes:
+            - pgadmin_data:/var/lib/pgadmin
+        environment:
+            PGADMIN_DEFAULT_EMAIL: 98bennicholls@pm.me
+            
+            #<-*****Docker Docs (n.d.) [1] - START
+            PGADMIN_DEFAULT_PASSWORD: secret
+            PGADMIN_CONFIG_SERVER_MODE: 'False'
+            PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+            #<-*****Docker Docs (n.d.) [1] - END
+
+        restart: always
+        networks:
+            - tcg_network
+    
+
+volumes:
+    postgres_data:
+    pgadmin_data:
+    
+networks:
+    tcg_network:
+        driver: bridge
