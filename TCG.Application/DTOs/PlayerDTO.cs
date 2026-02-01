@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace TCG.Application.DTOs
+namespace TCG.Application.Dtos
 {
-    public class PlayerDTO
+    public class PlayerDto
     {
         public int PlayerId { get; set; }
 

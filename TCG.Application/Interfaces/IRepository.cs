@@ -1,16 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using TCG.Application.DTOs;
+using System.Threading.Tasks;
+using TCG.Application.Dtos;
 using TCG.Domain.Entities;
 
 namespace TCG.Application.Interfaces
 {
     public interface IRepository<T> where T : class
     {
-        Task<List<T>?> GetAllAsync();
+        IQueryable<T> Query();
+
+        Task<List<TDto>> GetAllProjectedAsync<TDto>() where TDto : class;
 
         Task<T?> GetByIdAsync(object id);
 

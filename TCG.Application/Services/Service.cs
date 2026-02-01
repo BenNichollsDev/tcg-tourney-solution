@@ -1,61 +1,70 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Text;
+﻿using System.Linq.Expressions;
 using TCG.Application.Interfaces;
+using AutoMapper;
 
 namespace TCG.Application.Services
 {
-    public class Service<TEntity, TDTO> 
+    public class Service<TEntity, TDto>
         where TEntity : class
-        where TDTO : class, new()
+        where TDto : class
     {
         private readonly IRepository<TEntity> _repository;
-        private readonly Func<TEntity, TDTO> _mappedEntities;
+        private readonly IMapper _mapper;
 
-        public Service(IRepository<TEntity> repository, Func<TEntity, TDTO> map)
+        public Service(IRepository<TEntity> repository, IMapper mapper)
         {
             _repository = repository;
-            _mappedEntities = map;
+            _mapper = mapper;
         }
 
-        public async Task<List<TDTO>> GetAllAsync()
+        // GET ALL using AutoMapper projection
+        public async Task<List<TDto>> GetAllAsync()
         {
-            var _entities = await _repository.GetAllAsync();
-            return _entities.Select(e => _mappedEntities(e)).ToList();
+            return await _repository.GetAllProjectedAsync<TDto>();
         }
 
-        public async Task<TDTO?> GetByIdAsync(object id)
+        // GET BY ID
+        public async Task<TDto?> GetByIdAsync(object id)
         {
-            var _entity = await _repository.GetByIdAsync(id);
-            return _entity == null ? null : _mappedEntities(_entity);
+            var entity = await _repository.GetByIdAsync(id);
+            return entity == null ? null : _mapper.Map<TDto>(entity);
         }
 
-        public async Task<TDTO?> GetByAsync(Expression<Func<TEntity, bool>> predicate)
+        // GET BY PREDICATE
+        public async Task<TDto?> GetByAsync(Expression<Func<TEntity, bool>> predicate)
         {
-            var _entity = await _repository.GetByAsync(predicate);
-            return _entity == null ? null : _mappedEntities(_entity);
+            var entity = await _repository.GetByAsync(predicate);
+            return entity == null ? null : _mapper.Map<TDto>(entity);
         }
 
-        public async Task<List<TDTO>?> GetAllByAsync(Expression<Func<TEntity, bool>> predicate)
+        // GET ALL BY PREDICATE
+        public async Task<List<TDto>?> GetAllByAsync(Expression<Func<TEntity, bool>> predicate)
         {
-            var _entities = await _repository.GetAllByAsync(predicate);
-            return _entities.Select(e => _mappedEntities(e)).ToList();
+            var entities = await _repository.GetAllByAsync(predicate);
+            return entities.Select(e => _mapper.Map<TDto>(e)).ToList();
         }
 
-        public async Task<TEntity> AddAsync(TEntity entity)
+        // ADD ENTITY
+        public async Task<TDto> AddAsync(TDto Dto)
         {
-            return await _repository.AddAsync(entity);
+            var entity = _mapper.Map<TEntity>(Dto);
+            var result = await _repository.AddAsync(entity);
+            return _mapper.Map<TDto>(result);
         }
 
-        public async Task<TEntity> UpdateAsync(TEntity entity)
+        // UPDATE ENTITY
+        public async Task<TDto> UpdateAsync(TDto Dto)
         {
-            return await _repository.UpdateAsync(entity);
+            var entity = _mapper.Map<TEntity>(Dto);
+            var result = await _repository.UpdateAsync(entity);
+            return _mapper.Map<TDto>(result);
         }
 
-        public async Task<TEntity> DeleteAsync(TEntity entity)
+        // DELETE ENTITY
+        public async Task DeleteAsync(TDto Dto)
         {
-            return await _repository.DeleteAsync(entity);
+            var entity = _mapper.Map<TEntity>(Dto);
+            await _repository.DeleteAsync(entity);
         }
     }
 }

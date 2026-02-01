@@ -1,10 +1,14 @@
 // References:
 // [1]: Microsoft (2026) aspnetcore(Version 10.0.2). [Source Code] Available from: https://github.com/dotnet/aspnetcore [Accessed 30/01/2026].
 
+using System.Reflection;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using TCG.EMS.Components;
+using TCG.Application.Services;
+using TCG.Application.Interfaces;
 using TCG.Infrastructure;
+using AutoMapper;
 
 namespace TCG.EMS
 {
@@ -38,6 +42,11 @@ namespace TCG.EMS
                         npgsqlOptions => npgsqlOptions.EnableRetryOnFailure()
                     )
                 );
+
+            builder.Services.AddAutoMapper(cfg => cfg.AddProfile<AutoMapperProfile>());
+            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            builder.Services.AddScoped(typeof(Service<,>));
+            builder.Services.AddScoped<IAuthService, AuthService>();
 
             var app = builder.Build();
 

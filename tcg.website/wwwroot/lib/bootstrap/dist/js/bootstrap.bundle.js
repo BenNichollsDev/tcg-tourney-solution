@@ -1248,10 +1248,10 @@
         EventHandler.on(this._element, EVENT_MOUSELEAVE$1, () => this._maybeEnableCycle());
       }
       if (this._config.touch && Swipe.isSupported()) {
-        this._addTouchEventListeners();
+        this._adDtouchEventListeners();
       }
     }
-    _addTouchEventListeners() {
+    _adDtouchEventListeners() {
       for (const img of SelectorEngine.find(SELECTOR_ITEM_IMG, this._element)) {
         EventHandler.on(img, EVENT_DRAG_START, event => event.preventDefault());
       }
@@ -2064,7 +2064,7 @@
     return Object.assign({}, getFreshSideObject(), paddingObject);
   }
 
-  function expandToHashMap(value, keys) {
+  function expanDtoHashMap(value, keys) {
     return keys.reduce(function (hashMap, key) {
       hashMap[key] = value;
       return hashMap;
@@ -2075,7 +2075,7 @@
     padding = typeof padding === 'function' ? padding(Object.assign({}, state.rects, {
       placement: state.placement
     })) : padding;
-    return mergePaddingObject(typeof padding !== 'number' ? padding : expandToHashMap(padding, basePlacements));
+    return mergePaddingObject(typeof padding !== 'number' ? padding : expanDtoHashMap(padding, basePlacements));
   };
 
   function arrow(_ref) {
@@ -2657,7 +2657,7 @@
         altBoundary = _options$altBoundary === void 0 ? false : _options$altBoundary,
         _options$padding = _options.padding,
         padding = _options$padding === void 0 ? 0 : _options$padding;
-    var paddingObject = mergePaddingObject(typeof padding !== 'number' ? padding : expandToHashMap(padding, basePlacements));
+    var paddingObject = mergePaddingObject(typeof padding !== 'number' ? padding : expanDtoHashMap(padding, basePlacements));
     var altContext = elementContext === popper ? reference : popper;
     var popperRect = state.rects.popper;
     var element = state.elements[altBoundary ? altContext : elementContext];

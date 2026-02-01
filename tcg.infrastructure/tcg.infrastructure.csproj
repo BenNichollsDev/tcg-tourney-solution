@@ -20,6 +20,7 @@
 	 <!-- <-*****Microsoft (2026) [1] - END -->
 
 	 <!-- <-*****Microsoft (2026) [2] - START -->
+    <PackageReference Include="AutoMapper" Version="16.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.2" />
 	 <!-- <-*****Microsoft (2026) [2] - END -->
 
@@ -29,7 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\tcg.domain\TCG.Domain.csproj" />
+    <ProjectReference Include="..\TCG.Domain\TCG.Domain.csproj" />
     <ProjectReference Include="..\TCG.Application\TCG.Application.csproj" />
   </ItemGroup>
 

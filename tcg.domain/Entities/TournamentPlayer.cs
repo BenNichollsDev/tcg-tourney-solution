@@ -11,5 +11,7 @@ namespace TCG.Domain.Entities
         public int TpTournament { get; private set; }
 
         public int TpPlayer { get; private set; }
+
+        public int TpPosition { get; private set; }
     }
 }

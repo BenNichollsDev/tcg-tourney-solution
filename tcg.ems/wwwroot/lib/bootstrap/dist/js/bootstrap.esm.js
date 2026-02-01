@@ -1244,10 +1244,10 @@ class Carousel extends BaseComponent {
       EventHandler.on(this._element, EVENT_MOUSELEAVE$1, () => this._maybeEnableCycle());
     }
     if (this._config.touch && Swipe.isSupported()) {
-      this._addTouchEventListeners();
+      this._adDtouchEventListeners();
     }
   }
-  _addTouchEventListeners() {
+  _adDtouchEventListeners() {
     for (const img of SelectorEngine.find(SELECTOR_ITEM_IMG, this._element)) {
       EventHandler.on(img, EVENT_DRAG_START, event => event.preventDefault());
     }

@@ -1,23 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Text;
-using TCG.Application.Interfaces;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+// REF AUTOMAPPER 01/02/2026
 
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Text;
+using System.Threading.Tasks;
+using TCG.Application.Interfaces;
 
 namespace TCG.Infrastructure
 {
     public class Repository<T> : IRepository<T> where T : class
     {
         public readonly AppDbContext _db;
+        private readonly IMapper _mapper;
 
-        //CAN I FIND A REFERENCE FOR ALL OF THESE???????
+        // CAN I FIND A REFERENCE FOR ALL OF THESE???????
+        public Repository(AppDbContext db, IMapper mapper)
+        {
+            _db = db;
+            _mapper = mapper;
+        }
 
-        public async Task<List<T>?> GetAllAsync()
+        public IQueryable<T> Query() => _db.Set<T>();
+
+        // Generic projection using AutoMapper
+        public async Task<List<TDto>> GetAllProjectedAsync<TDto>() where TDto : class
         {
             return await _db.Set<T>()
-                .AsNoTracking()
+                .ProjectTo<TDto>(_mapper.ConfigurationProvider)
                 .ToListAsync();
         }
 

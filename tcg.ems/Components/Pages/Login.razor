@@ -1,9 +1,16 @@
-﻿<h3>Login</h3>
+﻿@using TCG.Application.Dtos
+@using TCG.Application.Services
+@inject NavigationManager NavManager
+@inject Service<StaffDto, StaffDto> StaffService
+
+<h3>Login</h3>
 
 @code {
-    // below ref is https://www.youtube.com/watch?v=GKvEuA80FAE
-    private async Task AuthenticateLogin()
+    private async Task Authenticate()
     {
-        
+        // Example: retrieve staff list
+        // var staffList = await StaffService.GetAllAsync();
+        // Do login logic...
     }
+
 }

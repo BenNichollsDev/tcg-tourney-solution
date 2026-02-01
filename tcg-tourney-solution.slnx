@@ -3,10 +3,11 @@
     <File Path=".dockerignore" />
     <File Path=".gitignore" />
     <File Path="docker-compose.yaml" />
+    <File Path="init.sql" />
   </Folder>
   <Project Path="TCG.Application/TCG.Application.csproj" />
-  <Project Path="TCG.Domain/TCG.Domain.csproj" DisplayName="TCG.Domain" />
-  <Project Path="TCG.EMS/TCG.EMS.csproj" DisplayName="TCG.EMS" />
-  <Project Path="TCG.Infrastructure/TCG.Infrastructure.csproj" DisplayName="TCG.Infrastructure" />
-  <Project Path="TCG.Website/TCG.Website.csproj" DisplayName="TCG.Website" />
+  <Project Path="TCG.Domain/TCG.Domain.csproj" />
+  <Project Path="TCG.EMS/TCG.EMS.csproj" />
+  <Project Path="TCG.Infrastructure/TCG.Infrastructure.csproj" />
+  <Project Path="TCG.Website/TCG.Website.csproj" />
 </Solution>
