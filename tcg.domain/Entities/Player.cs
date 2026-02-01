@@ -6,16 +6,16 @@ namespace TCG.Domain.Entities
 {
     public partial class Player
     {
-        public int PlayerId { get; set; }
+        public int PlayerId { get; private set; }
 
-        public string PlayerFirstName { get; set; } = string.Empty;
+        public string PlayerFirstName { get; private set; } = string.Empty;
 
-        public string PlayerSurname { get; set; } = string.Empty;
+        public string PlayerSurname { get; private set; } = string.Empty;
 
-        public DateTime PlayerDob { get; set; }
+        public DateTime PlayerDob { get; private set; }
 
-        public string PlayerEmail { get; set; } = string.Empty;
+        public string PlayerEmail { get; private set; } = string.Empty;
 
-        public long PlayerMobile { get; set; }
+        public long PlayerMobile { get; private set; }
     }
 }

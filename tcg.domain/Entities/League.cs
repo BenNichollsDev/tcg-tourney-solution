@@ -7,14 +7,14 @@ namespace TCG.Domain.Entities
 {
     public partial class League
     {
-        public int LeagueId { get; set; }
+        public int LeagueId { get; private set; }
 
-        public string LeagueName { get; set; } = string.Empty;
+        public string LeagueName { get; private set; } = string.Empty;
 
-        public string LeagueGame { get; set; } = string.Empty;
+        public string LeagueGame { get; private set; } = string.Empty;
 
-        public bool LeaguePublic { get; set; }
+        public bool LeaguePublic { get; private set; }
 
-        public string LeagueDescription { get; set; } = string.Empty;
+        public string LeagueDescription { get; private set; } = string.Empty;
     }
 }

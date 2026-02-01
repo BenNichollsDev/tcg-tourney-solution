@@ -6,10 +6,10 @@ namespace TCG.Domain.Entities
 {
     public partial class TournamentPlayer
     {
-        public int TpId { get; set; }
+        public int TpId { get; private set; }
 
-        public int TpTournament { get; set; }
+        public int TpTournament { get; private set; }
 
-        public int TpPlayer { get; set; }
+        public int TpPlayer { get; private set; }
     }
 }

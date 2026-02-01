@@ -8,6 +8,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+	<AssemblyName>TCG.Infrastructure</AssemblyName>
 	<RootNamespace>TCG.Infrastructure</RootNamespace>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>

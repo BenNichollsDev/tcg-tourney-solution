@@ -5,8 +5,8 @@
     <File Path="docker-compose.yaml" />
   </Folder>
   <Project Path="TCG.Application/TCG.Application.csproj" />
-  <Project Path="tcg.domain/tcg.domain.csproj" DisplayName="TCG.Domain" />
-  <Project Path="tcg.ems/tcg.ems.csproj" DisplayName="TCG.EMS" />
-  <Project Path="tcg.infrastructure/tcg.infrastructure.csproj" DisplayName="TCG.Infrastructure" />
-  <Project Path="tcg.website/tcg.website.csproj" DisplayName="TCG.Website" />
+  <Project Path="TCG.Domain/TCG.Domain.csproj" DisplayName="TCG.Domain" />
+  <Project Path="TCG.EMS/TCG.EMS.csproj" DisplayName="TCG.EMS" />
+  <Project Path="TCG.Infrastructure/TCG.Infrastructure.csproj" DisplayName="TCG.Infrastructure" />
+  <Project Path="TCG.Website/TCG.Website.csproj" DisplayName="TCG.Website" />
 </Solution>

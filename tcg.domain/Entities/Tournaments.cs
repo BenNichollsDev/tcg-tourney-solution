@@ -6,29 +6,29 @@ namespace TCG.Domain.Entities
 {
     public partial class Tournament
     {
-        public int TournamentId { get; set; }
+        public int TournamentId { get; private set; }
 
-        public int TournamentLeague { get; set; }
+        public int TournamentLeague { get; private set; }
 
-        public string TournamentName { get; set; } = string.Empty;
+        public string TournamentName { get; private set; } = string.Empty;
 
-        public string TournamentGame { get; set; } = string.Empty;
+        public string TournamentGame { get; private set; } = string.Empty;
 
-        public string TournamentFormat { get; set; } = string.Empty;
+        public string TournamentFormat { get; private set; } = string.Empty;
 
-        public bool TournamentRequireDeck { get; set; }
+        public bool TournamentRequireDeck { get; private set; }
 
-        public int TournamentRoundNum { get; set; }
+        public int TournamentRoundNum { get; private set; }
 
-        public string TournamentDescription { get; set; } = string.Empty;
+        public string TournamentDescription { get; private set; } = string.Empty;
 
-        public string TournamentPairing { get; set; } = string.Empty;
+        public string TournamentPairing { get; private set; } = string.Empty;
 
-        public DateTime TournamentCalendar { get; set; }
+        public DateTime TournamentCalendar { get; private set; }
 
-        public decimal TournamentEntryFee { get; set; }
+        public decimal TournamentEntryFee { get; private set; }
 
-        public int TournamentMaxParticipants { get; set; }
+        public int TournamentMaxParticipants { get; private set; }
     }
 
 }

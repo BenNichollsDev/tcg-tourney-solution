@@ -6,19 +6,19 @@ namespace TCG.Domain.Entities
 {
     public partial class Staff
     {
-        public int StaffId { get; set; }
+        public int StaffId { get; private set; }
 
-        public string StaffFirstName { get; set; } = string.Empty;
+        public string StaffFirstName { get; private set; } = string.Empty;
 
-        public string StaffSurname { get; set; } = string.Empty;
+        public string StaffSurname { get; private set; } = string.Empty;
 
-        public string StaffEmail { get; set; } = string.Empty;
+        public string StaffEmail { get; private set; } = string.Empty;
 
-        public long StaffMobile { get; set; }
+        public long StaffMobile { get; private set; }
 
-        public bool StaffRoleManagement { get; set; }
+        public bool StaffRoleManagement { get; private set; }
 
-        public bool StaffRoleHead { get; set; }
+        public bool StaffRoleHead { get; private set; }
 
     }
 }
