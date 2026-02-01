@@ -16,7 +16,7 @@ using Microsoft.EntityFrameworkCore;
 //REF MYSELF FOR THESE FUNCTIONS
 //and implement "get record by field name"
 
-namespace tcg.infrastructure
+namespace TCG.Infrastructure
 {
     public class DbFunctions
     {

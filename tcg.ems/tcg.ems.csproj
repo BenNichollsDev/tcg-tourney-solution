@@ -7,6 +7,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
+		<RootNamespace>TCG.EMS</RootNamespace>
 		<TargetFramework>net10.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
@@ -21,13 +22,17 @@
 
 		<!-- <-*****Microsoft (2026) [2] - START -->
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.2" />
-		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.23.0" />
 		<!-- <-*****Microsoft (2026) [2] - END -->
 	</ItemGroup>
 
 	<ItemGroup>
 	  <Folder Include="Components\Pages\Management\" />
 	  <Folder Include="Components\Pages\HeadManagement\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\TCG.Application\TCG.Application.csproj" />
+	  <ProjectReference Include="..\TCG.Infrastructure\TCG.Infrastructure.csproj" />
 	</ItemGroup>
 
 </Project>

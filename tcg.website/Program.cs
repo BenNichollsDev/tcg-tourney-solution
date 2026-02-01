@@ -1,6 +1,6 @@
-using tcg.website.Components;
+using TCG.Website.Components;
 
-namespace tcg.website
+namespace TCG.Website
 {
     public class Program
     {

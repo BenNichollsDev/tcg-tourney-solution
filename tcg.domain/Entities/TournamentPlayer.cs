@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace tcg.domain
+namespace TCG.Domain.Entities
 {
-    public partial class TourneyPlayer
+    public partial class TournamentPlayer
     {
         public int TpId { get; set; }
 
-        public int TpTourney { get; set; }
+        public int TpTournament { get; set; }
 
         public int TpPlayer { get; set; }
     }

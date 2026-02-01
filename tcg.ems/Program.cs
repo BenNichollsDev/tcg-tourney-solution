@@ -2,9 +2,11 @@
 // [1]: Microsoft (2026) aspnetcore(Version 10.0.2). [Source Code] Available from: https://github.com/dotnet/aspnetcore [Accessed 30/01/2026].
 
 using Microsoft.AspNetCore.Authentication.Cookies;
-using tcg.ems.Components;
+using Microsoft.EntityFrameworkCore;
+using TCG.EMS.Components;
+using TCG.Infrastructure;
 
-namespace tcg.ems
+namespace TCG.EMS
 {
     //<-***** Microsoft (2026) [1] - START
     public class Program
@@ -29,8 +31,13 @@ namespace tcg.ems
 
             builder.Services.AddAuthorization();
             builder.Services.AddCascadingAuthenticationState();
-            //builder.Services.AddDbContext<AppDbContext>(options =>
-            //    options.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection")));
+
+            builder.Services.AddDbContext<AppDbContext>(options =>
+                options.UseNpgsql(
+                        builder.Configuration.GetConnectionString("DbConnection"),
+                        npgsqlOptions => npgsqlOptions.EnableRetryOnFailure()
+                    )
+                );
 
             var app = builder.Build();
 

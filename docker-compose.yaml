@@ -7,7 +7,7 @@ services:
         container_name: tcg_website
         build:
             context: .
-            dockerfile: tcg.website/Dockerfile
+            dockerfile: TCG.Website/Dockerfile
         ports:
             - "5000:8080"
         depends_on:
@@ -26,7 +26,7 @@ services:
         container_name: tcg_ems
         build:
             context: .
-            dockerfile: tcg.ems/Dockerfile
+            dockerfile: TCG.EMS/Dockerfile
         ports:
             - "5001:8080"
         depends_on:

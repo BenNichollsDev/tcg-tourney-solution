@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace tcg.domain
+namespace TCG.Domain.Entities
 {
     public partial class League
     {

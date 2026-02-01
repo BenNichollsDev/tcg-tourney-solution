@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace tcg.domain
+namespace TCG.Domain.Entities
 {
     public partial class Staff
     {
@@ -15,5 +15,10 @@ namespace tcg.domain
         public string StaffEmail { get; set; } = string.Empty;
 
         public long StaffMobile { get; set; }
+
+        public bool StaffRoleManagement { get; set; }
+
+        public bool StaffRoleHead { get; set; }
+
     }
 }

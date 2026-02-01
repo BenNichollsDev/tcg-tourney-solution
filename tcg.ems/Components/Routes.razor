@@ -3,7 +3,9 @@
 
 //<-***** Microsoft (2026) [1] - START *@
 
-<Router AppAssembly="typeof(Program).Assembly" NotFoundPage="typeof(Pages.NotFound)">
+@using TCG.EMS
+
+<Router AppAssembly="typeof(Program).Assembly" NotFoundPage="typeof(Pages._404)">
     <Found Context="routeData">
         <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
         <FocusOnNavigate RouteData="routeData" Selector="h1" />

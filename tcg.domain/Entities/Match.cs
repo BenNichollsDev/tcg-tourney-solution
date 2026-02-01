@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace tcg.domain
+namespace TCG.Domain.Entities
 {
     public partial class Match
     {

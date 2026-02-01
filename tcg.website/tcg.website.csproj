@@ -7,6 +7,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
+		<RootNamespace>TCG.Website</RootNamespace>
 		<TargetFramework>net10.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
@@ -23,6 +24,11 @@
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.2" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.23.0" />
 		<!-- <-*****Microsoft (2026) [2] - END -->
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\tcg.infrastructure\TCG.Infrastructure.csproj" />
+	  <ProjectReference Include="..\TCG.Application\TCG.Application.csproj" />
 	</ItemGroup>
 
 </Project>

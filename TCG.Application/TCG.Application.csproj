@@ -6,10 +6,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+	<RootNamespace>TCG.Application</RootNamespace>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TCG.Domain\TCG.Domain.csproj" />
+  </ItemGroup>
 
 </Project>
 <!-- <-*****Microsoft (2026) [1] - END -->

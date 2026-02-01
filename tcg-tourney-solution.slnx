@@ -4,9 +4,9 @@
     <File Path=".gitignore" />
     <File Path="docker-compose.yaml" />
   </Folder>
-  <Project Path="tcg.domain/tcg.domain.csproj" />
-  <Project Path="tcg.ems/tcg.ems.csproj" />
-  <Project Path="tcg.infrastructure/tcg.infrastructure.csproj" />
-  <Project Path="tcg.logic/tcg.logic.csproj" />
-  <Project Path="tcg.website/tcg.website.csproj" />
+  <Project Path="TCG.Application/TCG.Application.csproj" />
+  <Project Path="tcg.domain/tcg.domain.csproj" DisplayName="TCG.Domain" />
+  <Project Path="tcg.ems/tcg.ems.csproj" DisplayName="TCG.EMS" />
+  <Project Path="tcg.infrastructure/tcg.infrastructure.csproj" DisplayName="TCG.Infrastructure" />
+  <Project Path="tcg.website/tcg.website.csproj" DisplayName="TCG.Website" />
 </Solution>
