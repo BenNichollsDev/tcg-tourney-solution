@@ -25,4 +25,9 @@
 		<!-- <-*****Microsoft (2026) [2] - END -->
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Components\Pages\Management\" />
+	  <Folder Include="Components\Pages\HeadManagement\" />
+	</ItemGroup>
+
 </Project>
