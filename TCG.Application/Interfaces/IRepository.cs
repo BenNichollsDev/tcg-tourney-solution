@@ -16,9 +16,11 @@ namespace TCG.Application.Interfaces
 
         Task<T> GetByAsync<T>(Expression<Func<T, bool>> predicate) where T : class;
 
+        Task<List<T>> GetAllByAsync<T>(Expression<Func<T, bool>> predicate) where T : class;
+
         Task<T> AddAsync<T>(T entity) where T : class;
 
-        Task<T> Updatesync<T>(T entity) where T : class;
+        Task<T> UpdateAsync<T>(T entity) where T : class;
 
         Task<T> DeleteAsync<T>(T entity) where T : class;
     }
