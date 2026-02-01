@@ -32,7 +32,6 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\TCG.Application\TCG.Application.csproj" />
-	  <ProjectReference Include="..\TCG.Infrastructure\TCG.Infrastructure.csproj" />
 	</ItemGroup>
 
 </Project>

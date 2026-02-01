@@ -8,32 +8,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TCG.Infrastructure
 {
-    public class Repository : IRepository
+    public class Repository<T> : IRepository<T> where T : class
     {
         public readonly AppDbContext _db;
 
         //CAN I FIND A REFERENCE FOR ALL OF THESE???????
 
-        public async Task<List<T>?> GetAllAsync<T>() where T : class
+        public async Task<List<T>?> GetAllAsync()
         {
             return await _db.Set<T>()
                 .AsNoTracking()
                 .ToListAsync();
         }
 
-        public async Task<T?> GetByIdAsync<T>(object id) where T : class
+        public async Task<T?> GetByIdAsync(object id)
         {
             return await _db.Set<T>()
                 .FindAsync(id);
         }
 
-        public async Task<T?> GetByAsync<T>(Expression<Func<T, bool>> predicate) where T : class
+        public async Task<T?> GetByAsync(Expression<Func<T, bool>> predicate)
         {
             return await _db.Set<T>()
                 .FirstOrDefaultAsync(predicate);
         }
 
-        public async Task<List<T>?> GetAllByAsync<T>(Expression<Func<T, bool>> predicate) where T : class
+        public async Task<List<T>?> GetAllByAsync(Expression<Func<T, bool>> predicate)
         {
             return await _db.Set<T>()
                 .AsNoTracking()
@@ -41,21 +41,21 @@ namespace TCG.Infrastructure
                 .ToListAsync();
         }
 
-        public async Task<T> AddAsync<T>(T entity) where T : class
+        public async Task<T> AddAsync(T entity)
         {
             _db.Set<T>().Add(entity);
             await _db.SaveChangesAsync();
             return entity;
         }
 
-        public async Task<T> UpdateAsync<T>(T entity) where T : class
+        public async Task<T> UpdateAsync(T entity)
         {
             _db.Set<T>().Update(entity);
             await _db.SaveChangesAsync();
             return entity;
         }
 
-        public async Task<T> DeleteAsync<T>(T entity) where T : class
+        public async Task<T> DeleteAsync(T entity)
         {
             _db.Set<T>().Remove(entity);
             await _db.SaveChangesAsync();

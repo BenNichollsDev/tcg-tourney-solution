@@ -8,20 +8,20 @@ using TCG.Domain.Entities;
 
 namespace TCG.Application.Interfaces
 {
-    public interface IRepository
+    public interface IRepository<T> where T : class
     {
-        Task<List<T>?> GetAllAsync<T>() where T : class;
+        Task<List<T>?> GetAllAsync();
 
-        Task<T?> GetByIdAsync<T>(object id) where T : class;
+        Task<T?> GetByIdAsync(object id);
 
-        Task<T?> GetByAsync<T>(Expression<Func<T, bool>> predicate) where T : class;
+        Task<T?> GetByAsync(Expression<Func<T, bool>> predicate);
 
-        Task<List<T>?> GetAllByAsync<T>(Expression<Func<T, bool>> predicate) where T : class;
+        Task<List<T>?> GetAllByAsync(Expression<Func<T, bool>> predicate);
 
-        Task<T> AddAsync<T>(T entity) where T : class;
+        Task<T> AddAsync(T entity);
 
-        Task<T> UpdateAsync<T>(T entity) where T : class;
+        Task<T> UpdateAsync(T entity);
 
-        Task<T> DeleteAsync<T>(T entity) where T : class;
+        Task<T> DeleteAsync(T entity);
     }
 }
