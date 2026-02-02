@@ -14,6 +14,8 @@ namespace TCG.Domain.Entities
 
         public string StaffEmail { get; private set; } = string.Empty;
 
+        public string StaffPassword { get; private set; } = string.Empty;
+
         public long StaffMobile { get; private set; }
 
         public bool StaffRoleManagement { get; private set; }

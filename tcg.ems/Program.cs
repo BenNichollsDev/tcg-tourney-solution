@@ -43,8 +43,6 @@ namespace TCG.EMS
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddScoped(typeof(Service<,>));
 
-            builder.Services.AddSingleton<AuthService>();
-
             // <-***** Microsoft (2026) [1] - START
 
             var app = builder.Build();

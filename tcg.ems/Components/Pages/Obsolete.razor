@@ -1,0 +1,16 @@
+﻿@using TCG.Application.Dtos
+@using TCG.Application.Services
+@inject NavigationManager NavManager
+@inject Service<StaffDto, StaffDto> StaffService
+
+<h3>Login</h3>
+
+@code {
+    private async Task Authenticate()
+    {
+        // Example: retrieve staff list
+        // var staffList = await StaffService.GetAllAsync();
+        // Do login logic...
+    }
+
+}
