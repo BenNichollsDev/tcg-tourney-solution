@@ -12,7 +12,7 @@ using AutoMapper;
 
 namespace TCG.EMS
 {
-    //<-***** Microsoft (2026) [1] - START
+    // <-***** Microsoft (2026) [1] - START
     public class Program
     {
         public static void Main(string[] args)
@@ -23,18 +23,10 @@ namespace TCG.EMS
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
 
-            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(options =>
-                {
-                    options.Cookie.Name = "TCGTSAuthCookie";
-                    options.LoginPath = "/login";
-                    options.LogoutPath = "/logout";
-                    options.Cookie.MaxAge = TimeSpan.FromHours(2);
-                    options.AccessDeniedPath = "/login";
-                });
+            // <-***** Microsoft (2026) [1] - END
 
-            builder.Services.AddAuthorization();
-            builder.Services.AddCascadingAuthenticationState();
+            //builder.Services.AddAuthorization();
+            //builder.Services.AddCascadingAuthenticationState();
 
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(
@@ -43,10 +35,17 @@ namespace TCG.EMS
                     )
                 );
 
+            // 2/2/2026 https://www.youtube.com/watch?v=b7-BC7VyyLk v
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie();
+
             builder.Services.AddAutoMapper(cfg => cfg.AddProfile<AutoMapperProfile>());
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddScoped(typeof(Service<,>));
-            builder.Services.AddScoped<IAuthService, AuthService>();
+
+            builder.Services.AddSingleton<AuthService>();
+
+            // <-***** Microsoft (2026) [1] - START
 
             var app = builder.Build();
 
@@ -58,7 +57,11 @@ namespace TCG.EMS
                 app.UseHsts();
             }
 
-            app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
+            // <-***** Microsoft (2026) [1] - END
+
+            app.UseStatusCodePagesWithReExecute("/_404", createScopeForStatusCodePages: true);
+
+            // <-***** Microsoft (2026) [1] - START
 
             app.UseAntiforgery();
 
@@ -66,10 +69,12 @@ namespace TCG.EMS
             app.MapRazorComponents<App>()
                 .AddInteractiveServerRenderMode();
 
-            app.UseAuthentication();
-            app.UseAuthorization();
+            //app.UseAuthentication();
+            //app.UseAuthorization();
 
             app.Run();
+
+            // <-***** Microsoft (2026) [1] - END
         }
     }
 }

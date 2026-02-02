@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace TCG.Application.Interfaces
+namespace TCG.Application.UseCases
 {
-    public interface IAuthService
+    public class LoginUseCase
     {
+
     }
 }

@@ -28,6 +28,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Folder Include="Components\Pages\Controllers\" />
 	  <Folder Include="Components\Pages\Management\" />
 	  <Folder Include="Components\Pages\HeadManagement\" />
 	</ItemGroup>
