@@ -58,3 +58,23 @@ h1:focus {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
+
+/*Ref above*/
+
+body {
+
+}
+
+.bg-main {
+    background-color: #7b68ee;
+}
+
+.text-main {
+    color: aliceblue;
+    font-family: "Manrope", sans-serif;
+    /*    ref*/
+}
+
+.bg-container {
+    background-color: #3d3477;
+}

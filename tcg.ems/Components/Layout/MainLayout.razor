@@ -1,7 +1,7 @@
 ﻿@inherits LayoutComponentBase
 @inject NavigationManager NavManager
 
-<div class="page">
+<div class="page bg-main text-main">
     <main class="d-flex">
         @if (!(NavManager.Uri.Contains("/")) || !(NavManager.Uri.Contains("/login")))
         {
@@ -10,7 +10,7 @@
             // main sidebar layout. login and home will not have any navigation bar.
         }
 
-        <article class="content flex-grow-1">
+        <article class="content flex-grow-1 m-0 p-0">
             @Body
         </article>
     </main>

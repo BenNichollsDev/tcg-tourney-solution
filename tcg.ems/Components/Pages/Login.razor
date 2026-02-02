@@ -5,37 +5,38 @@
 @using TCG.Application.Services
 @inject NavigationManager NavManager
 
-<div class="d-flex justify-content-center align-items-center vh-100">
+<div class="d-flex flex-column justify-content-center align-items-center min-vh-100">
+	<div class="bg-container p-5">
+		@if (editContext == null)
+		{
+			<h3>Loading...</h3>
+		}
+		else
+		{
+			<h1 class="mb-3">TCGTourneys</h1>
 
-	@if (editContext == null)
-	{
-		<h3>Loading...</h3>
-	}
-	else
-	{
-		<h3>TCGTourneys</h3>
+			<EditForm EditContext="@editContext" FormName="LoginForm">
+				<DataAnnotationsValidator />
+				@* <p>17cities@mail.com</p>
+				<p>@hasher.HashPassword(null, "123");</p>
 
-		<EditForm EditContext="@editContext">
-			<DataAnnotationsValidator />
-			<p>17cities@mail.com</p>
-			<p>@hasher.HashPassword(null, "123");</p>
+				<p>blackmesa@mail.com</p>
+				<p>@hasher.HashPassword(null, "456");</p>
 
-			<p>blackmesa@mail.com</p>
-			<p>@hasher.HashPassword(null, "456");</p>
+				<p>ravenholm@mail.com</p>
+				<p>@hasher.HashPassword(null, "789");</p> *@
 
-			<p>ravenholm@mail.com</p>
-			<p>@hasher.HashPassword(null, "789");</p>
+				<label>Email:</label>
+				<InputText @bind-Value="emailInput" class="form-control mb-3" />
 
-			<label>Email:</label>
-			<InputText @bind-Value="emailInput" />
+				@* Reminder hash password *@
+				<label>Password:</label>
+				<InputText @bind-Value="passwordInput" type="password" class="form-control mb-3" />
 
-			@* Reminder hash password *@
-			<label>Password:</label>
-			<InputText @bind-Value="passwordInput" type="password" />
-
-			<input type="submit" value="Submit" class="btn btn-primary" />
-		</EditForm>
-	}
+				<input type="submit" value="Submit" class="btn btn-primary" />
+			</EditForm>
+		}
+	</div>
 </div>
 
 @code {
