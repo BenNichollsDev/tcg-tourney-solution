@@ -376,9 +376,9 @@ COPY public.player (player_id, player_first_name, player_surname, player_dob, pl
 --
 
 COPY public.staff (staff_id, staff_first_name, staff_surname, staff_email, staff_mobile, staff_role_management, staff_role_head, staff_password) FROM stdin;
-1	Gordon	Freeman	17cities@mail.com	08537285555	f	t	AQAAAAIAAYagAAAAEOCibO8ulmO4aXMIEFObUGkyvBaY9/ROWdQLedZoPyKA39OV029xKkdeOlLkJI/ayw==;
-2	Eli	Vance	blackmesa@mail.com	07798227364	t	f	AQAAAAIAAYagAAAAEAuCiQAPdCarv/p81F39m8X/qNZ5WWgkE4edaEwXo/7xe0PbWvxKgLMKBOXABqTS5w==;
-3	Alyx	Vance	ravenholm@mail.com	07738229100	f	f	AQAAAAIAAYagAAAAEHlUBsDS+4d+4tHlK7Laa3U8+Fyb75JomTGhig2S5+34u+XW8LluY0SY4rvokMLdYg==;
+1	Gordon	Freeman	17cities@mail.com	08537285555	f	t	123
+2	Eli	Vance	blackmesa@mail.com	07798227364	t	f	456
+3	Alyx	Vance	ravenholm@mail.com	07738229100	f	f	789
 \.
 
 
