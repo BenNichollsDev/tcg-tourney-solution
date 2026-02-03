@@ -49,25 +49,26 @@ namespace TCG.Application.Services
         }
 
         // ADD ENTITY
-        public async Task<TDto> AddAsync(TDto Dto)
+        public async Task<TDto> AddAsync(TDto dto)
         {
-            var entity = _mapper.Map<TEntity>(Dto);
+            var entity = _mapper.Map<TEntity>(dto);
             var result = await _repository.AddAsync(entity);
             return _mapper.Map<TDto>(result);
         }
 
         // UPDATE ENTITY
-        public async Task<TDto> UpdateAsync(TDto Dto)
+        public async Task<TDto> UpdateAsync<TDto>(TDto dto) where TDto : IHasId
         {
-            var entity = _mapper.Map<TEntity>(Dto);
-            var result = await _repository.UpdateAsync(entity);
-            return _mapper.Map<TDto>(result);
+            var entity = await _repository.GetByIdAsync(dto.Id);
+            _mapper.Map(dto, entity);
+            await _repository.UpdateAsync(entity);
+            return _mapper.Map<TDto>(entity);
         }
 
         // DELETE ENTITY
-        public async Task DeleteAsync(TDto Dto)
+        public async Task DeleteAsync(TDto dto)
         {
-            var entity = _mapper.Map<TEntity>(Dto);
+            var entity = _mapper.Map<TEntity>(dto);
             await _repository.DeleteAsync(entity);
         }
     }

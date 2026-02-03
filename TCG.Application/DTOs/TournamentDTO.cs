@@ -4,7 +4,7 @@ using System.Text;
 
 namespace TCG.Application.Dtos
 {
-    public class TournamenTDto
+    public class TournamentDto
     {
         public int TournamentId { get; set; }
 

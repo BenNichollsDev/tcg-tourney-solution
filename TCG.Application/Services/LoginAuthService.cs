@@ -1,13 +1,14 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Net.NetworkInformation;
 using System.Text;
+using System.Threading.Tasks;
 using TCG.Application.Dtos;
 using TCG.Application.Services;
 using TCG.Domain.Entities;
-using Microsoft.AspNetCore.Identity;
-using System.Threading.Tasks;
 
 namespace TCG.Application.Services
 {
@@ -24,18 +25,18 @@ namespace TCG.Application.Services
 
         public async Task<bool> VerifyLoginAsync(string email, string password)
         {
-            var staffList = await _staffService.GetAllAsync();
-
-            // FIX The input is not a valid Base-64 string as it contains a non-base 64 character, more than two padding characters, or an illegal character among the padding characters.
+            //REMINDER TO INCORPORATE SALT IN FUTURE
+            // MANUALLY UPDATE PASSWORDS TO USE 123 FOR NOW
 
             var login = await _staffService.GetByAsync(e => e.StaffEmail == email);
 
             if (login == null)
                 return false;
 
-            var loginResult = _hasher.VerifyHashedPassword(null, login.StaffPassword!, password.ToString());
+            if (login.StaffPassword! != password)
+                return false;
 
-            return loginResult != PasswordVerificationResult.Failed;
+            return true;
         }
     }
 }

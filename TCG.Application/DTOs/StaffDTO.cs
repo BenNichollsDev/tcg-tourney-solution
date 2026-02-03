@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using TCG.Application.Interfaces;
 
 namespace TCG.Application.Dtos
 {
-    public class StaffDto
+    public class StaffDto : IHasId
     {
         public int StaffId { get; set; }
+
+        int IHasId.Id => StaffId;
 
         public string StaffFirstName { get; set; } = string.Empty;
 

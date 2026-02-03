@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.ComponentModel.DataAnnotations.Schema;
+using TCG.Domain.Interfaces;
 
 namespace TCG.Domain.Entities
 {

@@ -13,20 +13,83 @@ namespace TCG.Infrastructure
         public AutoMapperProfile()
         {
             // Entity to Dto mappings
-            CreateMap<League, LeagueDto>();
-            CreateMap<Tournament, TournamenTDto>();
-            CreateMap<Player, PlayerDto>();
-            CreateMap<Pairing, PairingDto>();
-            CreateMap<Match, MatchDto>();
-            CreateMap<Staff, StaffDto>();
+            CreateMap<League, LeagueDto>()
+                .ForAllMembers(opt =>
+                opt.Condition((src, dest, srcMember) =>
+                    srcMember != null &&
+                    (!(srcMember is string s) || !string.IsNullOrWhiteSpace(s))));
+
+            CreateMap<Tournament, TournamentDto>()
+                .ForAllMembers(opt =>
+                opt.Condition((src, dest, srcMember) =>
+                    srcMember != null &&
+                    (!(srcMember is string s) || !string.IsNullOrWhiteSpace(s))));
+
+            CreateMap<Player, PlayerDto>()
+                .ForAllMembers(opt =>
+                opt.Condition((src, dest, srcMember) =>
+                    srcMember != null &&
+                    (!(srcMember is string s) || !string.IsNullOrWhiteSpace(s))));
+
+            CreateMap<Pairing, PairingDto>()
+                .ForAllMembers(opt =>
+                opt.Condition((src, dest, srcMember) =>
+                    srcMember != null &&
+                    (!(srcMember is string s) || !string.IsNullOrWhiteSpace(s))));
+
+            CreateMap<Match, MatchDto>()
+                .ForAllMembers(opt =>
+                opt.Condition((src, dest, srcMember) =>
+                    srcMember != null &&
+                    (!(srcMember is string s) || !string.IsNullOrWhiteSpace(s))));
+
+            CreateMap<Staff, StaffDto>()
+                .ForAllMembers(opt =>
+                opt.Condition((src, dest, srcMember) =>
+                    srcMember != null &&
+                    (!(srcMember is string s) || !string.IsNullOrWhiteSpace(s))));
+
 
             // Dto to Entity mappings
-            CreateMap<LeagueDto, League>();
-            CreateMap<TournamenTDto, Tournament>();
-            CreateMap<PlayerDto, Player>();
-            CreateMap<PairingDto, Pairing>();
-            CreateMap<MatchDto, Match>();
-            CreateMap<StaffDto, Staff>();
+            CreateMap<LeagueDto, League>()
+                .ForAllMembers(opt =>
+                opt.Condition((src, dest, srcMember) =>
+                    srcMember != null &&
+                    (!(srcMember is string s) || !string.IsNullOrWhiteSpace(s))));
+
+            CreateMap<TournamentDto, Tournament>()
+                .ForAllMembers(opt =>
+                opt.Condition((src, dest, srcMember) =>
+                    srcMember != null &&
+                    (!(srcMember is string s) || !string.IsNullOrWhiteSpace(s))));
+
+            CreateMap<PlayerDto, Player>()
+                .ForAllMembers(opt =>
+                opt.Condition((src, dest, srcMember) =>
+                    srcMember != null &&
+                    (!(srcMember is string s) || !string.IsNullOrWhiteSpace(s))));
+
+            CreateMap<PairingDto, Pairing>()
+                .ForAllMembers(opt =>
+                opt.Condition((src, dest, srcMember) =>
+                    srcMember != null &&
+                    (!(srcMember is string s) || !string.IsNullOrWhiteSpace(s))));
+
+            CreateMap<MatchDto, Match>()
+                .ForAllMembers(opt =>
+                opt.Condition((src, dest, srcMember) =>
+                    srcMember != null &&
+                    (!(srcMember is string s) || !string.IsNullOrWhiteSpace(s))));
+
+            CreateMap<StaffDto, Staff>()
+                .ForAllMembers(opt =>
+                opt.Condition((src, dest, srcMember) =>
+                    srcMember != null &&
+                    (!(srcMember is string s) || !string.IsNullOrWhiteSpace(s))));
+
+
+
+
         }
     }
 }
