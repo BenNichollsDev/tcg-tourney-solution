@@ -4,14 +4,14 @@ using AutoMapper;
 
 namespace TCG.Application.Services
 {
-    public class Service<TEntity, TDto>
+    public class GenericDbService<TEntity, TDto>
         where TEntity : class
         where TDto : class
     {
         private readonly IRepository<TEntity> _repository;
         private readonly IMapper _mapper;
 
-        public Service(IRepository<TEntity> repository, IMapper mapper)
+        public GenericDbService(IRepository<TEntity> repository, IMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;

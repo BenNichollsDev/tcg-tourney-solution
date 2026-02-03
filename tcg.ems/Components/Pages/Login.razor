@@ -1,58 +1,109 @@
 ﻿@page "/"
 
-@using Microsoft.AspNetCore.Identity
 @using TCG.Application.Dtos
 @using TCG.Application.Services
+
 @inject NavigationManager NavManager
+@inject LoginAuthService LoginAuthService
+
+@rendermode InteractiveServer
 
 <div class="d-flex flex-column justify-content-center align-items-center min-vh-100">
 	<div class="bg-container p-5">
-		@if (editContext == null)
+
+		<h1 class="mb-3">TCGTourneys</h1>
+
+		<EditForm EditContext="@editContext">
+			<DataAnnotationsValidator />
+
+			<label>Email:</label>
+			<InputText @bind-Value="Staff.StaffEmail"
+					   class="form-control mb-3" />
+
+			<label>Password:</label>
+			<InputText @bind-Value="Staff.StaffPassword"
+					   type="password"
+					   class="form-control mb-3" />
+
+			<button type="button"
+					class="btn btn-primary"
+					disabled="@isLoggingIn"
+					@onclick="AttemptLogin">
+				Submit
+			</button>
+		</EditForm>
+
+		@if (isLoggingIn)
 		{
-			<h3>Loading...</h3>
+			<div class="position-fixed top-0 start-0 w-100 h-100
+	                        d-flex justify-content-center align-items-center
+	                        bg-dark bg-opacity-50">
+				<div class="spinner-border text-light"></div>
+			</div>
 		}
-		else
+
+		@if (!string.IsNullOrWhiteSpace(loginError))
 		{
-			<h1 class="mb-3">TCGTourneys</h1>
-
-			<EditForm EditContext="@editContext" FormName="LoginForm">
-				<DataAnnotationsValidator />
-				@* <p>17cities@mail.com</p>
-				<p>@hasher.HashPassword(null, "123");</p>
-
-				<p>blackmesa@mail.com</p>
-				<p>@hasher.HashPassword(null, "456");</p>
-
-				<p>ravenholm@mail.com</p>
-				<p>@hasher.HashPassword(null, "789");</p> *@
-
-				<label>Email:</label>
-				<InputText @bind-Value="emailInput" class="form-control mb-3" />
-
-				@* Reminder hash password *@
-				<label>Password:</label>
-				<InputText @bind-Value="passwordInput" type="password" class="form-control mb-3" />
-
-				<input type="submit" value="Submit" class="btn btn-primary" />
-			</EditForm>
+			<div class="text-danger mt-2">@loginError</div>
 		}
 	</div>
 </div>
 
 @code {
-	protected internal EditContext? editContext;
+	private bool isLoggingIn;
+	private string? loginError;
 
-	protected internal StaffDto Staff { get; set; } = new();
+	private EditContext editContext = default!;
+	private StaffDto Staff = new();
 
-	// var staffList = await StaffService.GetAllAsync();
-
-	protected internal string emailInput = string.Empty;
-	protected internal string passwordInput = string.Empty;
-
-	PasswordHasher<object> hasher = new PasswordHasher<object>();
-
-	protected override async Task OnInitializedAsync()
+	protected override void OnInitialized()
 	{
 		editContext = new EditContext(Staff);
 	}
+
+	private async Task AttemptLogin()
+	{
+		loginError = null;
+
+		if (!editContext.Validate())
+		{
+			return;
+		}
+
+		isLoggingIn = true;
+		StateHasChanged();
+
+		try
+		{
+			var success = await LoginAuthService.VerifyLoginAsync(
+				Staff.StaffEmail!,
+				Staff.StaffPassword!
+			);
+
+			if (success)
+			{
+				NavManager.NavigateTo("/dashboard", forceLoad: true);
+			}
+			else
+			{
+				loginError = "Invalid email or password.";
+			}
+		}
+		catch (Exception ex)
+		{
+			loginError = ex.Message;
+		}
+		finally
+		{
+			isLoggingIn = false;
+		}
+	}
+	@* <p>17cities@mail.com</p>
+	<p>@hasher.HashPassword(null, "123");</p>
+
+	<p>blackmesa@mail.com</p>
+	<p>@hasher.HashPassword(null, "456");</p>
+
+	<p>ravenholm@mail.com</p>
+	<p>@hasher.HashPassword(null, "789");</p> *@
 }

@@ -35,6 +35,9 @@ namespace TCG.Infrastructure.Configurations
 
             builder.Property(s => s.StaffRoleHead)
                    .HasColumnName("staff_role_head");
+
+            builder.Property(s => s.StaffPassword)
+                    .HasColumnName("staff_password");
         }
     }
 

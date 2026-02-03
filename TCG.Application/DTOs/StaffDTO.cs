@@ -16,7 +16,7 @@ namespace TCG.Application.Dtos
 
         public string StaffPassword { get; set; } = string.Empty;
 
-        public long StaffMobile { get; set; }
+        public string StaffMobile { get; set; } = string.Empty;
 
         public bool StaffRoleManagement { get; set; }
 

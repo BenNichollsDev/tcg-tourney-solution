@@ -30,7 +30,7 @@ namespace TCG.EMS
 
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(
-                        builder.Configuration.GetConnectionString("DbConnection"),
+                        builder.Configuration.GetConnectionString("DefaultConnection"),
                         npgsqlOptions => npgsqlOptions.EnableRetryOnFailure()
                     )
                 );
@@ -41,7 +41,8 @@ namespace TCG.EMS
 
             builder.Services.AddAutoMapper(cfg => cfg.AddProfile<AutoMapperProfile>());
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            builder.Services.AddScoped(typeof(Service<,>));
+            builder.Services.AddScoped(typeof(GenericDbService<,>));
+            builder.Services.AddScoped<LoginAuthService>();
 
             // <-***** Microsoft (2026) [1] - START
 
