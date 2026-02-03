@@ -10,7 +10,6 @@
 		<RootNamespace>TCG.EMS</RootNamespace>
 		<TargetFramework>net10.0</TargetFramework>
 		<Nullable>enable</Nullable>
-		<ImplicitUsings>enable</ImplicitUsings>
 		<BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
 		<UserSecretsId>c35163cb-7507-47ed-8883-4e44f6c7a057</UserSecretsId>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>

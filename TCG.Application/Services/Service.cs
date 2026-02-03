@@ -1,6 +1,10 @@
 ﻿using System.Linq.Expressions;
 using TCG.Application.Interfaces;
 using AutoMapper;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System;
+using System.Linq;
 
 namespace TCG.Application.Services
 {

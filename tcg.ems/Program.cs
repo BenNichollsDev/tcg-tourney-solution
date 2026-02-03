@@ -9,6 +9,10 @@ using TCG.Application.Services;
 using TCG.Application.Interfaces;
 using TCG.Infrastructure;
 using AutoMapper;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 
 namespace TCG.EMS
 {

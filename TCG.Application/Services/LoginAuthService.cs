@@ -7,6 +7,7 @@ using TCG.Application.Dtos;
 using TCG.Application.Services;
 using TCG.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
+using System.Threading.Tasks;
 
 namespace TCG.Application.Services
 {
@@ -25,12 +26,7 @@ namespace TCG.Application.Services
         {
             var staffList = await _staffService.GetAllAsync();
 
-            foreach (var staff in staffList)
-            {
-                var hashed = _hasher.HashPassword(null, staff.StaffPassword);
-                staff.StaffPassword = hashed;
-                await _staffService.UpdateAsync(staff);
-            }
+            // FIX The input is not a valid Base-64 string as it contains a non-base 64 character, more than two padding characters, or an illegal character among the padding characters.
 
             var login = await _staffService.GetByAsync(e => e.StaffEmail == email);
 
