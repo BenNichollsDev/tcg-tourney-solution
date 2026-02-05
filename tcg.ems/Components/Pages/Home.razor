@@ -1,5 +1,4 @@
-﻿@page "/login"
-
+﻿@page "/home"
 @using TCG.Application.Dtos
 @using TCG.Application.Services
 
@@ -82,7 +81,7 @@
 
 			if (success)
 			{
-				NavManager.NavigateTo("/home");
+				NavManager.NavigateTo("/home", forceLoad: true);
 			}
 			else
 			{

@@ -4,8 +4,10 @@
     <File Path=".gitignore" />
     <File Path="backupinit.sql" />
     <File Path="docker-compose.yaml" />
-    <File Path="Dockerfile" />
+    <File Path="Dockerfileold." />
     <File Path="init.sql" />
+    <File Path="TCG.EMS/Dockerfile" />
+    <File Path="TCG.Website/Dockerfile" />
   </Folder>
   <Project Path="TCG.Application/TCG.Application.csproj" />
   <Project Path="TCG.Domain/TCG.Domain.csproj" />

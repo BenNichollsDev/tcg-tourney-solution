@@ -5,7 +5,7 @@ services:
     container_name: tcg_website
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: TCG.Website/Dockerfile
     ports:
       - "5000:8081"
     depends_on:
@@ -14,24 +14,20 @@ services:
       - tcg_network
     environment:
       - DOTNET_RUNNING_IN_CONTAINER=true
-      - ENV NUGET_PACKAGES=/root/.nuget/packages
-    command: >
-      dotnet watch run
-      --project TCG.Website/TCG.Website.csproj
-      --no-launch-profile
-      --urls http://0.0.0.0:8081
-      --launch-profile "Development"
+      - NUGET_PACKAGES=/root/.nuget/packages
     volumes:
-      - ./TCG.Website:/app/TCG.Website:cached
-      - ./TCG.Domain:/app/TCG.Domain:cached
-      - ./TCG.Application:/app/TCG.Application:cached
-      - ./TCG.Infrastructure:/app/TCG.Infrastructure:cached
+      - ./TCG.Website:/src/TCG.Website:cached
+      - ./TCG.Domain:/src/TCG.Domain:cached
+      - ./TCG.Application:/src/TCG.Application:cached
+      - ./TCG.Infrastructure:/src/TCG.Infrastructure:cached
+      - ./TCG.EMS:/src/TCG.EMS:cached
+      - .:/src
 
   ems:
     container_name: tcg_ems
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: TCG.EMS/Dockerfile
     ports:
       - "5001:8080"
     depends_on:
@@ -40,18 +36,14 @@ services:
       - tcg_network
     environment:
       - DOTNET_RUNNING_IN_CONTAINER=true
-      - ENV NUGET_PACKAGES=/root/.nuget/packages
-    command: >
-      dotnet watch run
-      --project TCG.EMS/TCG.EMS.csproj
-      --no-launch-profile
-      --urls http://0.0.0.0:8080
-      --launch-profile "Development"
+      - NUGET_PACKAGES=/root/.nuget/packages
     volumes:
-      - ./TCG.EMS:/app/TCG.EMS:cached
-      - ./TCG.Domain:/app/TCG.Domain:cached
-      - ./TCG.Application:/app/TCG.Application:cached
-      - ./TCG.Infrastructure:/app/TCG.Infrastructure:cached
+      - ./TCG.EMS:/src/TCG.EMS:cached
+      - ./TCG.Domain:/src/TCG.Domain:cached
+      - ./TCG.Application:/src/TCG.Application:cached
+      - ./TCG.Infrastructure:/src/TCG.Infrastructure:cached
+      - ./TCG.Website:/src/TCG.Website:cached
+      - .:/src
 
   db:
     container_name: tcg_db

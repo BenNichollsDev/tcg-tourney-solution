@@ -5,11 +5,12 @@
 
 @using TCG.EMS
 
-<Router AppAssembly="typeof(Program).Assembly" NotFoundPage="typeof(Pages._404)">
+<Router AppAssembly="typeof(Program).Assembly" NotFoundPage="typeof(Pages.NotFound)">
     <Found Context="routeData">
         <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
         <FocusOnNavigate RouteData="routeData" Selector="h1" />
     </Found>
 </Router>
+
 
 @* //<-***** Microsoft (2026) [1] - END *@

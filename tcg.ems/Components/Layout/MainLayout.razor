@@ -3,11 +3,38 @@
 
 <div class="page bg-main text-main">
     <main class="d-flex">
-        @if (!(NavManager.Uri.Contains("/")) || !(NavManager.Uri.Contains("/login")))
+        @if (!(NavManager.Uri.Contains("/login")))
         {
             // also do conditional "if user is not already logged in with cookies" for every page to check if they are already logged in. if they are not
             //, redirect them to the prelogin page
-            // main sidebar layout. login and home will not have any navigation bar.
+            <nav class="sidebar d-flex flex-column p-3">
+                <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-decoration-none">
+                    <span class="fs-4">TCGTourneys</span>
+                </a>
+                <hr>
+                <ul class="nav nav-pills flex-column mb-auto">
+                    <li class="nav-item">
+                        <a href="/home" class="nav-link text-white" aria-current="page">
+                            Home
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/tournaments" class="nav-link text-white">
+                            Tournaments
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/players" class="nav-link text-white">
+                            Players
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/staff" class="nav-link text-white">
+                            Staff
+                        </a>
+                    </li>
+                </ul>
+            </nav>
         }
 
         <article class="content flex-grow-1 m-0 p-0">
