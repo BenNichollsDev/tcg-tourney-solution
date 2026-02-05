@@ -16,12 +16,15 @@ services:
       - DOTNET_RUNNING_IN_CONTAINER=true
       - NUGET_PACKAGES=/root/.nuget/packages
     volumes:
+      # Only mount the source, NOT the entire project root
       - ./TCG.Website:/src/TCG.Website:cached
       - ./TCG.Domain:/src/TCG.Domain:cached
       - ./TCG.Application:/src/TCG.Application:cached
       - ./TCG.Infrastructure:/src/TCG.Infrastructure:cached
       - ./TCG.EMS:/src/TCG.EMS:cached
-      - .:/src
+      # Separate DataProtection volume
+      - dp_keys_website:/root/.aspnet/DataProtection-Keys
+      - nuget_packages:/root/.nuget/packages
 
   ems:
     container_name: tcg_ems
@@ -38,12 +41,15 @@ services:
       - DOTNET_RUNNING_IN_CONTAINER=true
       - NUGET_PACKAGES=/root/.nuget/packages
     volumes:
+      # Only mount the source, NOT the entire project root
       - ./TCG.EMS:/src/TCG.EMS:cached
       - ./TCG.Domain:/src/TCG.Domain:cached
       - ./TCG.Application:/src/TCG.Application:cached
       - ./TCG.Infrastructure:/src/TCG.Infrastructure:cached
       - ./TCG.Website:/src/TCG.Website:cached
-      - .:/src
+      # Separate DataProtection volume
+      - dp_keys_ems:/root/.aspnet/DataProtection-Keys
+      - nuget_packages:/root/.nuget/packages
 
   db:
     container_name: tcg_db
@@ -79,6 +85,9 @@ services:
 volumes:
   postgres_data:
   pgadmin_data:
+  nuget_packages:
+  dp_keys_website:
+  dp_keys_ems:
 
 networks:
   tcg_network:
