@@ -78,3 +78,39 @@ body {
 .bg-container {
     background-color: #3d3477;
 }
+
+.sidebar-custom {
+    flex: 0 0 auto;
+    padding-right: 1rem;
+    padding-left: 1rem;
+    height: 100vh;
+}
+
+.nav-hover-container {
+/*    position: relative;*/
+}
+
+.nav-item-hover {
+    background-color: #18142f;
+    display: none;
+    color: white;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-radius: 0.25rem;
+    z-index: 1000;
+}
+
+.nav-item-hover {
+    /* hidden by default */
+}
+
+.nav-hover-container:hover .nav-item-hover {
+    display: block; /* show on hover */
+}
+
+.nav-item-hover li a {
+    padding-right: 0; /* don't overflow sidebar */
+    display: block;
+    white-space: wrap; /* prevent wrapping */
+    font-size: 0.9rem;
+}
