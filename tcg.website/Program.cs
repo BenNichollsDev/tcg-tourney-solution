@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.IO;
 using TCG.Website.Components;
 
 namespace TCG.Website
@@ -14,6 +16,11 @@ namespace TCG.Website
             // Add services to the container.
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
+
+            builder.Services.AddDataProtection()
+                .PersistKeysToFileSystem(new DirectoryInfo("/root/.aspnet/DataProtection-Keys"))
+                .SetApplicationName("TCG.Website");
+
 
             var app = builder.Build();
 
