@@ -8,7 +8,6 @@ COPY TCG.EMS/*.csproj TCG.EMS/
 COPY TCG.Domain/*.csproj TCG.Domain/
 COPY TCG.Application/*.csproj TCG.Application/
 COPY TCG.Infrastructure/*.csproj TCG.Infrastructure/
-COPY TCG.Website/*.csproj TCG.Website/
 
 # Hot reload command
 CMD ["dotnet", "watch", "run", "--project", "TCG.EMS/TCG.EMS.csproj", "--urls", "http://0.0.0.0:8080"]

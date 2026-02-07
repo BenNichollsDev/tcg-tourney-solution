@@ -9,7 +9,6 @@ COPY TCG.Website/*.csproj TCG.Website/
 COPY TCG.Domain/*.csproj TCG.Domain/
 COPY TCG.Application/*.csproj TCG.Application/
 COPY TCG.Infrastructure/*.csproj TCG.Infrastructure/
-COPY TCG.EMS/*.csproj TCG.EMS/
 
 # Don't run restore — we will use volume-mounted code
 # Everything else will be mounted at runtime

@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   website:
     container_name: tcg_website
@@ -15,16 +13,18 @@ services:
     environment:
       - DOTNET_RUNNING_IN_CONTAINER=true
       - NUGET_PACKAGES=/root/.nuget/packages
+      - DOTNET_WATCH_SUPPRESS_LAUNCH_BROWSER=true
+      - MSBUILDDISABLENODEREUSE=1
     volumes:
       # Only mount the source, NOT the entire project root
       - ./TCG.Website:/src/TCG.Website:cached
       - ./TCG.Domain:/src/TCG.Domain:cached
       - ./TCG.Application:/src/TCG.Application:cached
       - ./TCG.Infrastructure:/src/TCG.Infrastructure:cached
-      - ./TCG.EMS:/src/TCG.EMS:cached
+      # - ./TCG.EMS:/src/TCG.EMS:cached
       # Separate DataProtection volume
       - dp_keys_website:/root/.aspnet/DataProtection-Keys
-      - nuget_packages:/root/.nuget/packages
+      - nuget_packages_website:/root/.nuget/packages
 
   ems:
     container_name: tcg_ems
@@ -40,16 +40,18 @@ services:
     environment:
       - DOTNET_RUNNING_IN_CONTAINER=true
       - NUGET_PACKAGES=/root/.nuget/packages
+      - DOTNET_WATCH_SUPPRESS_LAUNCH_BROWSER=true
+      - MSBUILDDISABLENODEREUSE=1
     volumes:
       # Only mount the source, NOT the entire project root
       - ./TCG.EMS:/src/TCG.EMS:cached
       - ./TCG.Domain:/src/TCG.Domain:cached
       - ./TCG.Application:/src/TCG.Application:cached
       - ./TCG.Infrastructure:/src/TCG.Infrastructure:cached
-      - ./TCG.Website:/src/TCG.Website:cached
+      # - ./TCG.Website:/src/TCG.Website:cached
       # Separate DataProtection volume
       - dp_keys_ems:/root/.aspnet/DataProtection-Keys
-      - nuget_packages:/root/.nuget/packages
+      - nuget_packages_ems:/root/.nuget/packages
 
   db:
     container_name: tcg_db
@@ -85,7 +87,8 @@ services:
 volumes:
   postgres_data:
   pgadmin_data:
-  nuget_packages:
+  nuget_packages_website:
+  nuget_packages_ems:
   dp_keys_website:
   dp_keys_ems:
 
