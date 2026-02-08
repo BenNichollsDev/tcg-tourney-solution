@@ -25,7 +25,7 @@ namespace TCG.Application.Services
 
         public async Task<bool> VerifyLoginAsync(string email, string password)
         {
-            //REMINDER TO INCORPORATE SALT IN FUTURE
+            // REMINDER TO INCORPORATE SALT IN FUTURE
             // MANUALLY UPDATE PASSWORDS TO USE 123 FOR NOW
 
             var login = await _staffService.GetByAsync(e => e.StaffEmail == email);

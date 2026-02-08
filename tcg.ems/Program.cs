@@ -44,6 +44,7 @@ namespace TCG.EMS
                 {
                     options.LoginPath = "/login";
                     options.Cookie.Name = "TCGAuth";
+                    options.LogoutPath = "/auth/logout";
                     options.Cookie.HttpOnly = true;
                     options.ExpireTimeSpan = TimeSpan.FromHours(8);
                 });
@@ -55,10 +56,11 @@ namespace TCG.EMS
             builder.Services.AddScoped(typeof(GenericDbService<,>));
             builder.Services.AddScoped<LoginAuthService>();
             builder.Services.AddScoped<LoginService>();
-
             builder.Services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddAuthorizationCore();
+            builder.Services.AddControllers();
+
 
             // <-***** Microsoft (2026) [1] - START
 
@@ -88,6 +90,7 @@ namespace TCG.EMS
 
             app.UseAuthentication();
             app.UseAuthorization();
+            app.MapControllers();
 
             app.Run();
         }
