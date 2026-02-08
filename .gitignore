@@ -81,3 +81,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 secrets.json
+
+ems_tmp/
+website_tmp/

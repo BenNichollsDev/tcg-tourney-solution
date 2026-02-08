@@ -12,7 +12,7 @@ services:
       - tcg_network
     environment:
       - DOTNET_RUNNING_IN_CONTAINER=true
-      - NUGET_PACKAGES=/root/.nuget/packages
+      # - NUGET_PACKAGES=/root/.nuget/packages
       - DOTNET_WATCH_SUPPRESS_LAUNCH_BROWSER=true
       - MSBUILDDISABLENODEREUSE=1
     volumes:
@@ -21,7 +21,8 @@ services:
       - ./TCG.Application:/src/TCG.Application:cached
       - ./TCG.Infrastructure:/src/TCG.Infrastructure:cached
       - dp_keys_website:/root/.aspnet/DataProtection-Keys
-      - nuget_packages_website:/root/.nuget/packages
+      # - nuget_packages_website:/root/.nuget/packages
+      - ./website_tmp:/tmp
 
   ems:
     container_name: tcg_ems
@@ -36,7 +37,7 @@ services:
       - tcg_network
     environment:
       - DOTNET_RUNNING_IN_CONTAINER=true
-      - NUGET_PACKAGES=/root/.nuget/packages
+      # - NUGET_PACKAGES=/root/.nuget/packages
       - DOTNET_WATCH_SUPPRESS_LAUNCH_BROWSER=true
       - MSBUILDDISABLENODEREUSE=1
     volumes:
@@ -45,7 +46,8 @@ services:
       - ./TCG.Application:/src/TCG.Application:cached
       - ./TCG.Infrastructure:/src/TCG.Infrastructure:cached
       - dp_keys_ems:/root/.aspnet/DataProtection-Keys
-      - nuget_packages_ems:/root/.nuget/packages
+      # - nuget_packages_ems:/root/.nuget/packages
+      - ./ems_tmp:/tmp
 
   db:
     container_name: tcg_db
@@ -81,8 +83,8 @@ services:
 volumes:
   postgres_data:
   pgadmin_data:
-  nuget_packages_website:
-  nuget_packages_ems:
+  # nuget_packages_website:
+  # nuget_packages_ems:
   dp_keys_website:
   dp_keys_ems:
 

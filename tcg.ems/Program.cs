@@ -1,5 +1,6 @@
 // References:
-// [1]: Microsoft (2026) aspnetcore(Version 10.0.2). [Source Code] Available from: https://github.com/dotnet/aspnetcore [Accessed 30/01/2026].
+// [1]: Microsoft (2026) aspnetcore (Version 10.0.2). [Source Code]. Available from: https://github.com/dotnet/aspnetcore [Accessed 30/01/2026].
+// [2]: Anderson, R. (2025) Use cookie authentication without ASP.NET Core Identity. [Source Code]. Available from: https://learn.microsoft.com/en-us/aspnet/core/security/authentication/cookie?view=aspnetcore-10.0 [Accessed 07/02/2026].
 
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -88,8 +89,13 @@ namespace TCG.EMS
 
             // <-***** Microsoft (2026) [1] - END
 
+            // <-***** Anderson, R. (2025) [2] - START
+
             app.UseAuthentication();
             app.UseAuthorization();
+
+            // <-***** Anderson, R. (2025) [2] - END
+
             app.MapControllers();
 
             app.Run();

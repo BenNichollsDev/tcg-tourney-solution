@@ -1,6 +1,9 @@
-<Project>
-    <PropertyGroup Condition="'$(DOTNET_RUNNING_IN_CONTAINER)' == 'true'">
-        <BaseIntermediateOutputPath>/tmp/obj/$(MSBuildProjectName)/</BaseIntermediateOutputPath>
-        <BaseOutputPath>/tmp/bin/$(MSBuildProjectName)/</BaseOutputPath>
-    </PropertyGroup>
+<Project Condition="'$(DOTNET_RUNNING_IN_CONTAINER)' == 'true'">
+	<PropertyGroup>
+		<BaseIntermediateOutputPath Condition="'$(OS)' == 'Windows_NT'">C:\tmp\obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
+		<BaseOutputPath Condition="'$(OS)' == 'Windows_NT'">C:\tmp\bin\$(MSBuildProjectName)\</BaseOutputPath>
+
+		<BaseIntermediateOutputPath Condition="'$(OS)' != 'Windows_NT'">/tmp/obj/$(MSBuildProjectName)/</BaseIntermediateOutputPath>
+		<BaseOutputPath Condition="'$(OS)' != 'Windows_NT'">/tmp/bin/$(MSBuildProjectName)/</BaseOutputPath>
+	</PropertyGroup>
 </Project>

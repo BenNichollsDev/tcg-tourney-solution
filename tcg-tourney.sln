@@ -1,0 +1,62 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 18
+VisualStudioVersion = 18.3.11429.125 d18.3
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCG.Application", "TCG.Application\TCG.Application.csproj", "{6781B9E8-A2C8-377B-2D95-811EDD56D4AF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCG.Domain", "TCG.Domain\TCG.Domain.csproj", "{3EC8DE0D-C4D0-CAD5-29E8-E4626BAB0960}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCG.EMS", "TCG.EMS\TCG.EMS.csproj", "{D5555E81-09FC-1E4A-6106-4B743ACCD65B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCG.Infrastructure", "TCG.Infrastructure\TCG.Infrastructure.csproj", "{0D59AEDC-0D28-5B8D-FF7E-4D7D3B559145}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCG.Website", "TCG.Website\TCG.Website.csproj", "{1A85412E-B59C-1630-B18E-C5DB9CAD4129}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{089100B1-113F-4E66-888A-E83F3999EAFD}"
+	ProjectSection(SolutionItems) = preProject
+		.dockerignore = .dockerignore
+		.gitignore = .gitignore
+		backupinit.sql = backupinit.sql
+		Directory.Build.props = Directory.Build.props
+		docker-compose.yaml = docker-compose.yaml
+		TCG.EMS\Dockerfile = TCG.EMS\Dockerfile
+		TCG.Website\Dockerfile = TCG.Website\Dockerfile
+		Dockerfileold = Dockerfileold
+		init.sql = init.sql
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6781B9E8-A2C8-377B-2D95-811EDD56D4AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6781B9E8-A2C8-377B-2D95-811EDD56D4AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6781B9E8-A2C8-377B-2D95-811EDD56D4AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6781B9E8-A2C8-377B-2D95-811EDD56D4AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3EC8DE0D-C4D0-CAD5-29E8-E4626BAB0960}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3EC8DE0D-C4D0-CAD5-29E8-E4626BAB0960}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3EC8DE0D-C4D0-CAD5-29E8-E4626BAB0960}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3EC8DE0D-C4D0-CAD5-29E8-E4626BAB0960}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D5555E81-09FC-1E4A-6106-4B743ACCD65B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5555E81-09FC-1E4A-6106-4B743ACCD65B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5555E81-09FC-1E4A-6106-4B743ACCD65B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5555E81-09FC-1E4A-6106-4B743ACCD65B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D59AEDC-0D28-5B8D-FF7E-4D7D3B559145}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D59AEDC-0D28-5B8D-FF7E-4D7D3B559145}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D59AEDC-0D28-5B8D-FF7E-4D7D3B559145}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D59AEDC-0D28-5B8D-FF7E-4D7D3B559145}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A85412E-B59C-1630-B18E-C5DB9CAD4129}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A85412E-B59C-1630-B18E-C5DB9CAD4129}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A85412E-B59C-1630-B18E-C5DB9CAD4129}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A85412E-B59C-1630-B18E-C5DB9CAD4129}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5842BA74-6D8D-4E4B-A633-F42E3E619776}
+	EndGlobalSection
+EndGlobal
