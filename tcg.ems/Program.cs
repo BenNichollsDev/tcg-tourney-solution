@@ -1,18 +1,21 @@
 // References:
 // [1]: Microsoft (2026) aspnetcore(Version 10.0.2). [Source Code] Available from: https://github.com/dotnet/aspnetcore [Accessed 30/01/2026].
 
-using System.Reflection;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.EntityFrameworkCore;
-using TCG.EMS.Components;
-using TCG.Application.Services;
-using TCG.Application.Interfaces;
-using TCG.Infrastructure;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Server;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System;
+using System.Reflection;
+using TCG.Application.Interfaces;
+using TCG.Application.Services;
+using TCG.EMS.Components;
+using TCG.Infrastructure;
 
 namespace TCG.EMS
 {
@@ -29,9 +32,6 @@ namespace TCG.EMS
 
             // <-***** Microsoft (2026) [1] - END
 
-            //builder.Services.AddAuthorization();
-            //builder.Services.AddCascadingAuthenticationState();
-
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(
                         builder.Configuration.GetConnectionString("DefaultConnection"),
@@ -39,14 +39,26 @@ namespace TCG.EMS
                     )
                 );
 
-            // 2/2/2026 https://www.youtube.com/watch?v=b7-BC7VyyLk v
-            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie();
+            builder.Services.AddAuthentication()
+                .AddCookie("default", options =>
+                {
+                    options.LoginPath = "/login";
+                    options.Cookie.Name = "TCGAuth";
+                    options.Cookie.HttpOnly = true;
+                    options.ExpireTimeSpan = TimeSpan.FromHours(8);
+                });
+
+            builder.Services.AddAuthorization();
 
             builder.Services.AddAutoMapper(cfg => cfg.AddProfile<AutoMapperProfile>());
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddScoped(typeof(GenericDbService<,>));
             builder.Services.AddScoped<LoginAuthService>();
+            builder.Services.AddScoped<LoginService>();
+
+            builder.Services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddAuthorizationCore();
 
             // <-***** Microsoft (2026) [1] - START
 
@@ -72,13 +84,12 @@ namespace TCG.EMS
             app.MapRazorComponents<App>()
                 .AddInteractiveServerRenderMode();
 
-            //app.UseAuthentication();
-            //app.UseAuthorization();
+            // <-***** Microsoft (2026) [1] - END
+
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.Run();
-
-            // <-***** Microsoft (2026) [1] - END
         }
     }
 }
-//<-***** Microsoft (2026) [1] - END
