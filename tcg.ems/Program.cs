@@ -27,6 +27,13 @@ namespace TCG.EMS
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            //// Ensure Kestrel binds explicit HTTP and HTTPS ports so localhost:5001 is available
+            //builder.WebHost.ConfigureKestrel(options =>
+            //{
+            //    options.ListenLocalhost(5000); // HTTP
+            //    options.ListenLocalhost(5001, listenOptions => listenOptions.UseHttps()); // HTTPS (uses dev certificate)
+            //});
+
             // Add services to the container.
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();

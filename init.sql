@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict xo61kOzkdO20vqdXbB5mjflz0CH81aDp0bhmbQdr17L4TqJ3ulCjXUgOsYOm1v5
+\restrict kGmFPDls79nv4cExGwtD2DPhcDrVyXqIkDdLsMn3ISvyfhCAyK2ioWYni8MG3Wj
 
 -- Dumped from database version 18.1 (Debian 18.1-1.pgdg13+2)
 -- Dumped by pg_dump version 18.1 (Debian 18.1-1.pgdg13+2)
@@ -24,11 +24,11 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- Name: league; Type: TABLE; Schema: public; Owner: postgres
+-- Name: leagues; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.league (
-    league_id integer NOT NULL,
+CREATE TABLE public.leagues (
+    league_id integer CONSTRAINT league_league_id_not_null NOT NULL,
     league_name text,
     league_game text,
     league_public boolean,
@@ -36,7 +36,7 @@ CREATE TABLE public.league (
 );
 
 
-ALTER TABLE public.league OWNER TO postgres;
+ALTER TABLE public.leagues OWNER TO postgres;
 
 --
 -- Name: league_league_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -57,15 +57,15 @@ ALTER SEQUENCE public.league_league_id_seq OWNER TO postgres;
 -- Name: league_league_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE public.league_league_id_seq OWNED BY public.league.league_id;
+ALTER SEQUENCE public.league_league_id_seq OWNED BY public.leagues.league_id;
 
 
 --
--- Name: match; Type: TABLE; Schema: public; Owner: postgres
+-- Name: matches; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.match (
-    match_id integer NOT NULL,
+CREATE TABLE public.matches (
+    match_id integer CONSTRAINT match_match_id_not_null NOT NULL,
     pairing_id integer,
     match_round_num integer,
     player_1_winner boolean,
@@ -73,7 +73,7 @@ CREATE TABLE public.match (
 );
 
 
-ALTER TABLE public.match OWNER TO postgres;
+ALTER TABLE public.matches OWNER TO postgres;
 
 --
 -- Name: match_match_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -94,21 +94,21 @@ ALTER SEQUENCE public.match_match_id_seq OWNER TO postgres;
 -- Name: match_match_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE public.match_match_id_seq OWNED BY public.match.match_id;
+ALTER SEQUENCE public.match_match_id_seq OWNED BY public.matches.match_id;
 
 
 --
--- Name: pairing; Type: TABLE; Schema: public; Owner: postgres
+-- Name: pairings; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.pairing (
-    pairing_id integer NOT NULL,
+CREATE TABLE public.pairings (
+    pairing_id integer CONSTRAINT pairing_pairing_id_not_null NOT NULL,
     pairing_tp_1 integer,
     pairing_tp_2 integer
 );
 
 
-ALTER TABLE public.pairing OWNER TO postgres;
+ALTER TABLE public.pairings OWNER TO postgres;
 
 --
 -- Name: pairing_pairing_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -129,15 +129,15 @@ ALTER SEQUENCE public.pairing_pairing_id_seq OWNER TO postgres;
 -- Name: pairing_pairing_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE public.pairing_pairing_id_seq OWNED BY public.pairing.pairing_id;
+ALTER SEQUENCE public.pairing_pairing_id_seq OWNED BY public.pairings.pairing_id;
 
 
 --
--- Name: player; Type: TABLE; Schema: public; Owner: postgres
+-- Name: players; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.player (
-    player_id integer NOT NULL,
+CREATE TABLE public.players (
+    player_id integer CONSTRAINT player_player_id_not_null NOT NULL,
     player_first_name text,
     player_surname text,
     player_dob date,
@@ -146,7 +146,7 @@ CREATE TABLE public.player (
 );
 
 
-ALTER TABLE public.player OWNER TO postgres;
+ALTER TABLE public.players OWNER TO postgres;
 
 --
 -- Name: player_player_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -167,7 +167,7 @@ ALTER SEQUENCE public.player_player_id_seq OWNER TO postgres;
 -- Name: player_player_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE public.player_player_id_seq OWNED BY public.player.player_id;
+ALTER SEQUENCE public.player_player_id_seq OWNED BY public.players.player_id;
 
 
 --
@@ -211,40 +211,18 @@ ALTER SEQUENCE public.staff_staff_id_seq OWNED BY public.staff.staff_id;
 
 
 --
--- Name: tournament; Type: TABLE; Schema: public; Owner: postgres
+-- Name: tournament_players; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.tournament (
-    tournament_id integer NOT NULL,
-    tournament_league integer,
-    tournament_name text,
-    tournament_game text,
-    tournament_format text,
-    tournament_require_deck boolean,
-    tournament_round_num integer,
-    tournament_description text,
-    tournament_pairing text,
-    tournament_calendar date,
-    tournament_entry_fee numeric(10,2),
-    tournament_max_participants integer
-);
-
-
-ALTER TABLE public.tournament OWNER TO postgres;
-
---
--- Name: tournament_player; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.tournament_player (
-    tp_id integer NOT NULL,
+CREATE TABLE public.tournament_players (
+    tp_id integer CONSTRAINT tournament_player_tp_id_not_null NOT NULL,
     tp_tournament integer,
     tp_player integer,
     tp_position numeric
 );
 
 
-ALTER TABLE public.tournament_player OWNER TO postgres;
+ALTER TABLE public.tournament_players OWNER TO postgres;
 
 --
 -- Name: tournament_player_tp_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -265,8 +243,31 @@ ALTER SEQUENCE public.tournament_player_tp_id_seq OWNER TO postgres;
 -- Name: tournament_player_tp_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE public.tournament_player_tp_id_seq OWNED BY public.tournament_player.tp_id;
+ALTER SEQUENCE public.tournament_player_tp_id_seq OWNED BY public.tournament_players.tp_id;
 
+
+--
+-- Name: tournaments; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.tournaments (
+    tournament_id integer CONSTRAINT tournament_tournament_id_not_null NOT NULL,
+    tournament_league integer,
+    tournament_name text,
+    tournament_game text,
+    tournament_format text,
+    tournament_require_deck boolean,
+    tournament_round_num integer,
+    tournament_description text,
+    tournament_pairing text,
+    tournament_date date,
+    tournament_entry_fee numeric(10,2),
+    tournament_max_participants integer,
+    tournament_time time(0) without time zone
+);
+
+
+ALTER TABLE public.tournaments OWNER TO postgres;
 
 --
 -- Name: tournament_tournament_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -287,35 +288,35 @@ ALTER SEQUENCE public.tournament_tournament_id_seq OWNER TO postgres;
 -- Name: tournament_tournament_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE public.tournament_tournament_id_seq OWNED BY public.tournament.tournament_id;
+ALTER SEQUENCE public.tournament_tournament_id_seq OWNED BY public.tournaments.tournament_id;
 
 
 --
--- Name: league league_id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: leagues league_id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.league ALTER COLUMN league_id SET DEFAULT nextval('public.league_league_id_seq'::regclass);
-
-
---
--- Name: match match_id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.match ALTER COLUMN match_id SET DEFAULT nextval('public.match_match_id_seq'::regclass);
+ALTER TABLE ONLY public.leagues ALTER COLUMN league_id SET DEFAULT nextval('public.league_league_id_seq'::regclass);
 
 
 --
--- Name: pairing pairing_id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: matches match_id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.pairing ALTER COLUMN pairing_id SET DEFAULT nextval('public.pairing_pairing_id_seq'::regclass);
+ALTER TABLE ONLY public.matches ALTER COLUMN match_id SET DEFAULT nextval('public.match_match_id_seq'::regclass);
 
 
 --
--- Name: player player_id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: pairings pairing_id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.player ALTER COLUMN player_id SET DEFAULT nextval('public.player_player_id_seq'::regclass);
+ALTER TABLE ONLY public.pairings ALTER COLUMN pairing_id SET DEFAULT nextval('public.pairing_pairing_id_seq'::regclass);
+
+
+--
+-- Name: players player_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.players ALTER COLUMN player_id SET DEFAULT nextval('public.player_player_id_seq'::regclass);
 
 
 --
@@ -326,48 +327,48 @@ ALTER TABLE ONLY public.staff ALTER COLUMN staff_id SET DEFAULT nextval('public.
 
 
 --
--- Name: tournament tournament_id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: tournament_players tp_id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.tournament ALTER COLUMN tournament_id SET DEFAULT nextval('public.tournament_tournament_id_seq'::regclass);
-
-
---
--- Name: tournament_player tp_id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.tournament_player ALTER COLUMN tp_id SET DEFAULT nextval('public.tournament_player_tp_id_seq'::regclass);
+ALTER TABLE ONLY public.tournament_players ALTER COLUMN tp_id SET DEFAULT nextval('public.tournament_player_tp_id_seq'::regclass);
 
 
 --
--- Data for Name: league; Type: TABLE DATA; Schema: public; Owner: postgres
+-- Name: tournaments tournament_id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-COPY public.league (league_id, league_name, league_game, league_public, league_description) FROM stdin;
+ALTER TABLE ONLY public.tournaments ALTER COLUMN tournament_id SET DEFAULT nextval('public.tournament_tournament_id_seq'::regclass);
+
+
+--
+-- Data for Name: leagues; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.leagues (league_id, league_name, league_game, league_public, league_description) FROM stdin;
 \.
 
 
 --
--- Data for Name: match; Type: TABLE DATA; Schema: public; Owner: postgres
+-- Data for Name: matches; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.match (match_id, pairing_id, match_round_num, player_1_winner, player_2_winner) FROM stdin;
+COPY public.matches (match_id, pairing_id, match_round_num, player_1_winner, player_2_winner) FROM stdin;
 \.
 
 
 --
--- Data for Name: pairing; Type: TABLE DATA; Schema: public; Owner: postgres
+-- Data for Name: pairings; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.pairing (pairing_id, pairing_tp_1, pairing_tp_2) FROM stdin;
+COPY public.pairings (pairing_id, pairing_tp_1, pairing_tp_2) FROM stdin;
 \.
 
 
 --
--- Data for Name: player; Type: TABLE DATA; Schema: public; Owner: postgres
+-- Data for Name: players; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.player (player_id, player_first_name, player_surname, player_dob, player_email, player_mobile) FROM stdin;
+COPY public.players (player_id, player_first_name, player_surname, player_dob, player_email, player_mobile) FROM stdin;
 \.
 
 
@@ -383,18 +384,18 @@ COPY public.staff (staff_id, staff_first_name, staff_surname, staff_email, staff
 
 
 --
--- Data for Name: tournament; Type: TABLE DATA; Schema: public; Owner: postgres
+-- Data for Name: tournament_players; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.tournament (tournament_id, tournament_league, tournament_name, tournament_game, tournament_format, tournament_require_deck, tournament_round_num, tournament_description, tournament_pairing, tournament_calendar, tournament_entry_fee, tournament_max_participants) FROM stdin;
+COPY public.tournament_players (tp_id, tp_tournament, tp_player, tp_position) FROM stdin;
 \.
 
 
 --
--- Data for Name: tournament_player; Type: TABLE DATA; Schema: public; Owner: postgres
+-- Data for Name: tournaments; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.tournament_player (tp_id, tp_tournament, tp_player, tp_position) FROM stdin;
+COPY public.tournaments (tournament_id, tournament_league, tournament_name, tournament_game, tournament_format, tournament_require_deck, tournament_round_num, tournament_description, tournament_pairing, tournament_date, tournament_entry_fee, tournament_max_participants, tournament_time) FROM stdin;
 \.
 
 
@@ -448,34 +449,34 @@ SELECT pg_catalog.setval('public.tournament_tournament_id_seq', 1, false);
 
 
 --
--- Name: league league_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: leagues league_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.league
+ALTER TABLE ONLY public.leagues
     ADD CONSTRAINT league_pkey PRIMARY KEY (league_id);
 
 
 --
--- Name: match match_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: matches match_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.match
+ALTER TABLE ONLY public.matches
     ADD CONSTRAINT match_pkey PRIMARY KEY (match_id);
 
 
 --
--- Name: pairing pairing_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: pairings pairing_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.pairing
+ALTER TABLE ONLY public.pairings
     ADD CONSTRAINT pairing_pkey PRIMARY KEY (pairing_id);
 
 
 --
--- Name: player player_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: players player_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.player
+ALTER TABLE ONLY public.players
     ADD CONSTRAINT player_pkey PRIMARY KEY (player_id);
 
 
@@ -488,72 +489,72 @@ ALTER TABLE ONLY public.staff
 
 
 --
--- Name: tournament tournament_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: tournaments tournament_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.tournament
+ALTER TABLE ONLY public.tournaments
     ADD CONSTRAINT tournament_pkey PRIMARY KEY (tournament_id);
 
 
 --
--- Name: tournament_player tournament_player_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: tournament_players tournament_player_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.tournament_player
+ALTER TABLE ONLY public.tournament_players
     ADD CONSTRAINT tournament_player_pkey PRIMARY KEY (tp_id);
 
 
 --
--- Name: match match_pairing_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: matches match_pairing_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.match
-    ADD CONSTRAINT match_pairing_id_fkey FOREIGN KEY (pairing_id) REFERENCES public.pairing(pairing_id);
-
-
---
--- Name: pairing pairing_pairing_tp_1_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.pairing
-    ADD CONSTRAINT pairing_pairing_tp_1_fkey FOREIGN KEY (pairing_tp_1) REFERENCES public.tournament_player(tp_id);
+ALTER TABLE ONLY public.matches
+    ADD CONSTRAINT match_pairing_id_fkey FOREIGN KEY (pairing_id) REFERENCES public.pairings(pairing_id);
 
 
 --
--- Name: pairing pairing_pairing_tp_2_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: pairings pairing_pairing_tp_1_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.pairing
-    ADD CONSTRAINT pairing_pairing_tp_2_fkey FOREIGN KEY (pairing_tp_2) REFERENCES public.tournament_player(tp_id);
-
-
---
--- Name: tournament_player tournament_player_tp_player_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.tournament_player
-    ADD CONSTRAINT tournament_player_tp_player_fkey FOREIGN KEY (tp_player) REFERENCES public.player(player_id);
+ALTER TABLE ONLY public.pairings
+    ADD CONSTRAINT pairing_pairing_tp_1_fkey FOREIGN KEY (pairing_tp_1) REFERENCES public.tournament_players(tp_id);
 
 
 --
--- Name: tournament_player tournament_player_tp_tournament_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: pairings pairing_pairing_tp_2_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.tournament_player
-    ADD CONSTRAINT tournament_player_tp_tournament_fkey FOREIGN KEY (tp_tournament) REFERENCES public.tournament(tournament_id);
+ALTER TABLE ONLY public.pairings
+    ADD CONSTRAINT pairing_pairing_tp_2_fkey FOREIGN KEY (pairing_tp_2) REFERENCES public.tournament_players(tp_id);
 
 
 --
--- Name: tournament tournament_tournament_league_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: tournament_players tournament_player_tp_player_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.tournament
-    ADD CONSTRAINT tournament_tournament_league_fkey FOREIGN KEY (tournament_league) REFERENCES public.league(league_id);
+ALTER TABLE ONLY public.tournament_players
+    ADD CONSTRAINT tournament_player_tp_player_fkey FOREIGN KEY (tp_player) REFERENCES public.players(player_id);
+
+
+--
+-- Name: tournament_players tournament_player_tp_tournament_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.tournament_players
+    ADD CONSTRAINT tournament_player_tp_tournament_fkey FOREIGN KEY (tp_tournament) REFERENCES public.tournaments(tournament_id);
+
+
+--
+-- Name: tournaments tournament_tournament_league_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.tournaments
+    ADD CONSTRAINT tournament_tournament_league_fkey FOREIGN KEY (tournament_league) REFERENCES public.leagues(league_id);
 
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict xo61kOzkdO20vqdXbB5mjflz0CH81aDp0bhmbQdr17L4TqJ3ulCjXUgOsYOm1v5
+\unrestrict kGmFPDls79nv4cExGwtD2DPhcDrVyXqIkDdLsMn3ISvyfhCAyK2ioWYni8MG3Wj
 

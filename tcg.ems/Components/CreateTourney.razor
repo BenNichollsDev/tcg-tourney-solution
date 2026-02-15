@@ -1,0 +1,153 @@
+﻿@page "/tournament/new"
+@using TCG.Application.DTOs
+@using TCG.Application.Dtos
+
+<div class="d-flex flex-column justify-content-center align-items-center min-vh-100">
+    <div class="bg-container p-5">
+
+        <h1 class="mb-3">Create a New Tournament</h1>
+
+        <EditForm EditContext="@editContext">
+
+            <label for="name">Name:</label>
+            <InputText id="name" class="form-control mb-3" @bind-Value="tournamentModel.TournamentName" />
+
+            <label for="games">Game:</label>
+            <InputSelect id="games" class="form-control mb-3" @bind-Value="tournamentModel.TournamentGame">
+                <option value="">-- Select --</option>
+                <option value="Magic the Gathering">Magic the Gathering</option>
+                <option value="Pokémon">Pokémon</option>
+                <option value="Yu-Gi-Oh!">Yu-Gi-Oh!</option>
+            </InputSelect>
+
+            <label for="formats">Format:</label>
+            <InputSelect id="formats" class="form-control mb-3" @bind-Value="tournamentModel.TournamentFormat">
+                <option value="">-- Select --</option>
+                <option value="1">1</option>
+            </InputSelect>
+
+            <label for="tourneydate">Date:</label>
+            <InputDate id="tourneydate" class="form-control mb-3" @bind-Value="tournamentModel.TournamentDate" Min="DateOnly.FromDateTime(DateTime.Now)" />
+
+            <label for="tourneytime">Time:</label>
+            <InputTime id="tourneytime" class="form-control mb-3" @bind-Value="tournamentModel.TournamentTime" />
+
+            @if (IsTimeInvalid && !firstSelection)
+            {
+                <div class="text-danger small mt-1">When choosing today's date the time must not be earlier than the current time.</div>
+            }
+
+            <div class="d-flex align-items-center mb-3">
+                <label for="decklist" class="mb-0">Require a Decklist?</label>
+                <InputCheckbox id="decklist" class="form-check-input ms-2" @bind-Value="tournamentModel.TournamentRequireDeck" />
+            </div>
+
+            <div class="mb-3">
+                <label class="d-block mb-1">Pairing Format:</label>
+                <InputRadioGroup @bind-Value="tournamentModel.TournamentPairing">
+                    <div class="form-check">
+                        <InputRadio class="form-check-input" id="swiss" Value="Swiss" />
+                        <label class="form-check-label ms-2" for="swiss">Swiss</label>
+                    </div>
+                    <div class="form-check">
+                        <InputRadio class="form-check-input" id="roundrobin" Value="Round-Robin" />
+                        <label class="form-check-label ms-2" for="roundrobin">Round-Robin</label>
+                    </div>
+                </InputRadioGroup>
+            </div>
+
+            <div>
+                <button type="submit" class="btn btn-primary" disabled="@(IsTimeInvalid && !firstSelection)">
+                    Submit
+                </button>
+                <button class="btn btn-secondary">
+                    Back
+                </button>
+            </div>
+        </EditForm>
+
+    </div>
+</div>
+
+@code {
+    protected internal EditContext editContext;
+
+    private TournamentDto tournamentModel = new();
+    private bool firstSelection;
+
+    protected override void OnInitialized()
+    {
+        tournamentModel.TournamentDate = DateOnly.FromDateTime(DateTime.Now);
+        tournamentModel.TournamentTime = TimeOnly.FromDateTime(DateTime.Now);
+
+        firstSelection = true;
+
+        editContext = new EditContext(tournamentModel);
+
+        base.OnInitialized();
+    }
+
+    private string SelectedDateString
+    {
+        get => tournamentModel.TournamentDate.ToString("yyyy-MM-dd");
+        set
+        {
+            firstSelection = false;
+            if (DateOnly.TryParse(value, out var d))
+            {
+                tournamentModel.TournamentDate = d;
+
+                // if user selected today and time is earlier than now, clamp time to now
+                if (IsDateToday && tournamentModel.TournamentTime < TimeOnly.FromDateTime(DateTime.Now))
+                {
+                    tournamentModel.TournamentTime = TimeOnly.FromDateTime(DateTime.Now);
+                }
+            }
+        }
+    }
+
+    private string SelectedTimeString
+    {
+        get => tournamentModel.TournamentTime.ToString("HH:mm");
+        set
+        {
+            firstSelection = false;
+            if (TimeOnly.TryParse(value, out var t))
+            {
+                tournamentModel.TournamentTime = t;
+            }
+        }
+    }
+
+    private string MinDateString => DateOnly.FromDateTime(DateTime.Now).ToString("yyyy-MM-dd");
+    private string MinTimeString => DateTime.Now.ToString("HH:mm");
+
+    private bool IsDateToday => tournamentModel.TournamentDate == DateOnly.FromDateTime(DateTime.Now);
+    private bool IsTimeInvalid => IsDateToday && tournamentModel.TournamentTime < TimeOnly.FromDateTime(DateTime.Now);
+
+    private void OnDateChanged(ChangeEventArgs e)
+    {
+        firstSelection = false;
+        if (e?.Value is string s && DateOnly.TryParse(s, out var d))
+        {
+            tournamentModel.TournamentDate = d;
+
+            if (IsDateToday && tournamentModel.TournamentTime < TimeOnly.FromDateTime(DateTime.Now))
+            {
+                tournamentModel.TournamentTime = TimeOnly.FromDateTime(DateTime.Now);
+            }
+            StateHasChanged();
+        }
+    }
+
+    private void OnTimeChanged(ChangeEventArgs e)
+    {
+        firstSelection = false;
+        if (e?.Value is string s && TimeOnly.TryParse(s, out var t))
+        {
+            tournamentModel.TournamentTime = t;
+            StateHasChanged();
+        }
+    }
+
+}

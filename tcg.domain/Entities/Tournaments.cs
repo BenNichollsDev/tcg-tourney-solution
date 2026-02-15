@@ -34,8 +34,11 @@ namespace TCG.Domain.Entities
         [Column("tournament_pairing")]
         public string TournamentPairing { get; private set; } = string.Empty;
 
-        [Column("tournament_calendar")]
-        public DateTime TournamentCalendar { get; private set; }
+        [Column("tournament_date")]
+        public DateOnly TournamentDate { get; private set; }
+
+        [Column("tournament_time")]
+        public TimeOnly TournamentTime { get; private set; }
 
         [Column("tournament_entry_fee")]
         public decimal TournamentEntryFee { get; private set; }

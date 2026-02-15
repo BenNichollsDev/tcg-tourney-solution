@@ -11,7 +11,7 @@ namespace TCG.Infrastructure.Configurations
     {
         public void Configure(EntityTypeBuilder<League> builder)
         {
-            builder.ToTable("league");
+            builder.ToTable("leagues");
 
             builder.HasKey(l => l.LeagueId);
 

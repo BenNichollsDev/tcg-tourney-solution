@@ -42,7 +42,7 @@ namespace TCG.Infrastructure.Configurations
             builder.Property(t => t.TournamentPairing)
                    .HasColumnName("tournament_pairing");
 
-            builder.Property(t => t.TournamentCalendar)
+            builder.Property(t => t.TournamentDate)
                    .HasColumnName("tournament_calendar");
 
             builder.Property(t => t.TournamentEntryFee)

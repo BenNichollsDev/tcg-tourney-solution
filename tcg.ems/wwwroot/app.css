@@ -59,6 +59,9 @@ h1:focus {
     text-align: start;
 }
 
+
+
+
 /*Ref above*/
 
 body {
@@ -113,4 +116,9 @@ body {
     display: block;
     white-space: wrap; /* prevent wrapping */
     font-size: 0.9rem;
+}
+
+.form-width {
+    width: 10em;
+    max-width: 100%;
 }

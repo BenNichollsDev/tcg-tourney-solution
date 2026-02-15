@@ -24,7 +24,9 @@ namespace TCG.Application.Dtos
 
         public string TournamentPairing { get; set; } = string.Empty;
 
-        public DateTime TournamentCalendar { get; set; }
+        public DateOnly TournamentDate { get; set; }
+
+        public TimeOnly TournamentTime { get; set; }
 
         public decimal TournamentEntryFee { get; set; }
 
