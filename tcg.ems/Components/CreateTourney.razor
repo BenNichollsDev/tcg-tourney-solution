@@ -5,49 +5,70 @@
 @using TCG.Application.DTOs
 @using TCG.Application.Dtos
 
+@rendermode InteractiveServer
+
 <div class="d-flex flex-column justify-content-center align-items-center min-vh-100">
     <div class="bg-container p-5">
 
         <h1 class="mb-3">Create a New Tournament</h1>
 
-        <EditForm EditContext="@editContext">
+        <EditForm Model="@tournamentModel">
 
             <label for="name">Name:</label>
-            <InputText id="name" class="form-control mb-3" @bind-Value="tournamentModel.TournamentName" required />
+            <InputText id="name"
+                class="form-control mb-3"
+                @bind-Value="tournamentModel.TournamentName"
+                required />
 
             <label for="games">Game:</label>
-            <InputSelect id="games" class="form-control mb-3" @bind-Value="tournamentModel.TournamentGame" @onchange="OnGameInputChanged" required>
+            <InputSelect id="games"
+                class="form-control mb-3"
+                @bind-Value="tournamentModel.TournamentGame"
+                required>
                 <option value="">-- Select --</option>
                 <option value="mtg">Magic the Gathering</option>
                 <option value="pkmn">Pokémon</option>
-                <option value="yugioh">Yu-Gi-Oh!</option>
             </InputSelect>
 
+            <p>Game value: @tournamentModel.TournamentGame</p>
+
             <label for="formats">Format:</label>
-            <InputSelect id="formats" class="form-control mb-3" @bind-Value="tournamentModel.TournamentFormat" required>
-                @if (currentFormats?.Any() != true)
+            <InputSelect id="formats"
+                @key="tournamentModel.TournamentGame"
+                class="form-control mb-3"
+                @bind-Value="tournamentModel.TournamentFormat"
+                required>
+                <option value="">-- Select Game First --</option>
+                @if (tournamentModel.TournamentGame == "mtg")
                 {
-                    <option value="">-- Select Game First --</option>
+                    @* @foreach (var f in formatsByGame["mtg"])
+                    { *@
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                    @* } *@
                 }
-                else
+                @* else if (tournamentModel.TournamentGame == "pkmn")
                 {
-                    @foreach (var f in currentFormats)
+                    @foreach (var f in formatsByGame["pkmn"])
                     {
                         <option value="@f.Key">@f.Value</option>
                     }
-                }
+                } *@
             </InputSelect>
 
             <label for="tourneydate">Date:</label>
-            <input type="date" id="tourneydate" class="form-control mb-3" value='@tournamentModel.TournamentDate.ToString("yyyy-MM-dd")' min="@MinDateString" @onchange="OnDateInputChanged" required />
+            <input type="date" id="tourneydate" class="form-control mb-3"
+                   value='@tournamentModel.TournamentDate.ToString("yyyy-MM-dd")'
+                   min="@MinDateString"
+                   @onchange="OnDateInputChanged"
+                   required />
 
             <label for="tourneytime">Time:</label>
-            <input type="time" id="tourneytime" class="form-control mb-3" value='@tournamentModel.TournamentTime.ToString("HH:mm")' min="@(IsDateToday ? MinTimeString : string.Empty)" @onchange="OnTimeInputChanged" required />
-
-            @if (IsTimeInvalid)
-            {
-                <div class="text-danger small mt-1">When choosing today's date the time must not be earlier than the current time.</div>
-            }
+            <input type="time" id="tourneytime" class="form-control mb-3"
+                   value='@tournamentModel.TournamentTime.ToString("HH:mm")'
+                   min="@(IsDateToday? MinTimeString : string.Empty)"
+                   @onchange="OnTimeInputChanged"
+                   required />
 
             <div class="d-flex align-items-center mb-3">
                 <label for="decklist" class="mb-0">Require a Decklist?</label>
@@ -58,7 +79,7 @@
                 <label class="d-block mb-1">Pairing Format:</label>
                 <InputRadioGroup TValue="string" @bind-Value="tournamentModel.TournamentPairing">
                     <div class="form-check">
-                        <InputRadio class="form-check-input" id="swiss" Value="@SwissValue" selected/>
+                        <InputRadio class="form-check-input" id="swiss" Value="@SwissValue" />
                         <label class="form-check-label ms-2" for="swiss">Swiss</label>
                     </div>
                     <div class="form-check">
@@ -72,7 +93,10 @@
             <InputNumber id="playernum" class="form-control mb-3" @bind-Value="tournamentModel.TournamentMaxParticipants" required />
 
             <label for="price">Entry Fee (£):</label>
-            <InputNumber id="price" class="form-control mb-3" step="0.01" @bind-Value="tournamentModel.TournamentEntryFee" @onchange="OnPriceInputChanged" required />
+            <InputNumber id="price" class="form-control mb-3" step="0.01"
+                         @bind-Value="tournamentModel.TournamentEntryFee"
+                         @onchange="OnPriceInputChanged"
+                         required />
 
             <div>
                 <button type="submit" class="btn btn-primary" disabled="@(IsTimeInvalid)">
@@ -88,46 +112,41 @@
 </div>
 
 @code {
-    protected internal EditContext editContext;
-
-    private const GameTypeEnum chosenGame = GameTypeEnum.MTG;
+    // protected internal EditContext editContext;
 
     private const string SwissValue = "Swiss";
     private const string RoundRobinValue = "Round-Robin";
 
     private TournamentDto tournamentModel = new();
+
     private Dictionary<string, Dictionary<string, string>> formatsByGame = new()
     {
         ["mtg"] = new Dictionary<string, string>
         {
-            ["standard"] = "Standard",
-            ["modern"] = "Modern"
+            ["standard"] = "Constructed - Standard",
+            ["pioneer"] = "Constructed - Pioneer",
+            ["draft"] = "Limited - Draft"
         },
         ["pkmn"] = new Dictionary<string, string>
         {
-            ["expanded"] = "Expanded",
-            ["standard"] = "Standard"
-        },
-        ["yugioh"] = new Dictionary<string, string>
-        {
-            ["tcg"] = "TCG",
-            ["ocg"] = "OCG"
+            ["standard"] = "Standard",
+            ["draft"] = "Booster Draft"
         }
     };
-
-    private Dictionary<string, string>? currentFormats;
 
     protected override void OnInitialized()
     {
         tournamentModel.TournamentDate = DateOnly.FromDateTime(DateTime.Now);
         tournamentModel.TournamentTime = TimeOnly.FromDateTime(DateTime.Now);
 
-        // initialize formats based on initial game (empty by default)
-        UpdateFormatsForGame(tournamentModel.TournamentGame);
-
-        editContext = new EditContext(tournamentModel);
+        // editContext = new EditContext(tournamentModel);
 
         base.OnInitialized();
+    }
+
+    private void OnGameChanged()
+    {
+        tournamentModel.TournamentFormat = string.Empty;
     }
 
     private void OnDateInputChanged(ChangeEventArgs e)
@@ -170,30 +189,6 @@
             tournamentModel.TournamentEntryFee = s < 0 ? 0 : Math.Round(s, 2, MidpointRounding.AwayFromZero);
             StateHasChanged();
         }
-    }
-
-    private void OnGameInputChanged(ChangeEventArgs e)
-    {
-        if (e?.Value is string s)
-        {
-            tournamentModel.TournamentGame = s;
-            UpdateFormatsForGame(s);
-            StateHasChanged();
-        }
-    }
-
-    private void UpdateFormatsForGame(string gameKey)
-    {
-        if (string.IsNullOrEmpty(gameKey) || !formatsByGame.TryGetValue(gameKey, out var formats))
-        {
-            currentFormats = null;
-            tournamentModel.TournamentFormat = string.Empty;
-            return;
-        }
-
-        currentFormats = formats;
-        // set TournamentFormat to first available option
-        tournamentModel.TournamentFormat = formats.Keys.FirstOrDefault() ?? string.Empty;
     }
 
     private string MinDateString => DateOnly.FromDateTime(DateTime.Now).ToString("yyyy-MM-dd");
