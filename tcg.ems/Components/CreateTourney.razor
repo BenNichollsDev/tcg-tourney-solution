@@ -24,6 +24,7 @@
             <InputSelect id="games"
                 class="form-control mb-3"
                 @bind-Value="tournamentModel.TournamentGame"
+                @onchange="OnGameChanged"
                 required>
                 <option value="">-- Select --</option>
                 <option value="mtg">Magic the Gathering</option>
@@ -38,22 +39,18 @@
                 class="form-control mb-3"
                 @bind-Value="tournamentModel.TournamentFormat"
                 required>
-                <option value="">-- Select Game First --</option>
-                @if (tournamentModel.TournamentGame == "mtg")
+                @if (!string.IsNullOrEmpty(tournamentModel.TournamentGame))
                 {
-                    @* @foreach (var f in formatsByGame["mtg"])
-                    { *@
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                    @* } *@
-                }
-                @* else if (tournamentModel.TournamentGame == "pkmn")
-                {
-                    @foreach (var f in formatsByGame["pkmn"])
+                    <option value="">-- Select Format --</option>
+                    @foreach (var f in formatsByGame.First(g => g.Key == tournamentModel.TournamentGame).Value)
                     {
                         <option value="@f.Key">@f.Value</option>
                     }
-                } *@
+                }
+                else
+                {
+                    <option value="">-- Select Game First --</option>
+                }
             </InputSelect>
 
             <label for="tourneydate">Date:</label>
@@ -77,7 +74,7 @@
 
             <div class="mb-3">
                 <label class="d-block mb-1">Pairing Format:</label>
-                <InputRadioGroup TValue="string" @bind-Value="tournamentModel.TournamentPairing">
+                <InputRadioGroup TValue="string" @bind-Value="tournamentModel.TournamentPairing" required>
                     <div class="form-check">
                         <InputRadio class="form-check-input" id="swiss" Value="@SwissValue" />
                         <label class="form-check-label ms-2" for="swiss">Swiss</label>
@@ -144,9 +141,11 @@
         base.OnInitialized();
     }
 
-    private void OnGameChanged()
+    private void OnGameChanged(ChangeEventArgs e)
     {
+        tournamentModel.TournamentGame = e?.Value as string ?? string.Empty;
         tournamentModel.TournamentFormat = string.Empty;
+        StateHasChanged();
     }
 
     private void OnDateInputChanged(ChangeEventArgs e)
