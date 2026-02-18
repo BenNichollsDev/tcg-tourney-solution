@@ -1,7 +1,7 @@
 ﻿@page "/tournament/new"
 
 @using Microsoft.AspNetCore.Components.Forms
-
+@using System.ComponentModel.DataAnnotations
 @using TCG.Application.DTOs
 @using TCG.Application.Dtos
 
@@ -12,20 +12,20 @@
 
         <h1 class="mb-3">Create a New Tournament</h1>
 
-        <EditForm Model="@tournamentModel">
+        <EditForm Model="@tournamentModel" OnValidSubmit="HandleValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
 
             <label for="name">Name:</label>
             <InputText id="name"
-                class="form-control mb-3"
-                @bind-Value="tournamentModel.TournamentName"
-                required />
+                       class="form-control mb-3"
+                       @bind-Value="tournamentModel.TournamentName" />
 
             <label for="games">Game:</label>
             <InputSelect id="games"
-                class="form-control mb-3"
-                @bind-Value="tournamentModel.TournamentGame"
-                @onchange="OnGameChanged"
-                required>
+                         class="form-control mb-3"
+                         @bind-Value="tournamentModel.TournamentGame"
+                         @onchange="OnGameChanged">
                 <option value="">-- Select --</option>
                 <option value="mtg">Magic the Gathering</option>
                 <option value="pkmn">Pokémon</option>
@@ -35,10 +35,10 @@
 
             <label for="formats">Format:</label>
             <InputSelect id="formats"
-                @key="tournamentModel.TournamentGame"
-                class="form-control mb-3"
-                @bind-Value="tournamentModel.TournamentFormat"
-                required>
+                         @key="tournamentModel.TournamentGame"
+                         class="form-control mb-3"
+                         @bind-Value="tournamentModel.TournamentFormat"
+                         @bind-Value:after="OnFormatChanged">
                 @if (!string.IsNullOrEmpty(tournamentModel.TournamentGame))
                 {
                     <option value="">-- Select Format --</option>
@@ -53,53 +53,54 @@
                 }
             </InputSelect>
 
+            @if (tournamentModel.TournamentFormat != "draft" && !string.IsNullOrEmpty(tournamentModel.TournamentFormat))
+            {
+                <div class="d-flex align-items-center mb-3">
+                    <label for="decklist" class="mb-0">Require a Decklist?</label>
+                    <InputCheckbox id="decklist"
+                    class="form-check-input ms-2"
+                    @bind-Value="tournamentModel.TournamentRequireDeck" />
+                </div>
+            }
+
             <label for="tourneydate">Date:</label>
             <input type="date" id="tourneydate" class="form-control mb-3"
                    value='@tournamentModel.TournamentDate.ToString("yyyy-MM-dd")'
                    min="@MinDateString"
-                   @onchange="OnDateInputChanged"
-                   required />
+                   @onchange="OnDateInputChanged" />
 
             <label for="tourneytime">Time:</label>
             <input type="time" id="tourneytime" class="form-control mb-3"
                    value='@tournamentModel.TournamentTime.ToString("HH:mm")'
                    min="@(IsDateToday? MinTimeString : string.Empty)"
-                   @onchange="OnTimeInputChanged"
-                   required />
-
-            <div class="d-flex align-items-center mb-3">
-                <label for="decklist" class="mb-0">Require a Decklist?</label>
-                <InputCheckbox id="decklist" class="form-check-input ms-2" @bind-Value="tournamentModel.TournamentRequireDeck" />
-            </div>
-
-            <div class="mb-3">
-                <label class="d-block mb-1">Pairing Format:</label>
-                <InputRadioGroup TValue="string" @bind-Value="tournamentModel.TournamentPairing" required>
-                    <div class="form-check">
-                        <InputRadio class="form-check-input" id="swiss" Value="@SwissValue" />
-                        <label class="form-check-label ms-2" for="swiss">Swiss</label>
-                    </div>
-                    <div class="form-check">
-                        <InputRadio class="form-check-input" id="roundrobin" Value="@RoundRobinValue" />
-                        <label class="form-check-label ms-2" for="roundrobin">Round-Robin</label>
-                    </div>
-                </InputRadioGroup>
-            </div>
+                   @onchange="OnTimeInputChanged" />
 
             <label for="playernum">Max Number of Players:</label>
-            <InputNumber id="playernum" class="form-control mb-3" @bind-Value="tournamentModel.TournamentMaxParticipants" required />
+            <InputNumber id="playernum"
+                         class="form-control mb-3"
+                         @bind-Value="tournamentModel.TournamentMaxParticipants"
+                         min="2"
+                         required />
+            <ValidationMessage For="@(() => tournamentModel.TournamentMaxParticipants)" />
 
             <label for="price">Entry Fee (£):</label>
-            <InputNumber id="price" class="form-control mb-3" step="0.01"
+            <InputNumber id="price"
+                         class="form-control mb-3"
+                         step="0.01"
                          @bind-Value="tournamentModel.TournamentEntryFee"
-                         @onchange="OnPriceInputChanged"
-                         required />
+                         @onchange="OnPriceInputChanged" />
+
+            <label for="description">Description:</label>
+            <InputTextArea id="description"
+                           class="form-control mb-3"
+                           @bind-Value="tournamentModel.TournamentDescription"
+                           required />
 
             <div>
                 <button type="submit" class="btn btn-primary" disabled="@(IsTimeInvalid)">
                     Submit
                 </button>
-                <button class="btn btn-secondary">
+                <button type="button" class="btn btn-secondary">
                     Back
                 </button>
             </div>
@@ -109,7 +110,6 @@
 </div>
 
 @code {
-    // protected internal EditContext editContext;
 
     private const string SwissValue = "Swiss";
     private const string RoundRobinValue = "Round-Robin";
@@ -121,7 +121,6 @@
         ["mtg"] = new Dictionary<string, string>
         {
             ["standard"] = "Constructed - Standard",
-            ["pioneer"] = "Constructed - Pioneer",
             ["draft"] = "Limited - Draft"
         },
         ["pkmn"] = new Dictionary<string, string>
@@ -135,16 +134,19 @@
     {
         tournamentModel.TournamentDate = DateOnly.FromDateTime(DateTime.Now);
         tournamentModel.TournamentTime = TimeOnly.FromDateTime(DateTime.Now);
-
-        // editContext = new EditContext(tournamentModel);
-
         base.OnInitialized();
+    }
+
+    private void HandleValidSubmit()
+    {
+        // Form is valid here
     }
 
     private void OnGameChanged(ChangeEventArgs e)
     {
         tournamentModel.TournamentGame = e?.Value as string ?? string.Empty;
         tournamentModel.TournamentFormat = string.Empty;
+
         StateHasChanged();
     }
 
@@ -159,9 +161,9 @@
             {
                 tournamentModel.TournamentTime = TimeOnly.FromDateTime(DateTime.Now);
             }
-
-            StateHasChanged();
         }
+
+        StateHasChanged();
     }
 
     private void OnTimeInputChanged(ChangeEventArgs e)
@@ -176,23 +178,39 @@
             {
                 tournamentModel.TournamentTime = t;
             }
-
-            StateHasChanged();
         }
+
+        StateHasChanged();
     }
 
     private void OnPriceInputChanged(ChangeEventArgs e)
     {
         if (e?.Value is decimal s)
         {
-            tournamentModel.TournamentEntryFee = s < 0 ? 0 : Math.Round(s, 2, MidpointRounding.AwayFromZero);
-            StateHasChanged();
+            tournamentModel.TournamentEntryFee =
+                s < 0 ? 0 : Math.Round(s, 2, MidpointRounding.AwayFromZero);
         }
+
+        StateHasChanged();
     }
 
-    private string MinDateString => DateOnly.FromDateTime(DateTime.Now).ToString("yyyy-MM-dd");
-    private string MinTimeString => DateTime.Now.ToString("HH:mm");
+    private void OnFormatChanged()
+    {
+        tournamentModel.TournamentRequireDeck = false;
+        // StateHasChanged();
+    }
 
-    private bool IsDateToday => tournamentModel.TournamentDate == DateOnly.FromDateTime(DateTime.Now);
-    private bool IsTimeInvalid => IsDateToday ? tournamentModel.TournamentTime < TimeOnly.FromDateTime(DateTime.Now) : false;
+    private string MinDateString =>
+        DateOnly.FromDateTime(DateTime.Now).ToString("yyyy-MM-dd");
+
+    private string MinTimeString =>
+        DateTime.Now.ToString("HH:mm");
+
+    private bool IsDateToday =>
+        tournamentModel.TournamentDate == DateOnly.FromDateTime(DateTime.Now);
+
+    private bool IsTimeInvalid =>
+        IsDateToday
+            ? tournamentModel.TournamentTime < TimeOnly.FromDateTime(DateTime.Now)
+            : false;
 }
