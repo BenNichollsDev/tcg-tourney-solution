@@ -13,8 +13,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Reflection;
+using TCG.Application.Dtos;
 using TCG.Application.Interfaces;
 using TCG.Application.Services;
+using TCG.Domain.Entities;
 using TCG.EMS.Components;
 using TCG.Infrastructure;
 
@@ -61,7 +63,12 @@ namespace TCG.EMS
 
             builder.Services.AddAutoMapper(cfg => cfg.AddProfile<AutoMapperProfile>());
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            builder.Services.AddScoped(typeof(GenericDbService<,>));
+
+            builder.Services.AddScoped<
+                IGenericService<TournamentDto>,
+                GenericService<Tournament, TournamentDto>>();
+            //CONTUNIE ON FROM HERE
+
             builder.Services.AddScoped<LoginAuthService>();
             builder.Services.AddScoped<LoginService>();
             builder.Services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();

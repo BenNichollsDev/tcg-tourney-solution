@@ -1,31 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using TCG.Application.Dtos;
-using TCG.Domain.Entities;
 
 namespace TCG.Application.Interfaces
 {
-    public interface IRepository<T> where T : class
+    public interface IRepository<TEntity>
+        where TEntity : class
     {
-        IQueryable<T> Query();
+        IQueryable<TEntity> Query();
 
-        Task<List<TDto>> GetAllProjectedAsync<TDto>() where TDto : class;
+        Task<TEntity?> GetByIdAsync(object id);
 
-        Task<T?> GetByIdAsync(object id);
+        Task<TEntity?> GetByAsync(Expression<Func<TEntity, bool>> predicate);
 
-        Task<T?> GetByAsync(Expression<Func<T, bool>> predicate);
+        Task<List<TEntity>> GetAllByAsync(Expression<Func<TEntity, bool>> predicate);
 
-        Task<List<T>?> GetAllByAsync(Expression<Func<T, bool>> predicate);
+        Task AddAsync(TEntity entity);
 
-        Task<T> AddAsync(T entity);
+        void Update(TEntity entity);
 
-        Task<T> UpdateAsync(T entity);
-
-        Task<T> DeleteAsync(T entity);
+        void Delete(TEntity entity);
 
         Task SaveChangesAsync();
     }

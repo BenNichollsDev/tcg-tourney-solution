@@ -216,6 +216,5 @@
     private async Task OnFormSubmit()
     {
         await TournamentService.AddAsync(tournamentModel);
-        await TournamentService.SaveChangesAsync();
     }
 }
