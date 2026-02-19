@@ -55,10 +55,10 @@ namespace TCG.Infrastructure
                 .ToListAsync();
         }
 
-        public async Task<T> AddAsync(T entity)
+        public async Task<T> AddAsync(T dto)
         {
-            _db.Set<T>().Add(entity);
-            await _db.SaveChangesAsync();
+            var entity = _mapper.Map<T>(dto);
+            await _db.AddAsync(entity);
             return entity;
         }
 
@@ -74,6 +74,11 @@ namespace TCG.Infrastructure
             _db.Set<T>().Remove(entity);
             await _db.SaveChangesAsync();
             return entity;
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _db.SaveChangesAsync();
         }
     }
 }

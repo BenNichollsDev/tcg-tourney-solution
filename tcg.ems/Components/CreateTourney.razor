@@ -2,6 +2,7 @@
 
 @using Microsoft.AspNetCore.Components.Forms
 @using System.ComponentModel.DataAnnotations
+@using TCG.Application.Interfaces
 @using TCG.Application.DTOs
 @using TCG.Application.Dtos
 
@@ -12,7 +13,7 @@
 
         <h1 class="mb-3">Create a New Tournament</h1>
 
-        <EditForm Model="@tournamentModel" OnValidSubmit="HandleValidSubmit">
+        <EditForm Model="@tournamentModel" OnValidSubmit="OnFormSubmit">
             <DataAnnotationsValidator />
             <ValidationSummary />
 
@@ -97,7 +98,7 @@
                            required />
 
             <div>
-                <button type="submit" class="btn btn-primary" disabled="@(IsTimeInvalid)">
+                <button type="submit" class="btn btn-primary">
                     Submit
                 </button>
                 <button type="button" class="btn btn-secondary">
@@ -115,6 +116,9 @@
     private const string RoundRobinValue = "Round-Robin";
 
     private TournamentDto tournamentModel = new();
+
+    [Inject]
+    private IRepository<TournamentDto> TournamentService { get; set; } = default!;
 
     private Dictionary<string, Dictionary<string, string>> formatsByGame = new()
     {
@@ -135,11 +139,6 @@
         tournamentModel.TournamentDate = DateOnly.FromDateTime(DateTime.Now);
         tournamentModel.TournamentTime = TimeOnly.FromDateTime(DateTime.Now);
         base.OnInitialized();
-    }
-
-    private void HandleValidSubmit()
-    {
-        // Form is valid here
     }
 
     private void OnGameChanged(ChangeEventArgs e)
@@ -213,4 +212,10 @@
         IsDateToday
             ? tournamentModel.TournamentTime < TimeOnly.FromDateTime(DateTime.Now)
             : false;
+
+    private async Task OnFormSubmit()
+    {
+        await TournamentService.AddAsync(tournamentModel);
+        await TournamentService.SaveChangesAsync();
+    }
 }

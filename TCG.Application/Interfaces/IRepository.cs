@@ -26,5 +26,7 @@ namespace TCG.Application.Interfaces
         Task<T> UpdateAsync(T entity);
 
         Task<T> DeleteAsync(T entity);
+
+        Task SaveChangesAsync();
     }
 }
