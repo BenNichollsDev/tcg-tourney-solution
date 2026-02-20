@@ -84,3 +84,5 @@ secrets.json
 
 ems_tmp/
 website_tmp/
+
+.nuget/packages/

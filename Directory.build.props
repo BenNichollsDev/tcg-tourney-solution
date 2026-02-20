@@ -1,0 +1,84 @@
+<Project>
+	<PropertyGroup>
+		<!-- ========================= -->
+		<!-- Output & Intermediate Paths -->
+		<!-- ========================= -->
+		<!-- Force all projects to use solution-local bin/obj folders -->
+		<BaseOutputPath>$(MSBuildThisFileDirectory)bin\</BaseOutputPath>
+		<BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)obj\</BaseIntermediateOutputPath>
+
+		<!-- Make paths OS-independent -->
+		<UseWindowsForms>false</UseWindowsForms>
+		<UseWPF>false</UseWPF>
+
+		<!-- ========================= -->
+		<!-- Disable Auto-Generated Assembly Info -->
+		<!-- ========================= -->
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+		<GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+		<GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+		<GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+		<GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+		<GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+		<GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+		<GenerateAssemblyTrademarkAttribute>false</GenerateAssemblyTrademarkAttribute>
+
+		<!-- ========================= -->
+		<!-- Cross-platform NuGet Packages -->
+		<!-- ========================= -->
+		<!-- Store all NuGet packages inside the solution folder -->
+		<RestorePackagesPath>$(MSBuildThisFileDirectory).nuget\packages</RestorePackagesPath>
+		<NuGetPackageRoot>$(MSBuildThisFileDirectory).nuget\packages</NuGetPackageRoot>
+
+		<!-- Reference assemblies to prevent "metadata file not found" -->
+		<ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+		<ReferenceAssemblyOutputPath>$(BaseIntermediateOutputPath)ref\$(TargetFramework)\</ReferenceAssemblyOutputPath>
+
+		<!-- ========================= -->
+		<!-- Compiler-Generated Files -->
+		<!-- ========================= -->
+		<!-- Prevent duplicate codegen files from .NET 10 Preview -->
+		<EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
+		<CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)Generated</CompilerGeneratedFilesOutputPath>
+
+		<!-- ========================= -->
+		<!-- Ensure .NET preview packages restore correctly -->
+		<!-- ========================= -->
+		<RestoreAdditionalProjectSources>
+			https://api.nuget.org/v3/index.json
+		</RestoreAdditionalProjectSources>
+
+		<!-- Make restore/pack/build cross-platform consistent -->
+		<RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+		<RestoreLockedMode>false</RestoreLockedMode>
+	</PropertyGroup>
+
+	<!-- ========================= -->
+	<!-- Global Package References for Solution -->
+	<!-- ========================= -->
+	<ItemGroup>
+		<!-- ASP.NET Core / Blazor / HTTP -->
+		<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="10.0.2" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="10.0.2" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.2" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.2" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.Server" Version="10.0.2" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="10.0.2" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="10.0.2" />
+
+		<!-- Entity Framework Core / PostgreSQL -->
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.5" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.2">
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.2">
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+
+		<!-- AutoMapper -->
+		<PackageReference Include="AutoMapper" Version="12.0.1" />
+		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+	</ItemGroup>
+</Project>
