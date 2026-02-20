@@ -43,14 +43,17 @@ namespace TCG.Infrastructure.Configurations
                    .HasColumnName("tournament_pairing");
 
             builder.Property(t => t.TournamentDate)
-                   .HasColumnName("tournament_calendar");
+                   .HasColumnName("tournament_date");
 
             builder.Property(t => t.TournamentEntryFee)
                    .HasColumnName("tournament_entry_fee")
-                   .HasColumnType("numeric(4,2)");
+                   .HasColumnType("numeric(10,2)");
 
             builder.Property(t => t.TournamentMaxParticipants)
                    .HasColumnName("tournament_max_participants");
+
+            builder.Property(t => t.TournamentTime)
+                   .HasColumnName("tournament_time");
 
             builder.HasOne<League>()
                    .WithMany()

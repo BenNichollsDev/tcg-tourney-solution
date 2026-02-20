@@ -2,7 +2,7 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0
 WORKDIR /src
 EXPOSE 8081
 
-COPY ../tcg-tourney-solution.slnx ./
+COPY ../tcg-tourney.slnx ./
 COPY TCG.Website/*.csproj TCG.Website/
 COPY TCG.Domain/*.csproj TCG.Domain/
 COPY TCG.Application/*.csproj TCG.Application/

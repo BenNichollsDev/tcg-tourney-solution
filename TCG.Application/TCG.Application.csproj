@@ -2,26 +2,28 @@
 [1]: Microsoft (2026) aspnetcore (Version 10.0.2). [Source Code] Available from: https://github.com/dotnet/aspnetcore [Accessed 30/01/2026].
 -->
 
-<!-- <-*****Microsoft (2026) [1] - START -->
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	<AssemblyName>TCG.Application</AssemblyName>
-	<RootNamespace>TCG.Application</RootNamespace>
     <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <!-- Prevent GenerateDepsFile collisions in some CI/parallel build environments -->
+    <GenerateDepsFile>false</GenerateDepsFile>
+    <Deterministic>false</Deterministic>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="16.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore" Version="10.0.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.3.9" />
-	  <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.2" />
-  </ItemGroup>
+     <ItemGroup>
+		  <PackageReference Include="AutoMapper" Version="16.0.0" />
+       <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.3" />
+        <!-- Microsoft.Extensions.Http provided by shared framework; explicit reference removed -->
+    </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TCG.Domain\TCG.Domain.csproj" />
-  </ItemGroup>
+    <!-- Use the shared ASP.NET Core framework to access HttpContext and Authentication APIs -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+
+		  <ProjectReference Include="..\TCG.Domain\TCG.Domain.csproj" />
+	  </ItemGroup>
 
 </Project>
-<!-- <-*****Microsoft (2026) [1] - END -->

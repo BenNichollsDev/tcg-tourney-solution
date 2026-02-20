@@ -5,6 +5,7 @@
 @using TCG.Application.Interfaces
 @using TCG.Application.DTOs
 @using TCG.Application.Dtos
+@using TCG.Domain.Entities
 
 @rendermode InteractiveServer
 
@@ -45,7 +46,7 @@
                     <option value="">-- Select Format --</option>
                     @foreach (var f in formatsByGame.First(g => g.Key == tournamentModel.TournamentGame).Value)
                     {
-                        <option value="@f.Key">@f.Value</option>
+                        <option value="@f.Key">@f.Value["name"]</option>
                     }
                 }
                 else
@@ -118,21 +119,39 @@
     private TournamentDto tournamentModel = new();
 
     [Inject]
-    private IRepository<TournamentDto> TournamentService { get; set; } = default!;
+    private IGenericService<Tournament, TournamentDto> TournamentService { get; set; } = default!;
 
-    private Dictionary<string, Dictionary<string, string>> formatsByGame = new()
+    private Dictionary<string, Dictionary<string, Dictionary<string, string>>> formatsByGame = new()
     {
-        ["mtg"] = new Dictionary<string, string>
+        ["mtg"] = new Dictionary<string, Dictionary<string, string>>
         {
-            ["standard"] = "Constructed - Standard",
-            ["draft"] = "Limited - Draft"
+            ["standard"] = new Dictionary<string, string>
+            {
+                ["name"] = "Constructed - Standard",
+                ["pairing"] = SwissValue
+            },
+            ["draft"] = new Dictionary<string, string>
+            {
+                ["name"] = "Limited - Draft",
+                ["pairing"] = RoundRobinValue
+            }
         },
-        ["pkmn"] = new Dictionary<string, string>
+        ["pkmn"] = new Dictionary<string, Dictionary<string, string>>
         {
-            ["standard"] = "Standard",
-            ["draft"] = "Booster Draft"
+            ["standard"] = new Dictionary<string, string>
+            {
+                ["name"] = "Standard",
+                ["pairing"] = SwissValue
+            },
+            ["draft"] = new Dictionary<string, string>
+            {
+                ["name"] = "Booster Draft",
+                ["pairing"] = RoundRobinValue
+            }
         }
     };
+
+
 
     protected override void OnInitialized()
     {
@@ -196,7 +215,17 @@
     private void OnFormatChanged()
     {
         tournamentModel.TournamentRequireDeck = false;
-        // StateHasChanged();
+
+        if (!string.IsNullOrEmpty(tournamentModel.TournamentGame)
+            && !string.IsNullOrEmpty(tournamentModel.TournamentFormat)
+            && formatsByGame.TryGetValue(tournamentModel.TournamentGame, out var formats)
+            && formats.TryGetValue(tournamentModel.TournamentFormat, out var meta))
+        {
+            if (meta.TryGetValue("pairing", out var pairing))
+            {
+                tournamentModel.TournamentPairing = pairing;
+            }
+        }
     }
 
     private string MinDateString =>
@@ -215,6 +244,7 @@
 
     private async Task OnFormSubmit()
     {
-        await TournamentService.AddAsync(tournamentModel);
+        tournamentModel.TournamentPairing = formatsByGame[tournamentModel.TournamentGame][tournamentModel.TournamentFormat]["pairing"];
+        await TournamentService.CreateAsync(tournamentModel);
     }
 }

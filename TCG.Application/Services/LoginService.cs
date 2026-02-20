@@ -34,6 +34,9 @@ namespace TCG.Application.Services
 
             var user = await _staffService.GetByAsync(e => e.StaffEmail == email);
 
+            if (user is null)
+                return LoginResult.FailedAttempt();
+
             var role = user.StaffRoleHead ? "head"
                      : user.StaffRoleManagement ? "management"
                      : "staff";
@@ -55,7 +58,11 @@ namespace TCG.Application.Services
 
         public async Task LogoutAsync()
         {
-            await _httpContextAccessor.HttpContext.SignOutAsync("default");
+            var ctx = _httpContextAccessor.HttpContext;
+            if (ctx is not null)
+            {
+                await ctx.SignOutAsync("default");
+            }
         }
     }
 

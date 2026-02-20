@@ -24,6 +24,8 @@ namespace TCG.Infrastructure
 
         public virtual DbSet<Staff> Staff { get; set; }
 
+        public virtual DbSet<TournamentPlayer> TournamentPlayers { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);

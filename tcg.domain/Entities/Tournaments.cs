@@ -11,7 +11,7 @@ namespace TCG.Domain.Entities
         public int TournamentId { get; private set; }
 
         [Column("tournament_league")]
-        public int TournamentLeague { get; private set; }
+        public int? TournamentLeague { get; private set; }
 
         [Column("tournament_name")]
         public string TournamentName { get; private set; } = string.Empty;
@@ -26,7 +26,7 @@ namespace TCG.Domain.Entities
         public bool TournamentRequireDeck { get; private set; }
 
         [Column("tournament_round_num")]
-        public int TournamentRoundNum { get; private set; }
+        public int? TournamentRoundNum { get; private set; }
 
         [Column("tournament_description")]
         public string TournamentDescription { get; private set; } = string.Empty;

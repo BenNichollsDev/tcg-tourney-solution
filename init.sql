@@ -552,6 +552,10 @@ ALTER TABLE ONLY public.tournaments
     ADD CONSTRAINT tournament_tournament_league_fkey FOREIGN KEY (tournament_league) REFERENCES public.leagues(league_id);
 
 
+
+
+    ALTER TABLE public.tournaments ALTER COLUMN tournament_league SET DEFAULT NULL;
+
 --
 -- PostgreSQL database dump complete
 --

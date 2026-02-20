@@ -9,34 +9,34 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	<AssemblyName>TCG.Domain</AssemblyName>
-	<RootNamespace>TCG.Domain</RootNamespace>
-	<TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
+	<ItemGroup>
 
-	 <!-- <-*****Microsoft (2026) [1] - END -->
-	  
-	 <!-- <-*****Microsoft (2026) [2] - START -->
-    <PackageReference Include="Microsoft.AspNetCore.Components" Version="10.0.2" />
-     <!-- <-*****Microsoft (2026) [2] - END -->
+		<!-- <-*****Microsoft (2026) [1] - END -->
 
-	 <!-- <-*****Microsoft (2026) [3] - START -->
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.2" />
-	 <!-- <-*****Microsoft (2026) [3] - END -->
+		<!-- <-*****Microsoft (2026) [2] - START -->
+		<!-- Removed obsolete Microsoft.AspNetCore 2.3.9 (provided by shared framework) -->
+		<PackageReference Include="Microsoft.AspNetCore.Components" Version="10.0.2" />
+		<!-- <-*****Microsoft (2026) [2] - END -->
 
-	 <!-- <-*****Rojansky et al. (2026) [4] - START -->
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
-	 <!-- <-*****Rojansky et al. (2026) [4] - END -->
-	  
-	  <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.2">
-		  <PrivateAssets>all</PrivateAssets>
-	  </PackageReference>
-	  <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.2">
-		  <PrivateAssets>all</PrivateAssets>
-	  </PackageReference>
-  </ItemGroup>
+		<!-- <-*****Microsoft (2026) [3] - START -->
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.3" />
+		<!-- <-*****Microsoft (2026) [3] - END -->
+
+		<!-- <-*****Rojansky et al. (2026) [4] - START -->
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
+		<!-- <-*****Rojansky et al. (2026) [4] - END -->
+
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.3">
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.3">
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+	</ItemGroup>
 
 </Project>

@@ -3,17 +3,20 @@
 [2]: Microsoft (2026) Microsoft.EntityFrameworkCore (Version 10.0.2). [Source Code] Available from: https://www.nuget.org/packages/microsoft.entityframeworkcore [Accessed 30/01/2026].
 -->
 
-<!-- <-*****Microsoft (2026) [1] - START -->
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
-	<PropertyGroup>
-		<RootNamespace>TCG.EMS</RootNamespace>
-		<TargetFramework>net10.0</TargetFramework>
-		<Nullable>enable</Nullable>
-		<BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
-		<UserSecretsId>c35163cb-7507-47ed-8883-4e44f6c7a057</UserSecretsId>
-		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-	</PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Components\Pages\Controllers\" />
+    <Folder Include="Components\Pages\HeadManagement\" />
+    <Folder Include="Components\Pages\Management\" />
+  </ItemGroup>
 
 	<ItemGroup>
 
@@ -21,26 +24,17 @@
 
 		<!-- <-*****Microsoft (2026) [2] - START -->
 		<PackageReference Include="AutoMapper" Version="16.0.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.2" />
+       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.3" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.23.0" />
 		<!-- <-*****Microsoft (2026) [2] - END -->
 
-		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.2" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.Server" Version="10.0.2" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.2" />
-		<PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.2" />
+        <!-- Server-side ASP.NET Core runtime and common extensions are provided by the net10.0 shared framework; avoid adding PackageReferences for those APIs -->
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Components\Pages\Controllers\" />
-	  <Folder Include="Components\Pages\Management\" />
-	  <Folder Include="Components\Pages\HeadManagement\" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <ProjectReference Include="..\TCG.Application\TCG.Application.csproj" />
-	  <ProjectReference Include="..\TCG.Domain\TCG.Domain.csproj" />
-	  <ProjectReference Include="..\TCG.Infrastructure\TCG.Infrastructure.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TCG.Application\TCG.Application.csproj" />
+    <ProjectReference Include="..\TCG.Domain\TCG.Domain.csproj" />
+    <ProjectReference Include="..\TCG.Infrastructure\TCG.Infrastructure.csproj" />
+  </ItemGroup>
 
 </Project>

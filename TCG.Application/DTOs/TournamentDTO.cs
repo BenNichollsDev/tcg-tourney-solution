@@ -9,7 +9,7 @@ namespace TCG.Application.Dtos
     {
         public int TournamentId { get; set; }
 
-        public int TournamentLeague { get; set; }
+        public int? TournamentLeague { get; set; }
 
         public string TournamentName { get; set; } = string.Empty;
 

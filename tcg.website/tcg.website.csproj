@@ -6,34 +6,31 @@
 <!-- <-*****Microsoft (2026) [1] - START -->
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
-	<PropertyGroup>
-		<AssemblyName>TCG.Website</AssemblyName>
-		<RootNamespace>TCG.Website</RootNamespace>
-		<TargetFramework>net10.0</TargetFramework>
-		<Nullable>enable</Nullable>
-		<BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
-		<UserSecretsId>bab33b6f-305b-412e-8e9b-41f5232fea2b</UserSecretsId>
-		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-	</PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+  </PropertyGroup>
 
 	<ItemGroup>
 
 		<!-- <-*****Microsoft (2026) [1] - END -->
 
-		<!-- <-*****Microsoft (2026) [2] - START -->
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.2" />
+        <!-- <-*****Microsoft (2026) [2] - START -->
+		<!-- Removed outdated/incorrect package reference to Microsoft.AspNetCore (2.3.9). -->
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.3" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.23.0" />
 		<!-- <-*****Microsoft (2026) [2] - END -->
 
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="10.0.2" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="10.0.2" />
-		<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.2" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="10.0.3" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="10.0.3" />
+       <!-- Microsoft.Extensions.Http provided by shared framework; remove explicit package reference to avoid NU1510 -->
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\TCG.Domain\TCG.Domain.csproj" />
-	  <ProjectReference Include="..\TCG.Infrastructure\TCG.Infrastructure.csproj" />
-	  <ProjectReference Include="..\TCG.Application\TCG.Application.csproj" />
-	</ItemGroup>
+    <ProjectReference Include="..\TCG.Application\TCG.Application.csproj" />
+    <ProjectReference Include="..\TCG.Infrastructure\TCG.Infrastructure.csproj" />
+  </ItemGroup>
 
 </Project>
