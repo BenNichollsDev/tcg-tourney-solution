@@ -7,6 +7,7 @@ using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 using TCG.Application.Dtos;
+using TCG.Application.Interfaces;
 using TCG.Application.Services;
 using TCG.Domain.Entities;
 
@@ -14,13 +15,13 @@ namespace TCG.Application.Services
 {
     public class LoginAuthService
     {
-        private readonly GenericDbService<Staff, StaffDto> _staffService;
-        private readonly PasswordHasher<object> _hasher;
+        private readonly IGenericService<Staff, StaffDto> _staffService;
+        //private readonly PasswordHasher<object> _hasher;
 
-        public LoginAuthService(GenericDbService<Staff, StaffDto> staffService)
+        public LoginAuthService(IGenericService<Staff, StaffDto> staffService)
         {
             _staffService = staffService;
-            _hasher = new PasswordHasher<object>();
+            //_hasher = new PasswordHasher<object>();
         }
 
         public async Task<bool> VerifyLoginAsync(string email, string password)

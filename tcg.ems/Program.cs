@@ -62,12 +62,16 @@ namespace TCG.EMS
             builder.Services.AddAuthorization();
 
             builder.Services.AddAutoMapper(cfg => cfg.AddProfile<AutoMapperProfile>());
+            builder.Services.AddScoped(typeof(IGenericService<,>), typeof(GenericService<,>));
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
             builder.Services.AddScoped<
-                IGenericService<TournamentDto>,
+                IGenericService<Tournament, TournamentDto>,
                 GenericService<Tournament, TournamentDto>>();
-            //CONTUNIE ON FROM HERE
+
+            builder.Services.AddScoped<
+                IGenericService<Staff, StaffDto>,
+                GenericService<Staff, StaffDto>>();
 
             builder.Services.AddScoped<LoginAuthService>();
             builder.Services.AddScoped<LoginService>();

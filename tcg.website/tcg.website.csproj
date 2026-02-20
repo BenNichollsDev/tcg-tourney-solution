@@ -1,4 +1,4 @@
-<!-- References:
+﻿<!-- References:
 [1]: Microsoft (2026) aspnetcore (Version 10.0.2). [Source Code] Available from: https://github.com/dotnet/aspnetcore [Accessed 30/01/2026].
 [2]: Microsoft (2026) Microsoft.EntityFrameworkCore (Version 10.0.2). [Source Code] Available from: https://www.nuget.org/packages/microsoft.entityframeworkcore [Accessed 30/01/2026].
 -->
@@ -27,6 +27,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\TCG.Domain\TCG.Domain.csproj" />
 	  <ProjectReference Include="..\TCG.Infrastructure\TCG.Infrastructure.csproj" />
 	  <ProjectReference Include="..\TCG.Application\TCG.Application.csproj" />
 	</ItemGroup>

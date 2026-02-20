@@ -23,6 +23,8 @@ services:
       - dp_keys_website:/root/.aspnet/DataProtection-Keys
       # - nuget_packages_website:/root/.nuget/packages
       - ./website_tmp:/tmp
+    command: dotnet run --project TCG.Website/TCG.Website.csproj --urls http://0.0.0.0:8081
+
 
   ems:
     container_name: tcg_ems

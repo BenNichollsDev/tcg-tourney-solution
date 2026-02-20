@@ -8,4 +8,4 @@ COPY TCG.Domain/*.csproj TCG.Domain/
 COPY TCG.Application/*.csproj TCG.Application/
 COPY TCG.Infrastructure/*.csproj TCG.Infrastructure/
 
-CMD ["dotnet", "watch", "run", "--project", "TCG.Website/TCG.Website.csproj", "--urls", "http://0.0.0.0:8081"]
+CMD ["dotnet", "run", "--project", "TCG.Website/TCG.Website.csproj", "--urls", "http://0.0.0.0:8081"]

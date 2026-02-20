@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace TCG.Application.Interfaces
 {
-    public interface IGenericService<TDto>
+    public interface IGenericService<TEntity, TDto>
         where TDto : class
     {
         Task<TDto> CreateAsync(TDto dto);
@@ -11,5 +13,7 @@ namespace TCG.Application.Interfaces
         Task<TDto?> GetByIdAsync(object id);
 
         Task<List<TDto>> GetAllAsync();
+
+        Task<TDto?> GetByAsync(Expression<Func<TEntity, bool>> predicate);
     }
 }

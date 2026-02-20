@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
+using System;
+using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using TCG.Application.Dtos;
+using TCG.Application.Interfaces;
 using TCG.Application.Services;
 using TCG.Domain.Entities;
 
@@ -11,12 +14,12 @@ namespace TCG.Application.Services
     public class LoginService
     {
         private readonly LoginAuthService _loginAuthService;
-        private readonly GenericDbService<Staff, StaffDto> _staffService;
+        private readonly IGenericService<Staff, StaffDto> _staffService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public LoginService(
             LoginAuthService loginAuthService,
-            GenericDbService<Staff, StaffDto> staffService,
+            IGenericService<Staff, StaffDto> staffService,
             IHttpContextAccessor httpContextAccessor)
         {
             _loginAuthService = loginAuthService;
@@ -35,11 +38,11 @@ namespace TCG.Application.Services
                      : user.StaffRoleManagement ? "management"
                      : "staff";
 
-            var claims = new[]
+            var claims = new System.Collections.Generic.List<System.Security.Claims.Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, user.StaffId.ToString()),
-                new Claim(ClaimTypes.Email, user.StaffEmail),
-                new Claim(ClaimTypes.Role, role)
+                new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.NameIdentifier, user.StaffId.ToString()),
+                new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Email, user.StaffEmail),
+                new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, role)
             };
 
             var principal = new ClaimsPrincipal(

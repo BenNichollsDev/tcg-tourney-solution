@@ -1,13 +1,15 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq.Expressions;
 using TCG.Application.Interfaces;
 
 namespace TCG.Application.Services
 {
     public class GenericService<TEntity, TDto>
-        : IGenericService<TDto>
+        : IGenericService<TEntity, TDto>
         where TEntity : class
         where TDto : class
     {
@@ -44,16 +46,16 @@ namespace TCG.Application.Services
         public async Task<List<TDto>> GetAllAsync()
         {
             var entities = await _repository.Query()
-                                            .AsNoTracking()
-                                            .ToListAsync();
+                .AsNoTracking()
+                .ToListAsync();
 
             return _mapper.Map<List<TDto>>(entities);
         }
 
-        //CHANGE HERE
-        public async Task<TDto?> GetByAsync(object id)
+        // Return a single DTO by predicate (queries the underlying TEntity repository)
+        public async Task<TDto?> GetByAsync(Expression<Func<TEntity, bool>> predicate)
         {
-            var entity = await _repository.GetByIdAsync(id);
+            var entity = await _repository.GetByAsync(predicate);
 
             return entity == null
                 ? null
