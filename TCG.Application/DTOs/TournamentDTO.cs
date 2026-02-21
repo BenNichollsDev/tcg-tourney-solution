@@ -32,5 +32,9 @@ namespace TCG.Application.Dtos
         public decimal TournamentEntryFee { get; set; }
 
         public int TournamentMaxParticipants { get; set; }
+
+        public bool TournamentFinished { get; set; } = false;
+
+        public bool TournamentStarted { get; set; } = false;
     }
 }

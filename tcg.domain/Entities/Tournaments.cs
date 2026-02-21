@@ -45,5 +45,11 @@ namespace TCG.Domain.Entities
 
         [Column("tournament_max_participants")]
         public int TournamentMaxParticipants { get; private set; }
+
+        [Column("tournament_finished")]
+        public bool TournamentFinished { get; private set; }
+
+        [Column("tournament_started")]
+        public bool TournamentStarted { get; private set; }
     }
 }

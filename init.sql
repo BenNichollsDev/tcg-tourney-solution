@@ -263,7 +263,9 @@ CREATE TABLE public.tournaments (
     tournament_date date,
     tournament_entry_fee numeric(10,2),
     tournament_max_participants integer,
-    tournament_time time(0) without time zone
+    tournament_time time(0) without time zone,
+    tournament_finished boolean,
+    tournament_started boolean
 );
 
 

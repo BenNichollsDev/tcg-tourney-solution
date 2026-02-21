@@ -1,0 +1,106 @@
+﻿@page "/tournaments"
+
+@using Microsoft.AspNetCore.Components.Forms
+@using System.ComponentModel.DataAnnotations
+@using TCG.Application.Interfaces
+@using TCG.Application.DTOs
+@using TCG.Application.Dtos
+@using TCG.Domain.Entities
+
+@rendermode InteractiveServer
+
+<div class="d-flex flex-column justify-content-center align-items-center min-vh-100">
+    <div class="bg-container p-5 w-100">
+
+        <h1 class="mb-3">Tournaments</h1>
+
+        @if (!_hasDataLoaded)
+        {
+            <p>Loading...</p>
+        }
+        else
+        {
+            @if (_tournaments == null)
+            {
+                <p>No tournaments to list</p>
+            }
+            else
+            {
+                <div class="container-fluid ms-4 me-4 mt-2 mb-2">
+
+                    <div class="row mb-3 border-bottom border-2 border-light">
+                        <div class="col-3 border-end border-1 border-light">
+                            <span>League</span>
+                        </div>
+                        <div class="col-1 border-end border-1 border-light">
+                            <span>Game</span>
+                        </div>
+                        <div class="col-3 border-end border-1 border-light">
+                            <span>Name</span>
+                        </div>
+                        <div class="col-1 border-end border-1 border-light">
+                            <span>Format</span>
+                        </div>
+                        <div class="col-1 border-end border-1 border-light">
+                            <span>Date</span>
+                        </div>
+                        <div class="col-1">
+                            <span>Time</span>
+                        </div>
+                        <div class="col-1">
+                        </div>
+                        <div class="col-1">
+                        </div>
+                    </div>
+
+                    @foreach (var t in _tournaments!)
+                    {
+                        <div class="row mb-1">
+                            <div class="col-3 border-end border-1 border-light">
+                                <span>t.TournamentLeague</span>
+                            </div>
+                            <div class="col-1 border-end border-1 border-light">
+                                <span>t.TournamentGame</span>
+                            </div>
+                            <div class="col-3 border-end border-1 border-light">
+                                <span>t.TournamentName</span>
+                            </div>
+                            <div class="col-1 border-end border-1 border-light">
+                                <span>t.TournamentFormat</span>
+                            </div>
+                            <div class="col-1 border-end border-1 border-light">
+                                <span>t.TournamentDate</span>
+                            </div>
+                            <div class="col-1 border-end border-1 border-light">
+                                <span>t.TournamentTime</span>
+                            </div>
+                            <div class="col-1">
+                                <button class="btn btn-primary">View</button>
+                            </div>
+                            <div class="col-1">
+                                <button class="btn btn-secondary">Edit</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        }
+
+    </div>
+</div>
+
+@code {
+    private TournamentDto _tournamentModel = new();
+    private bool _hasDataLoaded = false;
+
+    [Inject]
+    private IGenericService<Tournament, TournamentDto> _tournamentService { get; set; } = default!;
+
+    List<TournamentDto>? _tournaments;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _tournaments = await _tournamentService.GetAllAsync();
+        _hasDataLoaded = true;
+    }
+}
