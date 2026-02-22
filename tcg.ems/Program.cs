@@ -8,94 +8,91 @@ using TCG.Domain.Entities;
 using TCG.EMS.Components;
 using TCG.Infrastructure;
 
+var builder = WebApplication.CreateBuilder(args);
 
-    var builder = WebApplication.CreateBuilder(args);
+//// Ensure Kestrel binds explicit HTTP and HTTPS ports so localhost:5001 is available
+//builder.WebHost.ConfigureKestrel(options =>
+//{
+//    options.ListenLocalhost(5000); // HTTP
+//    options.ListenLocalhost(5001, listenOptions => listenOptions.UseHttps()); // HTTPS (uses dev certificate)
+//});
 
-    //// Ensure Kestrel binds explicit HTTP and HTTPS ports so localhost:5001 is available
-    //builder.WebHost.ConfigureKestrel(options =>
-    //{
-    //    options.ListenLocalhost(5000); // HTTP
-    //    options.ListenLocalhost(5001, listenOptions => listenOptions.UseHttps()); // HTTPS (uses dev certificate)
-    //});
+// Add services to the container.
+builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents();
 
-    // Add services to the container.
-    builder.Services.AddRazorComponents()
-        .AddInteractiveServerComponents();
+// <-***** Microsoft (2026) [1] - END
 
-    // <-***** Microsoft (2026) [1] - END
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(
+            builder.Configuration.GetConnectionString("DefaultConnection"),
+            npgsqlOptions => npgsqlOptions.EnableRetryOnFailure()
+        )
+    );
 
-    builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseNpgsql(
-                builder.Configuration.GetConnectionString("DefaultConnection"),
-                npgsqlOptions => npgsqlOptions.EnableRetryOnFailure()
-            )
-        );
-
-    builder.Services.AddAuthentication()
-        .AddCookie("default", options =>
-        {
-            options.LoginPath = "/login";
-            options.Cookie.Name = "TCGAuth";
-            options.LogoutPath = "/auth/logout";
-            options.Cookie.HttpOnly = true;
-            options.ExpireTimeSpan = TimeSpan.FromHours(8);
-        });
-
-    builder.Services.AddAuthorization();
-
-    builder.Services.AddAutoMapper(cfg => cfg.AddProfile<AutoMapperProfile>());
-    builder.Services.AddScoped(typeof(IGenericService<,>), typeof(GenericService<,>));
-    builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-
-    builder.Services.AddScoped<
-        IGenericService<Tournament, TournamentDto>,
-        GenericService<Tournament, TournamentDto>>();
-
-    builder.Services.AddScoped<
-        IGenericService<Staff, StaffDto>,
-        GenericService<Staff, StaffDto>>();
-
-    builder.Services.AddScoped<LoginAuthService>();
-    builder.Services.AddScoped<LoginService>();
-    builder.Services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
-    builder.Services.AddHttpContextAccessor();
-    builder.Services.AddAuthorizationCore();
-    builder.Services.AddControllers();
-
-
-    // <-***** Microsoft (2026) [1] - START
-
-    var app = builder.Build();
-
-    // Configure the HTTP request pipeline.
-    if (!app.Environment.IsDevelopment())
+builder.Services.AddAuthentication()
+    .AddCookie("default", options =>
     {
-        app.UseExceptionHandler("/Error");
-        // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-        app.UseHsts();
-    }
+        options.LoginPath = "/login";
+        options.Cookie.Name = "TCGAuth";
+        options.LogoutPath = "/auth/logout";
+        options.Cookie.HttpOnly = true;
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+    });
 
-    // <-***** Microsoft (2026) [1] - END
+builder.Services.AddAuthorization();
 
-    app.UseStatusCodePagesWithReExecute("/_404", createScopeForStatusCodePages: true);
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile<AutoMapperProfile>());
 
-    // <-***** Microsoft (2026) [1] - START
+builder.Services.AddScoped(typeof(IGenericService<,>), typeof(GenericService<,>));
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
-    app.UseAntiforgery();
+builder.Services.AddScoped<
+    IGenericService<Tournament, TournamentDto>,
+    GenericService<Tournament, TournamentDto>>();
 
-    app.MapStaticAssets();
-    app.MapRazorComponents<App>()
-        .AddInteractiveServerRenderMode();
+builder.Services.AddScoped<
+    IGenericService<Staff, StaffDto>,
+    GenericService<Staff, StaffDto>>();
 
-    // <-***** Microsoft (2026) [1] - END
+builder.Services.AddScoped<LoginAuthService>();
+builder.Services.AddScoped<LoginService>();
+builder.Services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddAuthorizationCore();
+builder.Services.AddControllers();
 
-    // <-***** Anderson, R. (2025) [2] - START
+// <-***** Microsoft (2026) [1] - START
 
-    app.UseAuthentication();
-    app.UseAuthorization();
+var app = builder.Build();
 
-    // <-***** Anderson, R. (2025) [2] - END
+// Configure the HTTP request pipeline.
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Error");
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseHsts();
+}
 
-    app.MapControllers();
+// <-***** Microsoft (2026) [1] - END
 
-    app.Run();
+app.UseStatusCodePagesWithReExecute("/_404", createScopeForStatusCodePages: true);
+
+// IMPORTANT: Authentication & Authorization MUST come before endpoint mapping
+// <-***** Anderson, R. (2025) [2] - START
+app.UseAuthentication();
+app.UseAuthorization();
+// <-***** Anderson, R. (2025) [2] - END
+
+// <-***** Microsoft (2026) [1] - START
+app.UseAntiforgery();
+
+app.MapStaticAssets();
+
+app.MapRazorComponents<App>()
+    .AddInteractiveServerRenderMode();
+// <-***** Microsoft (2026) [1] - END
+
+app.MapControllers();
+
+app.Run();
