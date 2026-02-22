@@ -3,6 +3,7 @@
 [2]: Microsoft (2026) Microsoft.EntityFrameworkCore (Version 10.0.2). [Source Code] Available from: https://www.nuget.org/packages/microsoft.entityframeworkcore [Accessed 30/01/2026].
 -->
 
+<!-- <-*****Microsoft (2026) [1] - START -->
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
@@ -12,6 +13,8 @@
     <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
   </PropertyGroup>
 
+			<!-- <-*****Microsoft (2026) [1] - END -->
+
   <ItemGroup>
     <Folder Include="Components\Pages\Controllers\" />
     <Folder Include="Components\Pages\HeadManagement\" />
@@ -20,15 +23,13 @@
 
 	<ItemGroup>
 
-		<!-- <-*****Microsoft (2026) [1] - END -->
-
-		<!-- <-*****Microsoft (2026) [2] - START -->
 		<PackageReference Include="AutoMapper" Version="16.0.0" />
+				<!-- <-*****Microsoft (2026) [2] - START -->
        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.3" />
+				<!-- <-*****Microsoft (2026) [2] - END -->
+		
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.23.0" />
-		<!-- <-*****Microsoft (2026) [2] - END -->
 
-        <!-- Server-side ASP.NET Core runtime and common extensions are provided by the net10.0 shared framework; avoid adding PackageReferences for those APIs -->
 	</ItemGroup>
 
   <ItemGroup>
