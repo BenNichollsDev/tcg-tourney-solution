@@ -1,0 +1,45 @@
+﻿@page "/"
+@page "/login"
+@rendermode InteractiveServer
+
+<div class="d-flex flex-column justify-content-center align-items-center min-vh-100">
+    <div class="bg-container p-5">
+
+        <h1 class="mb-3">TCGTourneys</h1>
+
+        <form method="post" action="/auth/login">
+            <label>Email:</label>
+            <input name="Email"
+                   class="form-control mb-3"
+                   required />
+
+            <label>Password:</label>
+            <input name="Password"
+                   type="password"
+                   class="form-control mb-3"
+                   required />
+
+            <button type="submit" class="btn btn-primary">
+                Submit
+            </button>
+        </form>
+
+        @if (!string.IsNullOrWhiteSpace(loginError))
+        {
+            <div class="text-danger mt-2">@loginError</div>
+        }
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    public string? error { get; set; }
+
+    private string? loginError;
+
+    protected override void OnParametersSet()
+    {
+        if (error == "invalid")
+            loginError = "Invalid email or password.";
+    }
+}
