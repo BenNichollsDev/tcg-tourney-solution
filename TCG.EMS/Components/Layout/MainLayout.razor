@@ -1,0 +1,76 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager NavManager
+
+<div class="page bg-main text-main min-vh-100 d-flex flex-column">
+    <main class="d-flex flex-grow-1">
+        @if (!(NavManager.Uri.Contains("/login")))
+        {
+            <nav class="sidebar d-flex flex-column p-3 bg-container sidebar-custom">
+                <!-- Brand -->
+                <NavLink href="/" class="d-flex align-items-center mb-3 mb-md-0 text-decoration-none">
+                    <span class="text-white fw-bold layout-text-title fs-3">
+                        TCGTourneys
+                    </span>
+                </NavLink>
+                <hr />
+
+                <!-- Navigation links -->
+                <ul class="nav nav-pills flex-column mb-auto h-100">
+                    <li class="nav-item">
+                        <NavLink href="/home" class="nav-link text-white d-flex align-items-center fs-5 p-2 mb-2">
+                            <i class="bi bi-house me-2"></i> Home
+                        </NavLink>
+                    </li>
+
+                    <li class="nav-item nav-hover-container">
+                        <NavLink href="/tournaments" class="nav-link text-white d-flex align-items-center fs-5 p-2 mb-2">
+                            <i class="bi bi-trophy me-2"></i> Tournaments
+                        </NavLink>
+
+                        <ul class="nav-item-hover list-unstyled">
+                            <li class="ps-2">
+                                <NavLink href="/tournaments/ongoing" class="nav-link text-white py-1 px-2 pt-0 pb-0 mt-2 mb-2">
+                                    View Ongoing Tournaments
+                                </NavLink>
+                            </li>
+                            <li class="ps-2">
+                                <NavLink href="/tournaments/manage" class="nav-link text-white py-1 px-2 pt-0 pb-0 mt-2 mb-2">
+                                    Manage Tournaments
+                                </NavLink>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item">
+                        <NavLink href="/leagues" class="nav-link text-white d-flex align-items-center fs-5 p-2 mb-2">
+                            <i class="bi bi-people me-2"></i> Leagues
+                        </NavLink>
+                    </li>
+
+                    <li class="nav-item">
+                        <NavLink href="/staff" class="nav-link text-white d-flex align-items-center fs-5 p-2 mb-2">
+                            <i class="bi bi-person-badge me-2"></i> Staff Management
+                        </NavLink>
+                    </li>
+
+                    <li class="nav-item">
+                        <NavLink href="/account" class="nav-link text-white d-flex align-items-center fs-5 p-2 mb-2">
+                            <i class="bi bi-person-circle me-2"></i> Your Account
+                        </NavLink>
+                    </li>
+
+                    <li class="mt-auto">
+                        <NavLink href="/auth/logout" class="nav-link text-white d-flex align-items-center fs-5 p-2 mt-3">
+                            <i class="bi bi-box-arrow-right me-2"></i> Logout
+                        </NavLink>
+                    </li>
+                </ul>
+            </nav>
+        }
+
+        <!-- Page content -->
+        <article class="content flex-grow-1 m-0 p-0">
+            @Body
+        </article>
+    </main>
+</div>
