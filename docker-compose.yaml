@@ -1,3 +1,5 @@
+version: '3.9'
+
 services:
   website:
     container_name: tcg_website
@@ -5,27 +7,22 @@ services:
       context: .
       dockerfile: TCG.Website/Dockerfile
     ports:
-      - "5000:8081"
+      - "5000:8080"   # Match EXPOSE in Dockerfile
     depends_on:
       - db
     networks:
       - tcg_network
     environment:
       - DOTNET_RUNNING_IN_CONTAINER=true
-      # - NUGET_PACKAGES=/root/.nuget/packages
       - DOTNET_WATCH_SUPPRESS_LAUNCH_BROWSER=true
       - MSBUILDDISABLENODEREUSE=1
       - DOTNET_USE_POLLING_FILE_WATCHER=1
     volumes:
-      # - ./TCG.Website:/src/TCG.Website:cached
-      # - ./TCG.Domain:/src/TCG.Domain:cached
-      # - ./TCG.Application:/src/TCG.Application:cached
-      # - ./TCG.Infrastructure:/src/TCG.Infrastructure:cached
       - dp_keys_website:/root/.aspnet/DataProtection-Keys
-      # - nuget_packages_website:/root/.nuget/packages
-      - ./website_tmp:/tmp
-    command: dotnet run --project TCG.Website/TCG.Website.csproj --urls http://0.0.0.0:8081
-
+      - ./TCG.Website:/src/TCG.Website
+      - ./TCG.Application:/src/TCG.Application
+      - ./TCG.Domain:/src/TCG.Domain
+      - ./TCG.Infrastructure:/src/TCG.Infrastructure
 
   ems:
     container_name: tcg_ems
@@ -40,18 +37,15 @@ services:
       - tcg_network
     environment:
       - DOTNET_RUNNING_IN_CONTAINER=true
-      # - NUGET_PACKAGES=/root/.nuget/packages
       - DOTNET_WATCH_SUPPRESS_LAUNCH_BROWSER=true
       - MSBUILDDISABLENODEREUSE=1
       - DOTNET_USE_POLLING_FILE_WATCHER=1
     volumes:
-      # - ./TCG.EMS:/src/TCG.EMS:cached
-      # - ./TCG.Domain:/src/TCG.Domain:cached
-      # - ./TCG.Application:/src/TCG.Application:cached
-      # - ./TCG.Infrastructure:/src/TCG.Infrastructure:cached
       - dp_keys_ems:/root/.aspnet/DataProtection-Keys
-      # - nuget_packages_ems:/root/.nuget/packages
-      - ./ems_tmp:/tmp
+      - ./TCG.EMS:/src/TCG.EMS
+      - ./TCG.Application:/src/TCG.Application
+      - ./TCG.Domain:/src/TCG.Domain
+      - ./TCG.Infrastructure:/src/TCG.Infrastructure
 
   db:
     container_name: tcg_db
@@ -87,8 +81,6 @@ services:
 volumes:
   postgres_data:
   pgadmin_data:
-  # nuget_packages_website:
-  # nuget_packages_ems:
   dp_keys_website:
   dp_keys_ems:
 

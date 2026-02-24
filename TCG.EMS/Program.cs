@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
+using Microsoft.AspNetCore.Hosting.StaticWebAssets;
+using Microsoft.AspNetCore.StaticAssets;
 using Microsoft.EntityFrameworkCore;
 using TCG.Application.Dtos;
 using TCG.Application.Interfaces;
@@ -62,6 +64,11 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddControllers();
 
+if (builder.Environment.IsDevelopment())
+{
+    StaticWebAssetsLoader.UseStaticWebAssets(builder.Environment, builder.Configuration);
+}
+
 // <-***** Microsoft (2026) [1] - START
 
 var app = builder.Build();
@@ -94,5 +101,6 @@ app.MapRazorComponents<App>()
 // <-***** Microsoft (2026) [1] - END
 
 app.MapControllers();
+app.MapBlazorHub();
 
 app.Run();

@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Hosting.StaticWebAssets;
+using Microsoft.AspNetCore.StaticAssets;
 using TCG.Website.Components;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -5,6 +7,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+if (builder.Environment.IsDevelopment())
+{
+    StaticWebAssetsLoader.UseStaticWebAssets(builder.Environment, builder.Configuration);
+}
 
 var app = builder.Build();
 
@@ -23,5 +30,7 @@ app.UseAntiforgery();
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+app.MapBlazorHub();
 
 app.Run();

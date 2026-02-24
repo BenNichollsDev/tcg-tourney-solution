@@ -1,0 +1,11 @@
+dotnet build "TCG.Domain\TCG.Domain.csproj" -c Debug -o "shared_build\TCG.Domain"
+dotnet build "TCG.Application\TCG.Application.csproj" -c Debug -o "shared_build\TCG.Application"
+dotnet build "TCG.Infrastructure\TCG.Infrastructure.csproj" -c Debug -o "shared_build\TCG.Infrastructure"
+
+docker compose up
+
+
+
+
+
+docker volume rm tcg-tourney_dp_keys_ems tcg-tourney_dp_keys_website

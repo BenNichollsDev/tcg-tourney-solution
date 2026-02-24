@@ -4,6 +4,7 @@
     <File Path=".gitignore" />
     <File Path="docker-compose.yaml" />
     <File Path="init.sql" />
+    <File Path="STARTUP INSTRUCTIONS.txt" />
   </Folder>
   <Project Path="TCG.Application/TCG.Application.csproj" />
   <Project Path="TCG.Domain/TCG.Domain.csproj" />

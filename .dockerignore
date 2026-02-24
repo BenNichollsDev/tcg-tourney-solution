@@ -33,3 +33,6 @@ README.md
 
 **/ems_tmp
 **/website_tmp
+.git
+.gitignore
+.vs
