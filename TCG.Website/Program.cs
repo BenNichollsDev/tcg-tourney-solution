@@ -1,8 +1,12 @@
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 using Microsoft.AspNetCore.StaticAssets;
+using Microsoft.EntityFrameworkCore;
+using TCG.Infrastructure;
 using TCG.Website.Components;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.AddServiceDefaults();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -13,7 +17,19 @@ if (builder.Environment.IsDevelopment())
     StaticWebAssetsLoader.UseStaticWebAssets(builder.Environment, builder.Configuration);
 }
 
+var dbString = Environment.GetEnvironmentVariable("ConnectionStrings__db-application");
+if(dbString is null) throw new NullReferenceException(nameof(dbString));
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(
+        dbString,
+        npgsqlOptions => npgsqlOptions.EnableRetryOnFailure()
+    )
+);
+
 var app = builder.Build();
+
+app.MapDefaultEndpoints();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

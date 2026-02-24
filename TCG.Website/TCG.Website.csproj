@@ -39,6 +39,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\TCG.ServiceDefaults\TCG.ServiceDefaults.csproj" />
 		<ProjectReference Include="..\TCG.Application\TCG.Application.csproj" />
 		<ProjectReference Include="..\TCG.Domain\TCG.Domain.csproj" />
 		<ProjectReference Include="..\TCG.Infrastructure\TCG.Infrastructure.csproj" />

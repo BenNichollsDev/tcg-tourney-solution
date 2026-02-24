@@ -12,6 +12,8 @@ using TCG.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.AddServiceDefaults();
+
 //// Ensure Kestrel binds explicit HTTP and HTTPS ports so localhost:5001 is available
 //builder.WebHost.ConfigureKestrel(options =>
 //{
@@ -25,9 +27,12 @@ builder.Services.AddRazorComponents()
 
 // <-***** Microsoft (2026) [1] - END
 
+var dbString = Environment.GetEnvironmentVariable("ConnectionStrings__db-application");
+if(dbString is null) throw new NullReferenceException(nameof(dbString));
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(
-            builder.Configuration.GetConnectionString("DefaultConnection"),
+            dbString,
             npgsqlOptions => npgsqlOptions.EnableRetryOnFailure()
         )
     );
@@ -72,6 +77,8 @@ if (builder.Environment.IsDevelopment())
 // <-***** Microsoft (2026) [1] - START
 
 var app = builder.Build();
+
+app.MapDefaultEndpoints();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

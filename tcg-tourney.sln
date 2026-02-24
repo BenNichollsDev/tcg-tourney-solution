@@ -17,9 +17,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.dockerignore = .dockerignore
 		.gitignore = .gitignore
-		docker-compose.yaml = docker-compose.yaml
 		init.sql = init.sql
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCG.AppHost", "TCG.AppHost\TCG.AppHost.csproj", "{55550FE7-92ED-4E89-B9E9-497EEEA57793}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCG.ServiceDefaults", "TCG.ServiceDefaults\TCG.ServiceDefaults.csproj", "{4FCB2816-CE23-43E1-B504-4D4F9B29E9F0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,6 +50,14 @@ Global
 		{1A85412E-B59C-1630-B18E-C5DB9CAD4129}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1A85412E-B59C-1630-B18E-C5DB9CAD4129}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1A85412E-B59C-1630-B18E-C5DB9CAD4129}.Release|Any CPU.Build.0 = Release|Any CPU
+		{55550FE7-92ED-4E89-B9E9-497EEEA57793}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55550FE7-92ED-4E89-B9E9-497EEEA57793}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55550FE7-92ED-4E89-B9E9-497EEEA57793}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55550FE7-92ED-4E89-B9E9-497EEEA57793}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4FCB2816-CE23-43E1-B504-4D4F9B29E9F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FCB2816-CE23-43E1-B504-4D4F9B29E9F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4FCB2816-CE23-43E1-B504-4D4F9B29E9F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4FCB2816-CE23-43E1-B504-4D4F9B29E9F0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
