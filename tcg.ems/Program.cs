@@ -12,25 +12,20 @@ using TCG.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//// Ensure Kestrel binds explicit HTTP and HTTPS ports so localhost:5001 is available
-//builder.WebHost.ConfigureKestrel(options =>
-//{
-//    options.ListenLocalhost(5000); // HTTP
-//    options.ListenLocalhost(5001, listenOptions => listenOptions.UseHttps()); // HTTPS (uses dev certificate)
-//});
+builder.AddServiceDefaults();
 
-// Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// <-***** Microsoft (2026) [1] - END
+var dbString = Environment.GetEnvironmentVariable("ConnectionStrings__db-application");
+if (dbString is null) throw new NullReferenceException(nameof(dbString));
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(
-            builder.Configuration.GetConnectionString("DefaultConnection"),
-            npgsqlOptions => npgsqlOptions.EnableRetryOnFailure()
-        )
-    );
+        dbString,
+        npgsqlOptions => npgsqlOptions.EnableRetryOnFailure()
+    )
+);
 
 builder.Services.AddAuthentication()
     .AddCookie("default", options =>
@@ -69,38 +64,35 @@ if (builder.Environment.IsDevelopment())
     StaticWebAssetsLoader.UseStaticWebAssets(builder.Environment, builder.Configuration);
 }
 
-// <-***** Microsoft (2026) [1] - START
-
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+app.MapDefaultEndpoints();
+
+/* 🔥 AUTOMATIC MIGRATIONS — THIS FIXES YOUR ERROR */
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    dbContext.Database.Migrate();
+}
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
-// <-***** Microsoft (2026) [1] - END
-
 app.UseStatusCodePagesWithReExecute("/_404", createScopeForStatusCodePages: true);
 
-// IMPORTANT: Authentication & Authorization MUST come before endpoint mapping
-// <-***** Anderson, R. (2025) [2] - START
 app.UseAuthentication();
 app.UseAuthorization();
-// <-***** Anderson, R. (2025) [2] - END
 
-// <-***** Microsoft (2026) [1] - START
 app.UseAntiforgery();
 
 app.MapStaticAssets();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
-// <-***** Microsoft (2026) [1] - END
 
 app.MapControllers();
-app.MapBlazorHub();
 
 app.Run();

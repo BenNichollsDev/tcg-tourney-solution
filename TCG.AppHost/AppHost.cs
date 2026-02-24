@@ -1,11 +1,10 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
 var postgres = builder.AddPostgres("database-server")
-    .WithDataVolume(isReadOnly: false)
+    .WithDataVolume()
     .WithPgAdmin();
 
 var db = postgres.AddDatabase("db-application");
-
 
 builder.AddProject<Projects.TCG_EMS>("tcg-ems")
     .WithReference(db)

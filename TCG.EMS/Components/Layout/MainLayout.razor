@@ -1,9 +1,15 @@
 ﻿@inherits LayoutComponentBase
 @inject NavigationManager NavManager
 
+@code {
+    private bool ShowLayout => 
+        string.Equals(NavManager.ToBaseRelativePath(NavManager.Uri).TrimEnd('/'), "", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(NavManager.ToBaseRelativePath(NavManager.Uri).TrimEnd('/'), "login", StringComparison.OrdinalIgnoreCase);
+}
+
 <div class="page bg-main text-main min-vh-100 d-flex flex-column">
     <main class="d-flex flex-grow-1">
-        @if (!(NavManager.Uri.Contains("/login")))
+        @if (ShowLayout)
         {
             <nav class="sidebar d-flex flex-column p-3 bg-container sidebar-custom">
                 <!-- Brand -->
