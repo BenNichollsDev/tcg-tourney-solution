@@ -86,3 +86,6 @@ ems_tmp/
 website_tmp/
 
 .nuget/packages/
+
+.idea/
+*.iml
