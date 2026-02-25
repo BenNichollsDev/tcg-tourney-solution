@@ -8,6 +8,8 @@ using TCG.Application.Interfaces;
 using TCG.Application.Services;
 using TCG.Domain.Entities;
 using TCG.EMS.Components;
+using TCG.EMS.Interfaces;
+using TCG.EMS.Services;
 using TCG.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -55,6 +57,7 @@ builder.Services.AddScoped<
 builder.Services.AddScoped<LoginAuthService>();
 builder.Services.AddScoped<LoginService>();
 builder.Services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
+builder.Services.AddScoped<INavigationService, NavigationService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddControllers();

@@ -6,12 +6,14 @@
 @using TCG.Application.DTOs
 @using TCG.Application.Dtos
 @using TCG.Domain.Entities
+@using TCG.EMS.Interfaces
 
-@* @namespace TCG.EMS.Components.Pages *@
+@inject INavigationService NavService
+
 @rendermode InteractiveServer
 
-<div class="d-flex flex-column justify-content-center align-items-center min-vh-100">
-    <div class="bg-container p-5 w-100 ms-5 me-5">
+<div class="container py-4">
+    <div class="bg-container p-4">
 
         <h1 class="mb-3">Tournaments</h1>
 
@@ -24,9 +26,17 @@
             @if (_tournaments!.Count == 0)
             {
                 <p>No tournaments to list</p>
+                
+                <NavLink href="/tournaments/new" class="btn btn-primary mt-3">
+                    <i class="bi bi-check"></i>Create a Tourney
+                </NavLink>
             }
             else
             {
+                <NavLink href="/tournaments/new" class="btn btn-primary mt-3">
+                    <i class="bi bi-check"></i>Create a Tourney
+                </NavLink>
+                
                 <div class="container-fluid ms-4 me-4 mt-2 mb-2">
 
                     <div class="row mb-3 border-bottom border-2 border-light">
@@ -94,8 +104,7 @@
     private TournamentDto _tournamentModel = new();
     private bool _hasDataLoaded = false;
 
-    [Inject]
-    private IGenericService<Tournament, TournamentDto> _tournamentService { get; set; } = default!;
+    [Inject] private IGenericService<Tournament, TournamentDto> _tournamentService { get; set; } = default!;
 
     List<TournamentDto>? _tournaments;
 
@@ -104,4 +113,5 @@
         _tournaments = await _tournamentService.GetAllAsync();
         _hasDataLoaded = true;
     }
+
 }
