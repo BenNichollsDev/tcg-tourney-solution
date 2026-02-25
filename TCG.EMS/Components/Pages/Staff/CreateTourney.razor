@@ -101,8 +101,13 @@
                                    @bind-Value="tournamentModel.TournamentDescription"
                                    required/>
 
+                    
+                    <!--CONTINUE HERE TO LINK CLICKED ON TOURNEY TO AN INPROGRESS PAGE, AND ALLOW FOR PARTICIPANTS TO BE ADDED IN THE CREATE TOURNEY PAGE-->
                     <div>
-                        <button type="submit" class="btn btn-primary">
+                        <NavLink href="/tournaments/inprogress/?" class="btn btn-primary">
+                            Commence
+                        </NavLink>
+                        <button type="submit" class="btn btn-secondary">
                             Submit
                         </button>
                         <NavLink href="/tournaments" type="button" class="btn btn-secondary">
@@ -154,8 +159,6 @@
             }
         }
     };
-
-
 
     protected override void OnInitialized()
     {
@@ -250,6 +253,6 @@
     {
         tournamentModel.TournamentPairing = formatsByGame[tournamentModel.TournamentGame][tournamentModel.TournamentFormat]["pairing"];
         await TournamentService.CreateAsync(tournamentModel);
-        NavService.GoHome();
+        NavService.GoTourney();
     }
 }
