@@ -15,26 +15,59 @@ namespace TCG.Application.Services
     {
         private readonly IRepository<TEntity> _repository;
         private readonly IMapper _mapper;
+        private readonly IUnitOfWork _uow;
 
-        public GenericService(
-            IRepository<TEntity> repository,
-            IMapper mapper)
+        public GenericService(IRepository<TEntity> repository, IMapper mapper, IUnitOfWork uow)
         {
             _repository = repository;
             _mapper = mapper;
+            _uow = uow;
         }
 
-        public async Task<TDto> CreateAsync(TDto dto)
+        public async Task<TDto> AddAsync(TDto dto)
         {
             var entity = _mapper.Map<TEntity>(dto);
 
             await _repository.AddAsync(entity);
-            await _repository.SaveChangesAsync();
+            await _uow.SaveChangesAsync();
 
             return _mapper.Map<TDto>(entity);
         }
 
-        public async Task<TDto?> GetByIdAsync(object id)
+        public async Task<TDto> UpdateAsync(TDto dto)
+        {
+            var entity = _mapper.Map<TEntity>(dto);
+
+            await _repository.UpdateAsync(entity);
+            await _uow.SaveChangesAsync();
+
+            return _mapper.Map<TDto>(entity);
+        }
+
+        public async Task<TDto?> DeleteAsync(TDto dto)
+        {
+            var entity = _mapper.Map<TEntity>(dto);
+
+            await _repository.DeleteAsync(entity);
+            await _uow.SaveChangesAsync();
+
+            return _mapper.Map<TDto>(entity);
+        }
+
+        public async Task<TDto?> DeleteAsync(int id)
+        {
+            var entity = await _repository.GetByIdAsync(id);
+            
+            if (entity == null)
+                return null;
+
+            await _repository.DeleteAsync(entity);
+            await _uow.SaveChangesAsync();
+
+            return _mapper.Map<TDto>(entity);
+        }
+
+        public async Task<TDto?> GetByIdAsync(int id)
         {
             var entity = await _repository.GetByIdAsync(id);
 
@@ -52,14 +85,10 @@ namespace TCG.Application.Services
             return _mapper.Map<List<TDto>>(entities);
         }
 
-        // Return a single DTO by predicate (queries the underlying TEntity repository)
         public async Task<TDto?> GetByAsync(Expression<Func<TEntity, bool>> predicate)
         {
             var entity = await _repository.GetByAsync(predicate);
-
-            return entity == null
-                ? null
-                : _mapper.Map<TDto>(entity);
+            return entity == null ? null : _mapper.Map<TDto>(entity);
         }
     }
 }

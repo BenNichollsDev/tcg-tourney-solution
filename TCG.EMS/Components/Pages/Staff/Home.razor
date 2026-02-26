@@ -2,7 +2,6 @@
 @using TCG.Application.Dtos
 @using TCG.Application.Services
 
-@inject NavigationManager NavManager
 @inject LoginAuthService LoginAuthService
 
 @rendermode InteractiveServer
@@ -10,42 +9,9 @@
 <div class="d-flex flex-column justify-content-center align-items-center min-vh-100">
 	<div class="bg-container p-5">
 
-		<h1 class="mb-3">TCGTourneys</h1>
-		<h1 class="mb-3">FUCK YOU DICKHEAD45</h1>
+		<h1 class="mb-3">TCGTourneys | Dashboard</h1>
 
-		<EditForm EditContext="@editContext">
-			<DataAnnotationsValidator />
-
-			<label>Email:</label>
-			<InputText @bind-Value="Staff.StaffEmail"
-					   class="form-control mb-3" />
-
-			<label>Password:</label>
-			<InputText @bind-Value="Staff.StaffPassword"
-					   type="password"
-					   class="form-control mb-3" />
-
-			<button type="button"
-					class="btn btn-primary"
-					disabled="@isLoggingIn"
-					@onclick="AttemptLogin">
-				Submit
-			</button>
-		</EditForm>
-
-		@if (isLoggingIn)
-		{
-			<div class="position-fixed top-0 start-0 w-100 h-100
-	                        d-flex justify-content-center align-items-center
-	                        bg-dark bg-opacity-50">
-				<div class="spinner-border text-light"></div>
-			</div>
-		}
-
-		@if (!string.IsNullOrWhiteSpace(loginError))
-		{
-			<div class="text-danger mt-2">@loginError</div>
-		}
+		<h3>TBC</h3>
 	</div>
 </div>
 

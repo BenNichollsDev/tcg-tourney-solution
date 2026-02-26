@@ -1,0 +1,217 @@
+﻿@page "/tournaments/edit/{id:int}"
+
+@using TCG.Application.Interfaces
+@using TCG.Application.Dtos
+@using TCG.Domain.Entities
+
+@rendermode InteractiveServer
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="bg-container p-4">
+                
+                <h1 class="mb-3 text-center">Create a New Tournament</h1>
+                
+                @if (!_hasLoaded)
+                {
+                    <p>Loading...</p>
+                }
+                else if (_showNull)
+                {
+                    <h2>No tournament data found.</h2>
+                }
+                else
+                {
+                    <EditForm Model="@_tournamentModel" OnValidSubmit="OnFormSubmit" style="padding-left: 5em; padding-right: 5em; ">
+                        <DataAnnotationsValidator/>
+                        <ValidationSummary/>
+
+                        <label for="name">Name:</label>
+                        <InputText id="name"
+                                   class="form-control mb-3"
+                                   @bind-Value="_tournamentModel?.TournamentName"/>
+
+                        <label for="games">Game:</label>
+                        <InputSelect id="games"
+                                     class="form-control mb-3"
+                                     @bind-Value="_tournamentModel?.TournamentGame"
+                                     @onchange="OnGameChanged">
+                            <option value="">-- Select --</option>
+                            <option value="MtG">Magic the Gathering</option>
+                            <option value="Pokémon">Pokémon</option>
+                        </InputSelect>
+
+                        <label for="formats">Format:</label>
+                        <InputSelect id="formats"
+                                     @key="_tournamentModel?.TournamentGame"
+                                     class="form-control mb-3"
+                                     @bind-Value="_tournamentModel?.TournamentFormat"
+                                     @bind-Value:after="OnFormatChanged">
+                            @if (!string.IsNullOrEmpty(_tournamentModel?.TournamentGame))
+                            {
+                                <option value="">-- Select Format --</option>
+                                @foreach (var f in _formatsByGame.First(g => g.Key == _tournamentModel?.TournamentGame).Value)
+                                {
+                                    <option value="@f.Key">@f.Value["name"]</option>
+                                }
+                            }
+                            else
+                            {
+                                <option value="">-- Select Game First --</option>
+                            }
+                        </InputSelect>
+
+                        @if (_tournamentModel?.TournamentFormat != "draft" && !string.IsNullOrEmpty(_tournamentModel?.TournamentFormat))
+                        {
+                            <div class="d-flex align-items-center mb-3">
+                                <label for="decklist" class="mb-0">Require a Decklist?</label>
+                                <InputCheckbox id="decklist"
+                                               class="form-check-input ms-2"
+                                               @bind-Value="_tournamentModel.TournamentRequireDeck"/>
+                            </div>
+                        }
+
+                        <label for="tourneydate">Date:</label>
+                        <input type="date" id="tourneydate" class="form-control mb-3"
+                               value='@_tournamentModel?.TournamentDate.ToString("yyyy-MM-dd")'
+                               min="@MinDateString"
+                               @onchange="OnDateInputChanged"/>
+
+                        <label for="tourneytime">Time:</label>
+                        <input type="time" id="tourneytime" class="form-control mb-3"
+                               value='@_tournamentModel?.TournamentTime.ToString("HH:mm")'
+                               min="@(IsDateToday ? MinTimeString : string.Empty)"
+                               @onchange="OnTimeInputChanged"/>
+
+                        <label for="playernum">Max Number of Players:</label>
+                        @if (_tournamentModel != null)
+                        {
+                            <InputNumber id="playernum"
+                                         class="form-control mb-3"
+                                         @bind-Value="_tournamentModel.TournamentMaxParticipants"
+                                         min="2"
+                                         required/>
+                            <ValidationMessage For="@(() => _tournamentModel.TournamentMaxParticipants)"/>
+
+                            <label for="price">Entry Fee (£):</label>
+                            <InputNumber id="price"
+                                         class="form-control mb-3"
+                                         step="0.01"
+                                         @bind-Value="_tournamentModel.TournamentEntryFee"
+                                         @onchange="OnPriceInputChanged"/>
+
+                            <label for="description">Description:</label>
+                            <InputTextArea id="description"
+                                           class="form-control mb-3"
+                                           @bind-Value="_tournamentModel?.TournamentDescription"
+                                           required/>
+                        }
+
+
+                        <div>
+                            <button type="submit" class="btn btn-secondary">
+                                Submit
+                            </button>
+                            <NavLink href="/tournaments" type="button" class="btn btn-secondary">
+                                Back
+                            </NavLink>
+                        </div>
+                    </EditForm>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private const string SwissValue = "Swiss";
+    private const string RoundRobinValue = "Round-Robin";
+
+    private bool _hasLoaded;
+    private bool _showNull;
+    
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public int? Id { get; set; }
+
+    private TournamentDto? _tournamentModel = new();
+
+    [Inject]
+    private IGenericService<Tournament, TournamentDto> TournamentService { get; set; } = null!;
+
+    private readonly Dictionary<string, Dictionary<string, Dictionary<string, string>>> _formatsByGame = new()
+    {
+        ["MtG"] = new Dictionary<string, Dictionary<string, string>>
+        {
+            ["Standard"] = new Dictionary<string, string>
+            {
+                ["name"] = "Constructed - Standard",
+                ["pairing"] = SwissValue
+            },
+            ["Draft"] = new Dictionary<string, string>
+            {
+                ["name"] = "Limited - Draft",
+                ["pairing"] = RoundRobinValue
+            }
+        },
+        ["Pokémon"] = new Dictionary<string, Dictionary<string, string>>
+        {
+            ["Standard"] = new Dictionary<string, string>
+            {
+                ["name"] = "Standard",
+                ["pairing"] = SwissValue
+            },
+            ["Draft"] = new Dictionary<string, string>
+            {
+                ["name"] = "Booster Draft",
+                ["pairing"] = RoundRobinValue
+            }
+        }
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id != null) _tournamentModel = await TournamentService.GetByIdAsync(Id.Value);
+
+        if (_tournamentModel == null)
+        {
+            _showNull = true;
+            return;
+        }
+        
+        _hasLoaded = true;
+        //return base.OnInitializedAsync();
+    }
+
+    private void OnFormatChanged()
+    {
+        _tournamentModel?.TournamentRequireDeck = false;
+
+        if (string.IsNullOrEmpty(_tournamentModel?.TournamentGame)
+            || string.IsNullOrEmpty(_tournamentModel?.TournamentFormat)
+            || !_formatsByGame.TryGetValue(_tournamentModel?.TournamentGame!, out var formats)
+            || !formats.TryGetValue(_tournamentModel?.TournamentFormat!, out var meta)) return;
+        if (meta.TryGetValue("pairing", out var pairing))
+        {
+            _tournamentModel?.TournamentPairing = pairing;
+        }
+    }
+
+    private static string MinDateString =>
+        DateOnly.FromDateTime(DateTime.Now).ToString("yyyy-MM-dd");
+
+    private static string MinTimeString =>
+        DateTime.Now.ToString("HH:mm");
+
+    private bool IsDateToday =>
+        _tournamentModel?.TournamentDate == DateOnly.FromDateTime(DateTime.Now);
+
+    private async Task OnFormSubmit()
+    {
+        _tournamentModel?.TournamentPairing = _formatsByGame[_tournamentModel?.TournamentGame!][_tournamentModel?.TournamentFormat!]["pairing"];
+        
+        if (_tournamentModel != null) await TournamentService.UpdateAsync(_tournamentModel);
+        NavService.GoTourney();
+    }
+}

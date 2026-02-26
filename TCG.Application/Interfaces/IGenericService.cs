@@ -8,12 +8,18 @@ namespace TCG.Application.Interfaces
     public interface IGenericService<TEntity, TDto>
         where TDto : class
     {
-        Task<TDto> CreateAsync(TDto dto);
+        public Task<TDto> AddAsync(TDto dto);
+        
+        public Task<TDto> UpdateAsync(TDto dto);
+        
+        public Task<TDto?> DeleteAsync(TDto dto);
+        
+        public Task<TDto?> DeleteAsync(int id);
 
-        Task<TDto?> GetByIdAsync(object id);
+        public Task<TDto?> GetByIdAsync(int id);
 
-        Task<List<TDto>> GetAllAsync();
+        public Task<List<TDto>> GetAllAsync();
 
-        Task<TDto?> GetByAsync(Expression<Func<TEntity, bool>> predicate);
+        public Task<TDto?> GetByAsync(Expression<Func<TEntity, bool>> predicate);
     }
 }

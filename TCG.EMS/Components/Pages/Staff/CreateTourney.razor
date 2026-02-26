@@ -19,35 +19,35 @@
                 
                 <h1 class="mb-3 text-center">Create a New Tournament</h1>
 
-                <EditForm Model="@tournamentModel" OnValidSubmit="OnFormSubmit" style="padding-left: 5em; padding-right: 5em; ">
+                <EditForm Model="@_tournamentModel" OnValidSubmit="OnFormSubmit" style="padding-left: 5em; padding-right: 5em; ">
                     <DataAnnotationsValidator/>
                     <ValidationSummary/>
 
                     <label for="name">Name:</label>
                     <InputText id="name"
                                class="form-control mb-3"
-                               @bind-Value="tournamentModel.TournamentName"/>
+                               @bind-Value="_tournamentModel.TournamentName"/>
 
                     <label for="games">Game:</label>
                     <InputSelect id="games"
                                  class="form-control mb-3"
-                                 @bind-Value="tournamentModel.TournamentGame"
+                                 @bind-Value="_tournamentModel.TournamentGame"
                                  @onchange="OnGameChanged">
                         <option value="">-- Select --</option>
-                        <option value="mtg">Magic the Gathering</option>
-                        <option value="pkmn">Pokémon</option>
+                        <option value="MtG">Magic the Gathering</option>
+                        <option value="Pokémon">Pokémon</option>
                     </InputSelect>
 
                     <label for="formats">Format:</label>
                     <InputSelect id="formats"
-                                 @key="tournamentModel.TournamentGame"
+                                 @key="_tournamentModel.TournamentGame"
                                  class="form-control mb-3"
-                                 @bind-Value="tournamentModel.TournamentFormat"
+                                 @bind-Value="_tournamentModel.TournamentFormat"
                                  @bind-Value:after="OnFormatChanged">
-                        @if (!string.IsNullOrEmpty(tournamentModel.TournamentGame))
+                        @if (!string.IsNullOrEmpty(_tournamentModel.TournamentGame))
                         {
                             <option value="">-- Select Format --</option>
-                            @foreach (var f in formatsByGame.First(g => g.Key == tournamentModel.TournamentGame).Value)
+                            @foreach (var f in formatsByGame.First(g => g.Key == _tournamentModel.TournamentGame).Value)
                             {
                                 <option value="@f.Key">@f.Value["name"]</option>
                             }
@@ -58,55 +58,52 @@
                         }
                     </InputSelect>
 
-                    @if (tournamentModel.TournamentFormat != "draft" && !string.IsNullOrEmpty(tournamentModel.TournamentFormat))
+                    @if (_tournamentModel.TournamentFormat != "draft" && !string.IsNullOrEmpty(_tournamentModel.TournamentFormat))
                     {
                         <div class="d-flex align-items-center mb-3">
                             <label for="decklist" class="mb-0">Require a Decklist?</label>
                             <InputCheckbox id="decklist"
                                            class="form-check-input ms-2"
-                                           @bind-Value="tournamentModel.TournamentRequireDeck"/>
+                                           @bind-Value="_tournamentModel.TournamentRequireDeck"/>
                         </div>
                     }
 
                     <label for="tourneydate">Date:</label>
                     <input type="date" id="tourneydate" class="form-control mb-3"
-                           value='@tournamentModel.TournamentDate.ToString("yyyy-MM-dd")'
+                           value='@_tournamentModel.TournamentDate.ToString("yyyy-MM-dd")'
                            min="@MinDateString"
                            @onchange="OnDateInputChanged"/>
 
                     <label for="tourneytime">Time:</label>
                     <input type="time" id="tourneytime" class="form-control mb-3"
-                           value='@tournamentModel.TournamentTime.ToString("HH:mm")'
+                           value='@_tournamentModel.TournamentTime.ToString("HH:mm")'
                            min="@(IsDateToday ? MinTimeString : string.Empty)"
                            @onchange="OnTimeInputChanged"/>
 
                     <label for="playernum">Max Number of Players:</label>
                     <InputNumber id="playernum"
                                  class="form-control mb-3"
-                                 @bind-Value="tournamentModel.TournamentMaxParticipants"
+                                 @bind-Value="_tournamentModel.TournamentMaxParticipants"
                                  min="2"
                                  required/>
-                    <ValidationMessage For="@(() => tournamentModel.TournamentMaxParticipants)"/>
+                    <ValidationMessage For="@(() => _tournamentModel.TournamentMaxParticipants)"/>
 
                     <label for="price">Entry Fee (£):</label>
                     <InputNumber id="price"
                                  class="form-control mb-3"
                                  step="0.01"
-                                 @bind-Value="tournamentModel.TournamentEntryFee"
+                                 @bind-Value="_tournamentModel.TournamentEntryFee"
                                  @onchange="OnPriceInputChanged"/>
 
                     <label for="description">Description:</label>
                     <InputTextArea id="description"
                                    class="form-control mb-3"
-                                   @bind-Value="tournamentModel.TournamentDescription"
+                                   @bind-Value="_tournamentModel.TournamentDescription"
                                    required/>
 
                     
                     <!--CONTINUE HERE TO LINK CLICKED ON TOURNEY TO AN INPROGRESS PAGE, AND ALLOW FOR PARTICIPANTS TO BE ADDED IN THE CREATE TOURNEY PAGE-->
                     <div>
-                        <NavLink href="/tournaments/inprogress/?" class="btn btn-primary">
-                            Commence
-                        </NavLink>
                         <button type="submit" class="btn btn-secondary">
                             Submit
                         </button>
@@ -125,34 +122,34 @@
     private const string SwissValue = "Swiss";
     private const string RoundRobinValue = "Round-Robin";
 
-    private TournamentDto tournamentModel = new();
+    private TournamentDto _tournamentModel = new();
 
     [Inject]
     private IGenericService<Tournament, TournamentDto> TournamentService { get; set; } = default!;
 
     private Dictionary<string, Dictionary<string, Dictionary<string, string>>> formatsByGame = new()
     {
-        ["mtg"] = new Dictionary<string, Dictionary<string, string>>
+        ["MtG"] = new Dictionary<string, Dictionary<string, string>>
         {
-            ["standard"] = new Dictionary<string, string>
+            ["Standard"] = new Dictionary<string, string>
             {
                 ["name"] = "Constructed - Standard",
                 ["pairing"] = SwissValue
             },
-            ["draft"] = new Dictionary<string, string>
+            ["Draft"] = new Dictionary<string, string>
             {
                 ["name"] = "Limited - Draft",
                 ["pairing"] = RoundRobinValue
             }
         },
-        ["pkmn"] = new Dictionary<string, Dictionary<string, string>>
+        ["Pokémon"] = new Dictionary<string, Dictionary<string, string>>
         {
-            ["standard"] = new Dictionary<string, string>
+            ["Standard"] = new Dictionary<string, string>
             {
                 ["name"] = "Standard",
                 ["pairing"] = SwissValue
             },
-            ["draft"] = new Dictionary<string, string>
+            ["Draft"] = new Dictionary<string, string>
             {
                 ["name"] = "Booster Draft",
                 ["pairing"] = RoundRobinValue
@@ -162,15 +159,15 @@
 
     protected override void OnInitialized()
     {
-        tournamentModel.TournamentDate = DateOnly.FromDateTime(DateTime.Now);
-        tournamentModel.TournamentTime = TimeOnly.FromDateTime(DateTime.Now);
+        _tournamentModel.TournamentDate = DateOnly.FromDateTime(DateTime.Now);
+        _tournamentModel.TournamentTime = TimeOnly.FromDateTime(DateTime.Now);
         base.OnInitialized();
     }
 
     private void OnGameChanged(ChangeEventArgs e)
     {
-        tournamentModel.TournamentGame = e?.Value as string ?? string.Empty;
-        tournamentModel.TournamentFormat = string.Empty;
+        _tournamentModel.TournamentGame = e?.Value as string ?? string.Empty;
+        _tournamentModel.TournamentFormat = string.Empty;
 
         StateHasChanged();
     }
@@ -180,11 +177,11 @@
         if (e?.Value is string s && DateOnly.TryParse(s, out var d))
         {
             var today = DateOnly.FromDateTime(DateTime.Now);
-            tournamentModel.TournamentDate = d < today ? today : d;
+            _tournamentModel.TournamentDate = d < today ? today : d;
 
-            if (IsDateToday && tournamentModel.TournamentTime < TimeOnly.FromDateTime(DateTime.Now))
+            if (IsDateToday && _tournamentModel.TournamentTime < TimeOnly.FromDateTime(DateTime.Now))
             {
-                tournamentModel.TournamentTime = TimeOnly.FromDateTime(DateTime.Now);
+                _tournamentModel.TournamentTime = TimeOnly.FromDateTime(DateTime.Now);
             }
         }
 
@@ -197,11 +194,11 @@
         {
             if (IsDateToday && t < TimeOnly.FromDateTime(DateTime.Now))
             {
-                tournamentModel.TournamentTime = TimeOnly.FromDateTime(DateTime.Now);
+                _tournamentModel.TournamentTime = TimeOnly.FromDateTime(DateTime.Now);
             }
             else
             {
-                tournamentModel.TournamentTime = t;
+                _tournamentModel.TournamentTime = t;
             }
         }
 
@@ -212,7 +209,7 @@
     {
         if (e?.Value is decimal s)
         {
-            tournamentModel.TournamentEntryFee =
+            _tournamentModel.TournamentEntryFee =
                 s < 0 ? 0 : Math.Round(s, 2, MidpointRounding.AwayFromZero);
         }
 
@@ -221,16 +218,16 @@
 
     private void OnFormatChanged()
     {
-        tournamentModel.TournamentRequireDeck = false;
+        _tournamentModel.TournamentRequireDeck = false;
 
-        if (!string.IsNullOrEmpty(tournamentModel.TournamentGame)
-            && !string.IsNullOrEmpty(tournamentModel.TournamentFormat)
-            && formatsByGame.TryGetValue(tournamentModel.TournamentGame, out var formats)
-            && formats.TryGetValue(tournamentModel.TournamentFormat, out var meta))
+        if (!string.IsNullOrEmpty(_tournamentModel.TournamentGame)
+            && !string.IsNullOrEmpty(_tournamentModel.TournamentFormat)
+            && formatsByGame.TryGetValue(_tournamentModel.TournamentGame, out var formats)
+            && formats.TryGetValue(_tournamentModel.TournamentFormat, out var meta))
         {
             if (meta.TryGetValue("pairing", out var pairing))
             {
-                tournamentModel.TournamentPairing = pairing;
+                _tournamentModel.TournamentPairing = pairing;
             }
         }
     }
@@ -242,17 +239,17 @@
         DateTime.Now.ToString("HH:mm");
 
     private bool IsDateToday =>
-        tournamentModel.TournamentDate == DateOnly.FromDateTime(DateTime.Now);
+        _tournamentModel.TournamentDate == DateOnly.FromDateTime(DateTime.Now);
 
     private bool IsTimeInvalid =>
         IsDateToday
-            ? tournamentModel.TournamentTime < TimeOnly.FromDateTime(DateTime.Now)
+            ? _tournamentModel.TournamentTime < TimeOnly.FromDateTime(DateTime.Now)
             : false;
 
     private async Task OnFormSubmit()
     {
-        tournamentModel.TournamentPairing = formatsByGame[tournamentModel.TournamentGame][tournamentModel.TournamentFormat]["pairing"];
-        await TournamentService.CreateAsync(tournamentModel);
+        _tournamentModel.TournamentPairing = formatsByGame[_tournamentModel.TournamentGame][_tournamentModel.TournamentFormat]["pairing"];
+        await TournamentService.CreateAsync(_tournamentModel);
         NavService.GoTourney();
     }
 }

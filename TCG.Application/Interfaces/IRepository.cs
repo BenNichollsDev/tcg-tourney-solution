@@ -11,7 +11,7 @@ namespace TCG.Application.Interfaces
     {
         IQueryable<TEntity> Query();
 
-        Task<TEntity?> GetByIdAsync(object id);
+        Task<TEntity?> GetByIdAsync(int id);
 
         Task<TEntity?> GetByAsync(Expression<Func<TEntity, bool>> predicate);
 
@@ -19,10 +19,8 @@ namespace TCG.Application.Interfaces
 
         Task AddAsync(TEntity entity);
 
-        void Update(TEntity entity);
+        Task UpdateAsync(TEntity entity);
 
-        void Delete(TEntity entity);
-
-        Task SaveChangesAsync();
+        Task DeleteAsync(TEntity entity);
     }
 }

@@ -8,96 +8,99 @@
 @using TCG.Domain.Entities
 @using TCG.EMS.Interfaces
 
-@inject INavigationService NavService
-
 @rendermode InteractiveServer
 
 <div class="container py-4">
-    <div class="bg-container p-4">
+    <div class="row justify-content-center">
+            <div class="bg-container p-4">
 
-        <h1 class="mb-3">Tournaments</h1>
+                <h1 class="mb-3">Tournaments</h1>
 
-        @if (!_hasDataLoaded)
-        {
-            <p>Loading...</p>
-        }
-        else
-        {
-            @if (_tournaments!.Count == 0)
-            {
-                <p>No tournaments to list</p>
-                
-                <NavLink href="/tournaments/new" class="btn btn-primary mt-3">
-                    <i class="bi bi-check"></i>Create a Tourney
-                </NavLink>
-            }
-            else
-            {
-                <NavLink href="/tournaments/new" class="btn btn-primary mt-3">
-                    <i class="bi bi-check"></i>Create a Tourney
-                </NavLink>
-                
-                <div class="container-fluid ms-4 me-4 mt-2 mb-2">
-
-                    <div class="row mb-3 border-bottom border-2 border-light">
-                        <div class="col-3 border-end border-1 border-light">
-                            <span>League</span>
-                        </div>
-                        <div class="col-1 border-end border-1 border-light">
-                            <span>Game</span>
-                        </div>
-                        <div class="col-3 border-end border-1 border-light">
-                            <span>Name</span>
-                        </div>
-                        <div class="col-1 border-end border-1 border-light">
-                            <span>Format</span>
-                        </div>
-                        <div class="col-1 border-end border-1 border-light">
-                            <span>Date</span>
-                        </div>
-                        <div class="col-1">
-                            <span>Time</span>
-                        </div>
-                        <div class="col-1">
-                        </div>
-                        <div class="col-1">
-                        </div>
-                    </div>
-
-                    @foreach (var t in _tournaments!)
+                @if (!_hasDataLoaded)
+                {
+                    <p>Loading...</p>
+                }
+                else
+                {
+                    @if (_tournaments!.Count == 0)
                     {
-                        <div class="row mb-1">
-                            <div class="col-3 border-end border-1 border-light">
-                                <span>@t.TournamentLeague</span>
+                        <p>No tournaments to list</p>
+                        
+                        <NavLink href="/tournaments/new" class="btn btn-primary mt-3">
+                            <i class="bi bi-check"></i>Create a Tourney
+                        </NavLink>
+                    }
+                    else
+                    {
+                        <NavLink href="/tournaments/new" class="btn btn-primary mt-3">
+                            <i class="bi bi-check"></i>Create a Tourney
+                        </NavLink>
+                        
+                        <div class="container-fluid ms-4 me-4 mt-2 mb-2">
+
+                            <div class="row mb-3 border-bottom border-2 border-light">
+                                <div class="col-3 border-end border-1 border-light">
+                                    <span>League</span>
+                                </div>
+                                <div class="col-1 border-end border-1 border-light">
+                                    <span>Game</span>
+                                </div>
+                                <div class="col-3 border-end border-1 border-light">
+                                    <span>Name</span>
+                                </div>
+                                <div class="col-1 border-end border-1 border-light">
+                                    <span>Format</span>
+                                </div>
+                                <div class="col-1 border-end border-1 border-light">
+                                    <span>Date</span>
+                                </div>
+                                <div class="col-1">
+                                    <span>Time</span>
+                                </div>
+                                <div class="col-1">
+                                </div>
+                                <div class="col-1">
+                                </div>
                             </div>
-                            <div class="col-1 border-end border-1 border-light">
-                                <span>@t.TournamentGame</span>
-                            </div>
-                            <div class="col-3 border-end border-1 border-light">
-                                <span>@t.TournamentName</span>
-                            </div>
-                            <div class="col-1 border-end border-1 border-light">
-                                <span>@t.TournamentFormat</span>
-                            </div>
-                            <div class="col-1 border-end border-1 border-light">
-                                <span>@t.TournamentDate</span>
-                            </div>
-                            <div class="col-1 border-end border-1 border-light">
-                                <span>@t.TournamentTime</span>
-                            </div>
-                            <div class="col-1">
-                                <button class="btn btn-primary">View</button>
-                            </div>
-                            <div class="col-1">
-                                <button class="btn btn-secondary">Edit</button>
-                            </div>
+
+                            @foreach (var t in _tournaments!)
+                            {
+                                <div class="row mb-1">
+                                    <div class="col-3 border-end border-1 border-light">
+                                        <span>@t.TournamentLeague</span>
+                                    </div>
+                                    <div class="col-1 border-end border-1 border-light">
+                                        <span>@t.TournamentGame</span>
+                                    </div>
+                                    <div class="col-3 border-end border-1 border-light">
+                                        <span>@t.TournamentName</span>
+                                    </div>
+                                    <div class="col-1 border-end border-1 border-light">
+                                        <span>@t.TournamentFormat</span>
+                                    </div>
+                                    <div class="col-1 border-end border-1 border-light">
+                                        <span>@t.TournamentDate</span>
+                                    </div>
+                                    <div class="col-1 border-end border-1 border-light">
+                                        <span>@t.TournamentTime</span>
+                                    </div>
+                                    <div class="col-1">
+                                        <NavLink href="@($"/tournaments/view?id={t.TournamentId}")" class="btn btn-primary">
+                                            View
+                                        </NavLink>
+                                    </div>
+                                    <div class="col-1">
+                                        <NavLink href="@($"/tournaments/edit?id={t.TournamentId}")" class="btn btn-secondary">
+                                            Edit
+                                        </NavLink>
+                                    </div>
+                                </div>
+                            }
                         </div>
                     }
-                </div>
-            }
-        }
-
-    </div>
+                }
+            </div>
+        </div>
 </div>
 
 @code {
@@ -113,5 +116,4 @@
         _tournaments = await _tournamentService.GetAllAsync();
         _hasDataLoaded = true;
     }
-
 }
