@@ -5,10 +5,12 @@
 @using TCG.Application.Interfaces
 @using TCG.Application.DTOs
 @using TCG.Application.Dtos
+@using TCG.Application.Services
 @using TCG.Domain.Entities
 @using TCG.EMS.Interfaces
 
 @inject INavigationService NavService
+@inject NavigationManager NavManager
 
 @rendermode InteractiveServer
 
@@ -249,7 +251,7 @@
     private async Task OnFormSubmit()
     {
         _tournamentModel.TournamentPairing = formatsByGame[_tournamentModel.TournamentGame][_tournamentModel.TournamentFormat]["pairing"];
-        await TournamentService.CreateAsync(_tournamentModel);
+        await TournamentService.AddAsync(_tournamentModel);
         NavService.GoTourney();
     }
 }

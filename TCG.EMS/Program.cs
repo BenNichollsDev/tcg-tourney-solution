@@ -11,6 +11,7 @@ using TCG.EMS.Components;
 using TCG.EMS.Interfaces;
 using TCG.EMS.Services;
 using TCG.Infrastructure;
+using TCG.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,16 +44,9 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<AutoMapperProfile>());
 
-builder.Services.AddScoped(typeof(IGenericService<,>), typeof(GenericService<,>));
-builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+//Add Repositories
+builder.Services.AddScoped<IStaffService, StaffService>();
 
-builder.Services.AddScoped<
-    IGenericService<Tournament, TournamentDto>,
-    GenericService<Tournament, TournamentDto>>();
-
-builder.Services.AddScoped<
-    IGenericService<Staff, StaffDto>,
-    GenericService<Staff, StaffDto>>();
 
 builder.Services.AddScoped<LoginAuthService>();
 builder.Services.AddScoped<LoginService>();
