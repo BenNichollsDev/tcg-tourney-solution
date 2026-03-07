@@ -2,7 +2,7 @@ using System.Linq.Expressions;
 using TCG.Application.Dtos;
 using TCG.Domain.Entities;
 
-namespace TCG.Application.Interfaces;
+namespace TCG.Application.Interfaces.Services;
 
 public interface IStaffService
 {

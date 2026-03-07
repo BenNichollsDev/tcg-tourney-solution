@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.StaticAssets;
 using Microsoft.EntityFrameworkCore;
 using TCG.Application.Dtos;
 using TCG.Application.Interfaces;
+using TCG.Application.Interfaces.Services;
 using TCG.Application.Services;
 using TCG.Domain.Entities;
 using TCG.EMS.Components;
@@ -44,9 +45,9 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<AutoMapperProfile>());
 
-//Add Repositories
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IStaffService, StaffService>();
-
+builder.Services.AddScoped<ITournamentService, TournamentService>();
 
 builder.Services.AddScoped<LoginAuthService>();
 builder.Services.AddScoped<LoginService>();
@@ -65,7 +66,6 @@ var app = builder.Build();
 
 app.MapDefaultEndpoints();
 
-/* 🔥 AUTOMATIC MIGRATIONS — THIS FIXES YOUR ERROR */
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();

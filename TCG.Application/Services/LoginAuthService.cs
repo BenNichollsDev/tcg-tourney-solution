@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TCG.Application.Dtos;
 using TCG.Application.Interfaces;
+using TCG.Application.Interfaces.Services;
 using TCG.Application.Services;
 using TCG.Domain.Entities;
 
@@ -15,10 +16,9 @@ namespace TCG.Application.Services
 {
     public class LoginAuthService
     {
-        private readonly IGenericService<Staff, StaffDto> _staffService;
-        //private readonly PasswordHasher<object> _hasher;
+        private readonly IStaffService _staffService;
 
-        public LoginAuthService(IGenericService<Staff, StaffDto> staffService)
+        public LoginAuthService(IStaffService staffService)
         {
             _staffService = staffService;
             //_hasher = new PasswordHasher<object>();

@@ -4,6 +4,7 @@ using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using TCG.Application.Dtos;
 using TCG.Application.Interfaces;
+using TCG.Application.Interfaces.Services;
 using TCG.Domain.Entities;
 
 namespace TCG.Infrastructure.Repositories;

@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using TCG.Application.Dtos;
 using TCG.Application.Interfaces;
+using TCG.Application.Interfaces.Services;
 using TCG.Application.Services;
 using TCG.Domain.Entities;
 
@@ -14,12 +15,12 @@ namespace TCG.Application.Services
     public class LoginService
     {
         private readonly LoginAuthService _loginAuthService;
-        private readonly IGenericService<Staff, StaffDto> _staffService;
+        private readonly IStaffService _staffService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public LoginService(
             LoginAuthService loginAuthService,
-            IGenericService<Staff, StaffDto> staffService,
+            IStaffService staffService,
             IHttpContextAccessor httpContextAccessor)
         {
             _loginAuthService = loginAuthService;
