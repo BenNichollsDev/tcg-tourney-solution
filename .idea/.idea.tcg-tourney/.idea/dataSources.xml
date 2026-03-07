@@ -22,12 +22,5 @@
       <jdbc-url>jdbc:postgresql://localhost:43843/?password=Cn%2B_W5QZYa2KX%28B2QA5%7EcA&amp;user=postgres</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
-    <data-source source="LOCAL" name="database-server" uuid="f0ddabb3-08ca-45f1-8a22-b669c929a9b8">
-      <driver-ref>postgresql</driver-ref>
-      <synchronize>true</synchronize>
-      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost:62041/?password=cM%29w8%7Bew%28qTsc4GSH1GhNn&amp;user=postgres</jdbc-url>
-      <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
   </component>
 </project>
