@@ -16,8 +16,6 @@ namespace TCG.Infrastructure
 
         public virtual DbSet<Tournament> Tournaments { get; set; }
 
-        public virtual DbSet<Player> Players { get; set; }
-
         public virtual DbSet<Pairing> Pairings { get; set; }
 
         public virtual DbSet<Match> Matches { get; set; }

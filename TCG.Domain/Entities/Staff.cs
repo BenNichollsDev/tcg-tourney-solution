@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.ComponentModel.DataAnnotations.Schema;
-using TCG.Domain.Interfaces;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TCG.Domain.Entities
 {

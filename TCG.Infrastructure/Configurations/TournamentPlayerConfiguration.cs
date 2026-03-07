@@ -1,8 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using TCG.Domain.Entities;
 
 namespace TCG.Infrastructure.Configurations
@@ -16,22 +13,18 @@ namespace TCG.Infrastructure.Configurations
             builder.HasKey(tp => tp.TpId);
 
             builder.Property(tp => tp.TpId)
-                   .HasColumnName("tp_id");
+                .HasColumnName("tp_id")
+                .ValueGeneratedOnAdd();
 
             builder.Property(tp => tp.TpTournament)
-                   .HasColumnName("tp_tournament");
+                .HasColumnName("tp_tournament");
 
-            builder.Property(tp => tp.TpPlayer)
-                   .HasColumnName("tp_player");
+            builder.Property(tp => tp.TpPlayerName)
+                .HasColumnName("tp_player_name");
 
-            builder.HasOne<Tournament>()
-                   .WithMany()
-                   .HasForeignKey(tp => tp.TpTournament);
-
-            builder.HasOne<Player>()
-                   .WithMany()
-                   .HasForeignKey(tp => tp.TpPlayer);
+            builder.HasOne(tp => tp.Tournament)
+                .WithMany(t => t.TournamentPlayers)
+                .HasForeignKey(tp => tp.TpTournament);
         }
     }
-
 }

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace TCG.Application.Dtos
 {
@@ -11,5 +9,7 @@ namespace TCG.Application.Dtos
         public int PairingTp1 { get; set; }
 
         public int PairingTp2 { get; set; }
+
+        public string? PairingWinner { get; set; }
     }
 }

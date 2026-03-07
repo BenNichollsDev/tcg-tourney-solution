@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TCG.Domain.Entities
@@ -45,5 +43,8 @@ namespace TCG.Domain.Entities
 
         [Column("tournament_max_participants")]
         public int TournamentMaxParticipants { get; private set; }
+        
+        public ICollection<TournamentPlayer> TournamentPlayers { get; private set; } 
+            = new List<TournamentPlayer>();
     }
 }

@@ -5,6 +5,7 @@
 @using TCG.Application.Interfaces
 @using TCG.Application.DTOs
 @using TCG.Application.Dtos
+@using TCG.Application.Interfaces.Services
 @using TCG.Application.Services
 @using TCG.Domain.Entities
 @using TCG.EMS.Interfaces
@@ -40,71 +41,12 @@
                         <option value="Pokémon">Pokémon</option>
                     </InputSelect>
 
-                    <label for="formats">Format:</label>
-                    <InputSelect id="formats"
-                                 @key="_leagueModel.LeagueGame"
-                                 class="form-control mb-3"
-                                 @bind-Value="_leagueModel.LeagueFormat"
-                                 @bind-Value:after="OnFormatChanged">
-                        @if (!string.IsNullOrEmpty(_leagueModel.LeagueGame))
-                        {
-                            <option value="">-- Select Format --</option>
-                            @foreach (var f in formatsByGame.First(g => g.Key == _leagueModel.LeagueGame).Value)
-                            {
-                                <option value="@f.Key">@f.Value["name"]</option>
-                            }
-                        }
-                        else
-                        {
-                            <option value="">-- Select Game First --</option>
-                        }
-                    </InputSelect>
-
-                    @if (_leagueModel.LeagueFormat != "draft" && !string.IsNullOrEmpty(_leagueModel.LeagueFormat))
-                    {
-                        <div class="d-flex align-items-center mb-3">
-                            <label for="decklist" class="mb-0">Require a Decklist?</label>
-                            <InputCheckbox id="decklist"
-                                           class="form-check-input ms-2"
-                                           @bind-Value="_leagueModel.LeagueRequireDeck"/>
-                        </div>
-                    }
-
-                    <label for="tourneydate">Date:</label>
-                    <input type="date" id="tourneydate" class="form-control mb-3"
-                           value='@_leagueModel.LeagueDate.ToString("yyyy-MM-dd")'
-                           min="@MinDateString"
-                           @onchange="OnDateInputChanged"/>
-
-                    <label for="tourneytime">Time:</label>
-                    <input type="time" id="tourneytime" class="form-control mb-3"
-                           value='@_leagueModel.LeagueTime.ToString("HH:mm")'
-                           min="@(IsDateToday ? MinTimeString : string.Empty)"
-                           @onchange="OnTimeInputChanged"/>
-
-                    <label for="playernum">Max Number of Players:</label>
-                    <InputNumber id="playernum"
-                                 class="form-control mb-3"
-                                 @bind-Value="_leagueModel.LeagueMaxParticipants"
-                                 min="2"
-                                 required/>
-                    <ValidationMessage For="@(() => _leagueModel.LeagueMaxParticipants)"/>
-
-                    <label for="price">Entry Fee (£):</label>
-                    <InputNumber id="price"
-                                 class="form-control mb-3"
-                                 step="0.01"
-                                 @bind-Value="_leagueModel.LeagueEntryFee"
-                                 @onchange="OnPriceInputChanged"/>
-
                     <label for="description">Description:</label>
                     <InputTextArea id="description"
                                    class="form-control mb-3"
                                    @bind-Value="_leagueModel.LeagueDescription"
                                    required/>
-
                     
-                    <!--CONTINUE HERE TO LINK CLICKED ON TOURNEY TO AN INPROGRESS PAGE, AND ALLOW FOR PARTICIPANTS TO BE ADDED IN THE CREATE TOURNEY PAGE-->
                     <div>
                         <button type="submit" class="btn btn-secondary">
                             Submit
@@ -127,131 +69,23 @@
     private LeagueDto _leagueModel = new();
 
     [Inject]
-    private IGenericService<League, LeagueDto> LeagueService { get; set; } = default!;
-
-    private Dictionary<string, Dictionary<string, Dictionary<string, string>>> formatsByGame = new()
-    {
-        ["MtG"] = new Dictionary<string, Dictionary<string, string>>
-        {
-            ["Standard"] = new Dictionary<string, string>
-            {
-                ["name"] = "Constructed - Standard",
-                ["pairing"] = SwissValue
-            },
-            ["Draft"] = new Dictionary<string, string>
-            {
-                ["name"] = "Limited - Draft",
-                ["pairing"] = RoundRobinValue
-            }
-        },
-        ["Pokémon"] = new Dictionary<string, Dictionary<string, string>>
-        {
-            ["Standard"] = new Dictionary<string, string>
-            {
-                ["name"] = "Standard",
-                ["pairing"] = SwissValue
-            },
-            ["Draft"] = new Dictionary<string, string>
-            {
-                ["name"] = "Booster Draft",
-                ["pairing"] = RoundRobinValue
-            }
-        }
-    };
+    private ILeagueService LeagueService { get; set; } = default!;
 
     protected override void OnInitialized()
     {
-        _leagueModel.LeagueDate = DateOnly.FromDateTime(DateTime.Now);
-        _leagueModel.LeagueTime = TimeOnly.FromDateTime(DateTime.Now);
         base.OnInitialized();
     }
-
+    
     private void OnGameChanged(ChangeEventArgs e)
     {
         _leagueModel.LeagueGame = e?.Value as string ?? string.Empty;
-        _leagueModel.LeagueFormat = string.Empty;
 
         StateHasChanged();
     }
-
-    private void OnDateInputChanged(ChangeEventArgs e)
-    {
-        if (e?.Value is string s && DateOnly.TryParse(s, out var d))
-        {
-            var today = DateOnly.FromDateTime(DateTime.Now);
-            _leagueModel.LeagueDate = d < today ? today : d;
-
-            if (IsDateToday && _leagueModel.LeagueTime < TimeOnly.FromDateTime(DateTime.Now))
-            {
-                _leagueModel.LeagueTime = TimeOnly.FromDateTime(DateTime.Now);
-            }
-        }
-
-        StateHasChanged();
-    }
-
-    private void OnTimeInputChanged(ChangeEventArgs e)
-    {
-        if (e?.Value is string s && TimeOnly.TryParse(s, out var t))
-        {
-            if (IsDateToday && t < TimeOnly.FromDateTime(DateTime.Now))
-            {
-                _leagueModel.LeagueTime = TimeOnly.FromDateTime(DateTime.Now);
-            }
-            else
-            {
-                _leagueModel.LeagueTime = t;
-            }
-        }
-
-        StateHasChanged();
-    }
-
-    private void OnPriceInputChanged(ChangeEventArgs e)
-    {
-        if (e?.Value is decimal s)
-        {
-            _leagueModel.LeagueEntryFee =
-                s < 0 ? 0 : Math.Round(s, 2, MidpointRounding.AwayFromZero);
-        }
-
-        StateHasChanged();
-    }
-
-    private void OnFormatChanged()
-    {
-        _leagueModel.LeagueRequireDeck = false;
-
-        if (!string.IsNullOrEmpty(_leagueModel.LeagueGame)
-            && !string.IsNullOrEmpty(_leagueModel.LeagueFormat)
-            && formatsByGame.TryGetValue(_leagueModel.LeagueGame, out var formats)
-            && formats.TryGetValue(_leagueModel.LeagueFormat, out var meta))
-        {
-            if (meta.TryGetValue("pairing", out var pairing))
-            {
-                _leagueModel.LeaguePairing = pairing;
-            }
-        }
-    }
-
-    private string MinDateString =>
-        DateOnly.FromDateTime(DateTime.Now).ToString("yyyy-MM-dd");
-
-    private string MinTimeString =>
-        DateTime.Now.ToString("HH:mm");
-
-    private bool IsDateToday =>
-        _leagueModel.LeagueDate == DateOnly.FromDateTime(DateTime.Now);
-
-    private bool IsTimeInvalid =>
-        IsDateToday
-            ? _leagueModel.LeagueTime < TimeOnly.FromDateTime(DateTime.Now)
-            : false;
-
+    
     private async Task OnFormSubmit()
     {
-        _leagueModel.LeaguePairing = formatsByGame[_leagueModel.LeagueGame][_leagueModel.LeagueFormat]["pairing"];
-        await LeagueService.AddAsync(_leagueModel);
+        await LeagueService.CreateAsync(_leagueModel);
         NavService.GoTourney();
     }
 }

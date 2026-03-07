@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TCG.Domain.Entities
 {
@@ -15,9 +12,6 @@ namespace TCG.Domain.Entities
 
         [Column("league_game")]
         public string LeagueGame { get; private set; } = string.Empty;
-
-        [Column("league_public")]
-        public bool LeaguePublic { get; private set; }
 
         [Column("league_description")]
         public string LeagueDescription { get; private set; } = string.Empty;

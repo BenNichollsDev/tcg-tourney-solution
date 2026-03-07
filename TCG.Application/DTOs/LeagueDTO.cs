@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace TCG.Application.Dtos
 {
@@ -11,8 +9,6 @@ namespace TCG.Application.Dtos
         public string LeagueName { get; set; } = string.Empty;
 
         public string LeagueGame { get; set; } = string.Empty;
-
-        public bool LeaguePublic { get; set; }
 
         public string LeagueDescription { get; set; } = string.Empty;
     }

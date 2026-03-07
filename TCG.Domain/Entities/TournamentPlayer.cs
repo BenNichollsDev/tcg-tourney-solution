@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TCG.Domain.Entities
 {
@@ -13,10 +10,9 @@ namespace TCG.Domain.Entities
         [Column("tp_tournament")]
         public int TpTournament { get; private set; }
 
-        [Column("tp_player")]
-        public int TpPlayer { get; private set; }
-
-        [Column("tp_position")]
-        public int TpPosition { get; private set; }
+        [Column("tp_player_name")]
+        public string? TpPlayerName { get; private set; }
+        
+        public Tournament Tournament { get; private set; } = null!;
     }
 }

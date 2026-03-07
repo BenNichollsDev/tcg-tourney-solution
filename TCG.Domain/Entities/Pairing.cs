@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TCG.Domain.Entities
 {
@@ -10,10 +7,13 @@ namespace TCG.Domain.Entities
         [Column("pairing_id")]
         public int PairingId { get; private set; }
 
-        [Column("pairing_tp1")]
+        [Column("pairing_tp_1")]
         public int PairingTp1 { get; private set; }
 
-        [Column("pairing_tp2")]
+        [Column("pairing_tp_2")]
         public int PairingTp2 { get; private set; }
+
+        [Column("pairing_winner")]
+        public string? PairingWinner { get; private set; }
     }
 }

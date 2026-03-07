@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TCG.Domain.Entities
 {
@@ -16,10 +13,10 @@ namespace TCG.Domain.Entities
         [Column("match_round_num")]
         public int MatchRoundNum { get; private set; }
 
-        [Column("player1_winner")]
+        [Column("player_1_winner")]
         public bool Player1Winner { get; private set; }
 
-        [Column("player2_winner")]
+        [Column("player_2_winner")]
         public bool Player2Winner { get; private set; }
     }
 }

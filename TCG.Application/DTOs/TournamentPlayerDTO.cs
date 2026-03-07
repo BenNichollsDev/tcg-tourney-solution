@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace TCG.Application.Dtos
 {
@@ -10,8 +8,6 @@ namespace TCG.Application.Dtos
 
         public int TpTournament { get; set; }
 
-        public int TpPlayer { get; set; }
-
-        public int TpPosition { get; set; }
+        public string? TpPlayerName { get; set; }
     }
 }

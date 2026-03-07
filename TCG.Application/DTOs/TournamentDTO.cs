@@ -1,7 +1,4 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.Collections.Generic;
-using System.Text;
 
 namespace TCG.Application.Dtos
 {
@@ -19,7 +16,7 @@ namespace TCG.Application.Dtos
 
         public bool TournamentRequireDeck { get; set; }
 
-        public int TournamentRoundNum { get; set; }
+        public int? TournamentRoundNum { get; set; }
 
         public string TournamentDescription { get; set; } = string.Empty;
 
