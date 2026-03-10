@@ -24,7 +24,8 @@ namespace TCG.Infrastructure.Configurations
 
             builder.HasOne(tp => tp.Tournament)
                 .WithMany(t => t.TournamentPlayers)
-                .HasForeignKey(tp => tp.TpTournament);
+                .HasForeignKey(tp => tp.TpTournament)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

@@ -46,10 +46,6 @@ namespace TCG.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("league_name");
 
-                    b.Property<bool>("LeaguePublic")
-                        .HasColumnType("boolean")
-                        .HasColumnName("league_public");
-
                     b.HasKey("LeagueId");
 
                     b.ToTable("leagues", (string)null);
@@ -104,6 +100,10 @@ namespace TCG.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("pairing_tp_2");
 
+                    b.Property<string>("PairingWinner")
+                        .HasColumnType("text")
+                        .HasColumnName("pairing_winner");
+
                     b.HasKey("PairingId");
 
                     b.HasIndex("PairingTp1");
@@ -111,43 +111,6 @@ namespace TCG.Infrastructure.Migrations
                     b.HasIndex("PairingTp2");
 
                     b.ToTable("pairings", (string)null);
-                });
-
-            modelBuilder.Entity("TCG.Domain.Entities.Player", b =>
-                {
-                    b.Property<int>("PlayerId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("player_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PlayerId"));
-
-                    b.Property<DateTime>("PlayerDob")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("player_dob");
-
-                    b.Property<string>("PlayerEmail")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("player_email");
-
-                    b.Property<string>("PlayerFirstName")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("player_first_name");
-
-                    b.Property<long>("PlayerMobile")
-                        .HasColumnType("bigint")
-                        .HasColumnName("player_mobile");
-
-                    b.Property<string>("PlayerSurname")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("player_surname");
-
-                    b.HasKey("PlayerId");
-
-                    b.ToTable("players", (string)null);
                 });
 
             modelBuilder.Entity("TCG.Domain.Entities.Staff", b =>
@@ -275,21 +238,15 @@ namespace TCG.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("TpId"));
 
-                    b.Property<int>("TpPlayer")
-                        .HasColumnType("integer")
-                        .HasColumnName("tp_player");
-
-                    b.Property<int>("TpPosition")
-                        .HasColumnType("integer")
-                        .HasColumnName("tp_position");
+                    b.Property<string>("TpPlayerName")
+                        .HasColumnType("text")
+                        .HasColumnName("tp_player_name");
 
                     b.Property<int>("TpTournament")
                         .HasColumnType("integer")
                         .HasColumnName("tp_tournament");
 
                     b.HasKey("TpId");
-
-                    b.HasIndex("TpPlayer");
 
                     b.HasIndex("TpTournament");
 
@@ -324,22 +281,24 @@ namespace TCG.Infrastructure.Migrations
                 {
                     b.HasOne("TCG.Domain.Entities.League", null)
                         .WithMany()
-                        .HasForeignKey("TournamentLeague");
+                        .HasForeignKey("TournamentLeague")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("TCG.Domain.Entities.TournamentPlayer", b =>
                 {
-                    b.HasOne("TCG.Domain.Entities.Player", null)
-                        .WithMany()
-                        .HasForeignKey("TpPlayer")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TCG.Domain.Entities.Tournament", null)
-                        .WithMany()
+                    b.HasOne("TCG.Domain.Entities.Tournament", "Tournament")
+                        .WithMany("TournamentPlayers")
                         .HasForeignKey("TpTournament")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Tournament");
+                });
+
+            modelBuilder.Entity("TCG.Domain.Entities.Tournament", b =>
+                {
+                    b.Navigation("TournamentPlayers");
                 });
 #pragma warning restore 612, 618
         }

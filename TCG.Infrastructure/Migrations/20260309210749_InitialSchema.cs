@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace TCG.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialSchema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -20,29 +20,11 @@ namespace TCG.Infrastructure.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     league_name = table.Column<string>(type: "text", nullable: false),
                     league_game = table.Column<string>(type: "text", nullable: false),
-                    league_public = table.Column<bool>(type: "boolean", nullable: false),
                     league_description = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_leagues", x => x.league_id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "players",
-                columns: table => new
-                {
-                    player_id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    player_first_name = table.Column<string>(type: "text", nullable: false),
-                    player_surname = table.Column<string>(type: "text", nullable: false),
-                    player_dob = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    player_email = table.Column<string>(type: "text", nullable: false),
-                    player_mobile = table.Column<long>(type: "bigint", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_players", x => x.player_id);
                 });
 
             migrationBuilder.CreateTable(
@@ -90,7 +72,8 @@ namespace TCG.Infrastructure.Migrations
                         name: "FK_tournaments_leagues_tournament_league",
                         column: x => x.tournament_league,
                         principalTable: "leagues",
-                        principalColumn: "league_id");
+                        principalColumn: "league_id",
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateTable(
@@ -100,18 +83,11 @@ namespace TCG.Infrastructure.Migrations
                     tp_id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     tp_tournament = table.Column<int>(type: "integer", nullable: false),
-                    tp_player = table.Column<int>(type: "integer", nullable: false),
-                    tp_position = table.Column<int>(type: "integer", nullable: false)
+                    tp_player_name = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_tournament_players", x => x.tp_id);
-                    table.ForeignKey(
-                        name: "FK_tournament_players_players_tp_player",
-                        column: x => x.tp_player,
-                        principalTable: "players",
-                        principalColumn: "player_id",
-                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_tournament_players_tournaments_tp_tournament",
                         column: x => x.tp_tournament,
@@ -127,7 +103,8 @@ namespace TCG.Infrastructure.Migrations
                     pairing_id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     pairing_tp_1 = table.Column<int>(type: "integer", nullable: false),
-                    pairing_tp_2 = table.Column<int>(type: "integer", nullable: false)
+                    pairing_tp_2 = table.Column<int>(type: "integer", nullable: false),
+                    pairing_winner = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -184,11 +161,6 @@ namespace TCG.Infrastructure.Migrations
                 column: "pairing_tp_2");
 
             migrationBuilder.CreateIndex(
-                name: "IX_tournament_players_tp_player",
-                table: "tournament_players",
-                column: "tp_player");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_tournament_players_tp_tournament",
                 table: "tournament_players",
                 column: "tp_tournament");
@@ -213,9 +185,6 @@ namespace TCG.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "tournament_players");
-
-            migrationBuilder.DropTable(
-                name: "players");
 
             migrationBuilder.DropTable(
                 name: "tournaments");

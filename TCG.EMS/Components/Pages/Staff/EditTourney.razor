@@ -135,7 +135,7 @@
     [SupplyParameterFromQuery]
     public int? Id { get; set; }
 
-    private TournamentDto _tournamentModel = new();
+    private TournamentDto? _tournamentModel = new();
 
     [Inject]
     private IGenericService<Tournament, TournamentDto> TournamentService { get; set; } = null!;
@@ -169,19 +169,25 @@
             }
         }
     };
+    
+    protected override void OnInitialized()
+    {
+        _hasLoaded = false;
+        base.OnInitialized();
+    }
 
     protected override async Task OnInitializedAsync()
     {
-        if (Id != null) _tournamentModel = await TournamentService.GetByIdAsync(Id.Value);
-
-        if (_tournamentModel == null)
+        if (Id != null)
         {
-            _showNull = true;
+            _tournamentModel = await TournamentService.GetByIdAsync(Id.Value);
             return;
         }
         
+        if (_tournamentModel == null)
+            _showNull = true;
+        
         _hasLoaded = true;
-        //return base.OnInitializedAsync();
     }
 
     private void OnGameChanged(ChangeEventArgs e)

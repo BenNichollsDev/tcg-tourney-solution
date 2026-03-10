@@ -1,8 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using TCG.Domain.Entities;
 
 namespace TCG.Infrastructure.Configurations
@@ -16,19 +13,23 @@ namespace TCG.Infrastructure.Configurations
             builder.HasKey(t => t.TournamentId);
 
             builder.Property(t => t.TournamentId)
-                   .HasColumnName("tournament_id");
+                   .HasColumnName("tournament_id")
+                   .ValueGeneratedOnAdd();
 
             builder.Property(t => t.TournamentLeague)
                    .HasColumnName("tournament_league");
 
             builder.Property(t => t.TournamentName)
-                   .HasColumnName("tournament_name");
+                   .HasColumnName("tournament_name")
+                   .IsRequired();
 
             builder.Property(t => t.TournamentGame)
-                   .HasColumnName("tournament_game");
+                   .HasColumnName("tournament_game")
+                   .IsRequired();
 
             builder.Property(t => t.TournamentFormat)
-                   .HasColumnName("tournament_format");
+                   .HasColumnName("tournament_format")
+                   .IsRequired();
 
             builder.Property(t => t.TournamentRequireDeck)
                    .HasColumnName("tournament_require_deck");
@@ -45,6 +46,9 @@ namespace TCG.Infrastructure.Configurations
             builder.Property(t => t.TournamentDate)
                    .HasColumnName("tournament_date");
 
+            builder.Property(t => t.TournamentTime)
+                   .HasColumnName("tournament_time");
+
             builder.Property(t => t.TournamentEntryFee)
                    .HasColumnName("tournament_entry_fee")
                    .HasColumnType("numeric(10,2)");
@@ -52,13 +56,14 @@ namespace TCG.Infrastructure.Configurations
             builder.Property(t => t.TournamentMaxParticipants)
                    .HasColumnName("tournament_max_participants");
 
-            builder.Property(t => t.TournamentTime)
-                   .HasColumnName("tournament_time");
+            builder.HasMany(t => t.TournamentPlayers)
+                   .WithOne(tp => tp.Tournament)
+                   .HasForeignKey(tp => tp.TpTournament);
 
             builder.HasOne<League>()
                    .WithMany()
-                   .HasForeignKey(t => t.TournamentLeague);
+                   .HasForeignKey(t => t.TournamentLeague)
+                   .OnDelete(DeleteBehavior.SetNull);
         }
     }
-
 }
