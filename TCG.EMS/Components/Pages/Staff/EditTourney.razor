@@ -2,6 +2,7 @@
 
 @using TCG.Application.Interfaces
 @using TCG.Application.Dtos
+@using TCG.Application.Interfaces.Services
 @using TCG.Domain.Entities
 
 @rendermode InteractiveServer
@@ -107,7 +108,43 @@
                                            @bind-Value="_tournamentModel.TournamentDescription"
                                            required/>
                         }
+                        
+                        <h4>Add Participants</h4>
 
+                        <div class="d-flex mb-3">
+                            <InputText class="form-control me-2"
+                                       placeholder="Enter participant name"
+                                       @bind-Value="_newParticipantName" />
+
+                            <button type="button"
+                                    class="btn btn-primary"
+                                    @onclick="AddParticipant">
+                                Add
+                            </button>
+                        </div>
+                        
+                        @if (!string.IsNullOrEmpty(_participantErrorMessage))
+                        {
+                            <div class="text-danger mb-3">@_participantErrorMessage</div>
+                        }
+
+                        @if (_participants.Count > 0)
+                        {
+                            <div class="list-group mb-3">
+                                @foreach (var p in _participants)
+                                {
+                                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span class="flex-grow-1">@p.TpPlayerName</span>
+
+                                        <button type="button"
+                                                class="btn btn-sm btn-danger"
+                                                @onclick="() => RemoveParticipant(p)">
+                                            Delete
+                                        </button>
+                                    </div>
+                                }
+                            </div>
+                        }
 
                         <div>
                             <button type="submit" class="btn btn-secondary">
@@ -125,11 +162,18 @@
 </div>
 
 @code {
+    private string _newParticipantName = string.Empty;
+    
+    private List<TournamentPlayerDto> _participants = new();
+    private List<TournamentPlayerDto> _originalParticipants = new();
+    
     private const string SwissValue = "Swiss";
     private const string RoundRobinValue = "Round-Robin";
 
     private bool _hasLoaded;
     private bool _showNull;
+    
+    private string _participantErrorMessage = string.Empty;
     
     [Parameter]
     [SupplyParameterFromQuery]
@@ -139,6 +183,9 @@
 
     [Inject]
     private IGenericService<Tournament, TournamentDto> TournamentService { get; set; } = null!;
+
+    [Inject]
+    private ITournamentPlayerService TournamentPlayerService { get; set; } = null!;
 
     private readonly Dictionary<string, Dictionary<string, Dictionary<string, string>>> _formatsByGame = new()
     {
@@ -173,6 +220,7 @@
     protected override void OnInitialized()
     {
         _hasLoaded = false;
+        _showNull = false;
         base.OnInitialized();
     }
 
@@ -181,13 +229,56 @@
         if (Id != null)
         {
             _tournamentModel = await TournamentService.GetByIdAsync(Id.Value);
+
+            var allPlayers = await TournamentPlayerService.GetAllAsync();
+            _participants = allPlayers
+                .Where(p => p.TpTournament == Id.Value)
+                .ToList();
+            
+            _originalParticipants = _participants.Select(p => new TournamentPlayerDto
+            {
+                TpId = p.TpId,
+                TpTournament = p.TpTournament,
+                TpPlayerName = p.TpPlayerName
+            }).ToList();
+
+            _hasLoaded = true;
             return;
         }
-        
-        if (_tournamentModel == null)
-            _showNull = true;
-        
+
+        _showNull = true;
         _hasLoaded = true;
+    }
+    
+    private void AddParticipant()
+    {
+        if (string.IsNullOrWhiteSpace(_newParticipantName) || _tournamentModel == null)
+            return;
+
+        var trimmedName = _newParticipantName.Trim();
+
+        // Check if the name already exists in the current list
+        if (_participants.Any(p => string.Equals(p.TpPlayerName, trimmedName, StringComparison.OrdinalIgnoreCase)))
+        {
+            _participantErrorMessage = "A participant with this name already exists.";
+            return;
+        }
+
+        // Clear any previous error
+        _participantErrorMessage = string.Empty;
+
+        _participants.Add(new TournamentPlayerDto
+        {
+            TpTournament = _tournamentModel.TournamentId,
+            TpPlayerName = trimmedName
+        });
+
+        _newParticipantName = string.Empty;
+    }
+
+    private void RemoveParticipant(TournamentPlayerDto player)
+    {
+        _participants.Remove(player);
     }
 
     private void OnGameChanged(ChangeEventArgs e)
@@ -269,9 +360,43 @@
 
     private async Task OnFormSubmit()
     {
-        _tournamentModel.TournamentPairing = _formatsByGame[_tournamentModel?.TournamentGame!][_tournamentModel?.TournamentFormat!]["pairing"];
+        if (_tournamentModel == null) return;
+
+        _tournamentModel.TournamentPairing =
+            _formatsByGame[_tournamentModel?.TournamentGame!][_tournamentModel?.TournamentFormat!]["pairing"];
         
-        if (_tournamentModel != null) await TournamentService.UpdateAsync(_tournamentModel);
+        await TournamentService.UpdateAsync(_tournamentModel);
+        
+        var removedPlayers = _originalParticipants
+            .Where(op => !_participants.Any(p => p.TpId == op.TpId))
+            .ToList();
+
+        foreach (var player in removedPlayers)
+        {
+            await TournamentPlayerService.DeleteAsync(player.TpId);
+        }
+        
+        foreach (var player in _participants)
+        {
+            player.TpTournament = _tournamentModel.TournamentId;
+
+            if (player.TpId == 0)
+            {
+                await TournamentPlayerService.CreateAsync(player);
+            }
+            else
+            {
+                await TournamentPlayerService.UpdateAsync(player);
+            }
+        }
+        
+        _originalParticipants = _participants.Select(p => new TournamentPlayerDto
+        {
+            TpId = p.TpId,
+            TpTournament = p.TpTournament,
+            TpPlayerName = p.TpPlayerName
+        }).ToList();
+
         NavService.GoTourney();
     }
 }
