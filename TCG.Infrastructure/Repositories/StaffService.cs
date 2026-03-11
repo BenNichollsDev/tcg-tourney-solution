@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
@@ -17,7 +18,7 @@ public class StaffService
 )
 : IStaffService
 {
-    public async Task<StaffDto> GetByIdAsync(int staffId)
+    public async Task<StaffDto?> GetByIdAsync(int staffId)
     {
         var staff = await context.Staff
             .AsNoTracking()
@@ -25,7 +26,7 @@ public class StaffService
             .ProjectTo<StaffDto>(mapper.ConfigurationProvider)
             .FirstOrDefaultAsync();
 
-        return staff ?? throw new Exception($"Staff with id {staffId} not found");
+        return staff ?? null;
     }
 
     public async Task<IEnumerable<StaffDto>> GetAllAsync()
@@ -36,7 +37,7 @@ public class StaffService
             .ToListAsync();
     }
 
-    public async Task<StaffDto> GetByAsync(Expression<Func<Staff, bool>> predicate)
+    public async Task<StaffDto?> GetByAsync(Expression<Func<Staff, bool>> predicate)
     {
         var staff = await context.Staff
             .AsNoTracking()
@@ -44,11 +45,15 @@ public class StaffService
             .ProjectTo<StaffDto>(mapper.ConfigurationProvider)
             .FirstOrDefaultAsync();
 
-        return staff ?? throw new Exception("Staff not found");
+        return staff ?? null;
     }
 
     public async Task<StaffDto> CreateAsync(StaffDto staffDto)
     {
+        
+        await EmailIsUniqueAsync(staffDto.StaffEmail);
+        await PhoneIsUniqueAsync(staffDto.StaffMobile);
+        
         var staff = mapper.Map<Staff>(staffDto);
 
         await context.Staff.AddAsync(staff);
@@ -64,6 +69,10 @@ public class StaffService
 
         if (existingStaff == null)
             throw new Exception($"Staff with id {staffDto.StaffId} not found");
+
+        
+        await EmailIsUniqueAsync(staffDto.StaffEmail, staffDto.StaffId);
+        await PhoneIsUniqueAsync(staffDto.StaffMobile, staffDto.StaffId);
 
         mapper.Map(staffDto, existingStaff);
 
@@ -85,5 +94,25 @@ public class StaffService
         await u.SaveChangesAsync();
 
         return mapper.Map<StaffDto>(staff);
+    }
+    
+    public async Task EmailIsUniqueAsync(string email, int? currentStaffId = null)
+    {
+        var exists = await context.Staff
+            .AnyAsync(s => s.StaffEmail == email && 
+                           (!currentStaffId.HasValue || s.StaffId != currentStaffId));
+
+        if (exists)
+            throw new ValidationException("Email already exists.");
+    }
+    
+    public async Task PhoneIsUniqueAsync(string phone, int? currentStaffId = null)
+    {
+        var exists = await context.Staff
+            .AnyAsync(s => s.StaffMobile == phone && 
+                           (!currentStaffId.HasValue || s.StaffId != currentStaffId));
+
+        if (exists)
+            throw new ValidationException("Phone number already exists.");
     }
 }

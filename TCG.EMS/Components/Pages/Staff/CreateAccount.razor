@@ -1,0 +1,119 @@
+﻿@page "/accounts/new"
+
+@using System.ComponentModel.DataAnnotations
+@using TCG.Application.Dtos
+@using TCG.Application.Interfaces.Services
+
+@inject INavigationService NavService
+@inject NavigationManager NavManager
+
+@rendermode InteractiveServer
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="bg-container p-4">
+                            
+                <h1 class="mb-3 text-center">Create a New Staff Account</h1>
+                
+                <p>For testing purposes, new passwords will always be '123'</p>
+
+                <EditForm Model="@_staffModel" OnValidSubmit="OnFormSubmit" style="padding-left: 5em; padding-right: 5em; ">
+                    <DataAnnotationsValidator/>
+                    <ValidationSummary/>
+                    
+                    <label for="firstname">First Name:</label>
+                    <InputText id="firstname"
+                               class="form-control mb-3"
+                               @bind-Value="_staffModel.StaffFirstName"/>
+
+                    <label for="surname">Surname:</label>
+                    <InputText id="surname"
+                               class="form-control mb-3"
+                               @bind-Value="_staffModel.StaffSurname"/>
+
+                    <label for="email">Email:</label>
+                    <InputText id="email"
+                               class="form-control mb-3"
+                               @bind-Value="_staffModel.StaffEmail"/>
+
+                    <label for="mobile">Mobile:</label>
+                    <InputText id="mobile"
+                               class="form-control mb-3"
+                               @bind-Value="_staffModel.StaffMobile"/>
+                    
+                    <label class="form-label">Staff Role</label>
+
+                    <InputRadioGroup @bind-Value="_staffModel.StaffRoleManagement">
+                        <div class="form-check">
+                            <InputRadio class="form-check-input" Value="false" id="standardStaff" />
+                            <label class="form-check-label" for="standardStaff">
+                                Standard Staff
+                            </label>
+                        </div>
+
+                        <div class="form-check">
+                            <InputRadio class="form-check-input" Value="true" id="managementStaff" />
+                            <label class="form-check-label" for="managementStaff">
+                                Management Staff
+                            </label>
+                        </div>
+                    </InputRadioGroup>
+                    
+                    <div>
+                        <button type="submit" class="btn btn-primary">
+                            Create
+                        </button>
+                        <NavLink href="/home" type="button" class="btn btn-secondary">
+                            Back
+                        </NavLink>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private StaffDto? _staffModel = new();
+    private string? ErrorMessage;
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public int? Id { get; set; }
+
+    [Inject]
+    private IStaffService StaffService { get; set; } = default!;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+    }
+
+    protected override Task OnInitializedAsync()
+    {
+        return Task.CompletedTask;
+    }
+
+    private async Task OnFormSubmit()
+    {
+        try
+        {
+            await StaffService.UpdateAsync(_staffModel);
+
+            // (for testing purposes)
+            _staffModel.StaffPassword = "123";
+
+            NavService.GoHome();
+        }
+        catch (ValidationException ex)
+        {
+            // Display validation error in UI
+            ErrorMessage = ex.Message;
+        }
+        catch (Exception)
+        {
+            ErrorMessage = "An unexpected error occurred.";
+        }
+    }
+}

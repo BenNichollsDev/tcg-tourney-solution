@@ -52,6 +52,7 @@ builder.Services.AddScoped<ITournamentService, TournamentService>();
 builder.Services.AddScoped<LoginAuthService>();
 builder.Services.AddScoped<LoginService>();
 builder.Services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
+builder.Services.AddScoped<UserFromCookies>();
 builder.Services.AddScoped<INavigationService, NavigationService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthorizationCore();

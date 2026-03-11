@@ -1,15 +1,8 @@
-﻿@page "/account/{id:int}"
-@page "/account"
+﻿@page "/personal/{id:int}"
+@page "/personal"
 
-@using Microsoft.AspNetCore.Components.Forms
-@using System.ComponentModel.DataAnnotations
-@using TCG.Application.Interfaces
-@using TCG.Application.DTOs
 @using TCG.Application.Dtos
 @using TCG.Application.Interfaces.Services
-@using TCG.Application.Services
-@using TCG.Domain.Entities
-@using TCG.EMS.Interfaces
 
 @inject INavigationService NavService
 @inject NavigationManager NavManager
@@ -64,6 +57,8 @@
                                    @bind-Value="_newPassword"/>
                         
                         <br />
+                        <br />
+                        <br />
 
                         <label for="password">Current Password:</label>
                         <InputText id="password"
@@ -72,7 +67,7 @@
                                    @bind-Value="_currentPassword"/>
 
                         <div>
-                            <button type="submit" class="btn btn-secondary">
+                            <button type="submit" class="btn btn-primary">
                                 Submit
                             </button>
                             <NavLink href="/home" type="button" class="btn btn-secondary">
@@ -100,7 +95,7 @@
     public int? Id { get; set; }
 
     [Inject]
-    private IStaffService _StaffService { get; set; } = default!;
+    private IStaffService StaffService { get; set; } = default!;
     
     protected override void OnInitialized()
     {
@@ -114,7 +109,7 @@
     {
         if (Id != null)
         {
-            _staffModel = await _StaffService.GetByIdAsync(Id.Value);
+            _staffModel = await StaffService.GetByIdAsync(Id.Value);
             return;
         }
         
@@ -129,7 +124,7 @@
         if (_currentPassword == _staffModel.StaffPassword)
         {
             _staffModel.StaffPassword = _newPassword;
-            await _StaffService.UpdateAsync(_staffModel);
+            await StaffService.UpdateAsync(_staffModel);
             NavService.GoHome();
         }
     }

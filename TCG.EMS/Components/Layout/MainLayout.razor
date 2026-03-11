@@ -29,12 +29,17 @@
 
                         <ul class="nav-item-hover list-unstyled">
                             <li class="ps-2">
+                                <NavLink href="/tournaments/add" class="nav-link text-white py-1 px-2 pt-0 pb-0 mt-2 mb-2">
+                                    Create a Tournament
+                                </NavLink>
+                            </li>
+                            <li class="ps-2">
                                 <NavLink href="/tournaments/ongoing" class="nav-link text-white py-1 px-2 pt-0 pb-0 mt-2 mb-2">
                                     View Ongoing Tournaments
                                 </NavLink>
                             </li>
                             <li class="ps-2">
-                                <NavLink href="/tournaments/manage" class="nav-link text-white py-1 px-2 pt-0 pb-0 mt-2 mb-2">
+                                <NavLink href="/tournaments" class="nav-link text-white py-1 px-2 pt-0 pb-0 mt-2 mb-2">
                                     Manage Tournaments
                                 </NavLink>
                             </li>
@@ -45,16 +50,34 @@
                         <NavLink href="/leagues" class="nav-link text-white d-flex align-items-center fs-5 p-2 mb-2">
                             <i class="bi bi-people me-2"></i> Leagues
                         </NavLink>
+                        
+                        <ul class="nav-item-hover list-unstyled">
+                            <li class="ps-2">
+                                <NavLink href="/leagues/add" class="nav-link text-white py-1 px-2 pt-0 pb-0 mt-2 mb-2">
+                                    Create a League
+                                </NavLink>
+                            </li>
+                            <li class="ps-2">
+                                <NavLink href="/leagues/ongoing" class="nav-link text-white py-1 px-2 pt-0 pb-0 mt-2 mb-2">
+                                    View Ongoing Leagues
+                                </NavLink>
+                            </li>
+                            <li class="ps-2">
+                                <NavLink href="/leagues" class="nav-link text-white py-1 px-2 pt-0 pb-0 mt-2 mb-2">
+                                    Manage Leagues
+                                </NavLink>
+                            </li>
+                        </ul>
                     </li>
 
                     <li class="nav-item">
-                        <NavLink href="/staff" class="nav-link text-white d-flex align-items-center fs-5 p-2 mb-2">
+                        <NavLink href="/accounts" class="nav-link text-white d-flex align-items-center fs-5 p-2 mb-2">
                             <i class="bi bi-person-badge me-2"></i> Staff Management
                         </NavLink>
                     </li>
 
                     <li class="nav-item">
-                        <NavLink href="/account" class="nav-link text-white d-flex align-items-center fs-5 p-2 mb-2">
+                        <NavLink href="/personal" class="nav-link text-white d-flex align-items-center fs-5 p-2 mb-2">
                             <i class="bi bi-person-circle me-2"></i> Your Account
                         </NavLink>
                     </li>
@@ -76,6 +99,13 @@
 </div>
 
 @code {
+    private string? UserRole;
+
+    protected override async Task OnInitializedAsync()
+    {
+        UserRole = await UserFromCookies.GetRoleAsync();
+    }
+    
     private bool ShowLayout
     {
         get
