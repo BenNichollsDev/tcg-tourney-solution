@@ -33,6 +33,22 @@
                                    class="form-control mb-3"
                                    @bind-Value="_tournamentModel.TournamentName"/>
 
+                        <label for="league">League:</label>
+                        <InputSelect id="league"
+                                     class="form-control mb-3"
+                                     @bind-Value="_tournamentModel.TournamentLeague">
+
+                            <option value="">-- Select League --</option>
+
+                            @foreach (var league in _leagues)
+                            {
+                                <option value="@league.LeagueId">
+                                    @league.LeagueName
+                                </option>
+                            }
+
+                        </InputSelect>
+                        
                         <label for="games">Game:</label>
                         <InputSelect id="games"
                                      class="form-control mb-3"
@@ -173,6 +189,9 @@
     private bool _hasLoaded;
     private bool _showNull;
     
+    public int TournamentLeagueId { get; set; }
+    public string? TournamentLeague { get; set; }
+    
     private string _participantErrorMessage = string.Empty;
     
     [Parameter]
@@ -185,7 +204,12 @@
 
     [Inject]
     private ITournamentPlayerService TournamentPlayerService { get; set; } = null!;
-
+    
+    [Inject]
+    private ILeagueService LeagueService { get; set; } = default!;
+    
+    private List<LeagueDto> _leagues = new();
+    
     private readonly Dictionary<string, Dictionary<string, Dictionary<string, string>>> _formatsByGame = new()
     {
         ["MtG"] = new Dictionary<string, Dictionary<string, string>>
@@ -250,6 +274,8 @@
             TpPlayerName = p.TpPlayerName
         }).ToList();
 
+        _leagues = (await LeagueService.GetAllAsync()).ToList();
+        
         _hasLoaded = true;
     }
     
@@ -259,15 +285,13 @@
             return;
 
         var trimmedName = _newParticipantName.Trim();
-
-        // Check if the name already exists in the current list
+        
         if (_participants.Any(p => string.Equals(p.TpPlayerName, trimmedName, StringComparison.OrdinalIgnoreCase)))
         {
             _participantErrorMessage = "A participant with this name already exists.";
             return;
         }
-
-        // Clear any previous error
+        
         _participantErrorMessage = string.Empty;
 
         _participants.Add(new TournamentPlayerDto
@@ -371,7 +395,7 @@
         await TournamentService.UpdateAsync(_tournamentModel);
         
         var removedPlayers = _originalParticipants
-            .Where(op => !_participants.Any(p => p.TpId == op.TpId))
+            .Where(op => _participants.All(p => p.TpId != op.TpId))
             .ToList();
 
         foreach (var player in removedPlayers)

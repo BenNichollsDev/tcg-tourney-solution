@@ -1,0 +1,115 @@
+﻿@page "/leagues"
+
+@using Microsoft.AspNetCore.Components.Forms
+@using System.ComponentModel.DataAnnotations
+@using TCG.Application.Interfaces
+@using TCG.Application.DTOs
+@using TCG.Application.Dtos
+@using TCG.Application.Interfaces.Services
+@using TCG.Domain.Entities
+@using TCG.EMS.Interfaces
+
+@rendermode InteractiveServer
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="bg-container p-4">
+
+            <h1 class="mb-3">Leagues</h1>
+
+            @if (!_hasDataLoaded)
+            {
+                <p>Loading...</p>
+            }
+            else
+            {
+                @if (_leagues!.Count == 0)
+                {
+                    <p>No leagues to list</p>
+
+                    <NavLink href="/leagues/new" class="btn btn-primary mt-3">
+                        <i class="bi bi-check"></i>Create a League
+                    </NavLink>
+                }
+                else
+                {
+                    <NavLink href="/leagues/new" class="btn btn-primary mt-3">
+                        <i class="bi bi-check"></i>Create a League
+                    </NavLink>
+
+                    <div class="container-fluid ms-4 me-4 mt-2 mb-2">
+
+                        <div class="row mb-3 border-bottom border-2 border-light">
+                            <div class="col-3 border-end border-1 border-light">
+                                <span>Name</span>
+                            </div>
+
+                            <div class="col-2 border-end border-1 border-light">
+                                <span>Game</span>
+                            </div>
+
+                            <div class="col-4 border-end border-1 border-light">
+                                <span>Description</span>
+                            </div>
+
+                            <div class="col-1">
+                            </div>
+
+                            <div class="col-1">
+                            </div>
+                        </div>
+
+                        @foreach (var l in _leagues!)
+                        {
+                            <div class="row mb-1">
+
+                                <div class="col-3 border-end border-1 border-light">
+                                    <span>@l.LeagueName</span>
+                                </div>
+
+                                <div class="col-2 border-end border-1 border-light">
+                                    <span>@l.LeagueGame</span>
+                                </div>
+
+                                <div class="col-4 border-end border-1 border-light">
+                                    <span>@l.LeagueDescription</span>
+                                </div>
+
+                                <div class="col-1">
+                                    <NavLink href="@($"/leagues/view/{l.LeagueId}")" class="btn btn-primary">
+                                        View
+                                    </NavLink>
+                                </div>
+
+                                <div class="col-1">
+                                    <NavLink href="@($"/leagues/edit/{l.LeagueId}")" class="btn btn-secondary">
+                                        Edit
+                                    </NavLink>
+                                </div>
+
+                            </div>
+                        }
+                    </div>
+                }
+            }
+
+        </div>
+    </div>
+</div>
+
+@code {
+
+    private bool _hasDataLoaded = false;
+
+    [Inject]
+    private ILeagueService LeagueService { get; set; } = default!;
+
+    List<LeagueDto>? _leagues;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _leagues = (await LeagueService.GetAllAsync()).ToList();
+        _hasDataLoaded = true;
+    }
+
+}

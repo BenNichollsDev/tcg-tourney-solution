@@ -1,0 +1,110 @@
+﻿@page "/leagues/edit/{leagueId:int}"
+
+@using TCG.Application.Interfaces
+@using TCG.Application.Dtos
+@using TCG.Application.Interfaces.Services
+@using TCG.Domain.Entities
+
+@rendermode InteractiveServer
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="bg-container p-4">
+                
+                <h1 class="mb-3 text-center">Edit League</h1>
+                
+                @if (!_hasLoaded)
+                {
+                    <p>Loading...</p>
+                }
+                else if (_showNull)
+                {
+                    <h2>No league data found.</h2>
+                }
+                else
+                {
+                    <EditForm Model="@_leagueModel" OnValidSubmit="OnFormSubmit" style="padding-left: 5em; padding-right: 5em;">
+                        <DataAnnotationsValidator/>
+                        <ValidationSummary/>
+
+                        <label for="name">League Name:</label>
+                        <InputText id="name"
+                                   class="form-control mb-3"
+                                   @bind-Value="_leagueModel.LeagueName"
+                                   required/>
+
+                        <label for="game">Game:</label>
+                        <InputText id="game"
+                                   class="form-control mb-3"
+                                   @bind-Value="_leagueModel.LeagueGame"
+                                   required/>
+
+                        <label for="description">Description:</label>
+                        <InputTextArea id="description"
+                                       class="form-control mb-3"
+                                       @bind-Value="_leagueModel.LeagueDescription"/>
+
+                        <div>
+                            <button type="submit" class="btn btn-secondary">
+                                Submit
+                            </button>
+                            <NavLink href="/leagues" type="button" class="btn btn-secondary">
+                                Back
+                            </NavLink>
+                        </div>
+                    </EditForm>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool _hasLoaded;
+    private bool _showNull;
+
+    [Parameter]
+    public int? LeagueId { get; set; }
+
+    private LeagueDto? _leagueModel = new();
+
+    [Inject]
+    private ILeagueService LeagueService { get; set; } = default!;
+
+    protected override void OnInitialized()
+    {
+        _hasLoaded = false;
+        _showNull = false;
+        base.OnInitialized();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (LeagueId == null)
+        {
+            _showNull = true;
+            _hasLoaded = true;
+            return;
+        }
+
+        _leagueModel = await LeagueService.GetByIdAsync(LeagueId.Value);
+
+        if (_leagueModel == null)
+        {
+            _showNull = true;
+        }
+
+        _hasLoaded = true;
+    }
+
+    private async Task OnFormSubmit()
+    {
+        if (_leagueModel == null) return;
+
+        await LeagueService.UpdateAsync(_leagueModel);
+
+        // Navigate back to leagues list
+        NavManager.NavigateTo("/leagues");
+    }
+}

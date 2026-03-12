@@ -68,7 +68,11 @@
                             {
                                 <div class="row mb-1">
                                     <div class="col-3 border-end border-1 border-light">
-                                        <span>@t.TournamentLeague</span>
+                                        <span>
+                                            @(t.TournamentLeague.HasValue 
+                                                ? _leagueLookup.GetValueOrDefault(t.TournamentLeague.Value)?.LeagueName 
+                                                : "No League")
+                                        </span>
                                     </div>
                                     <div class="col-1 border-end border-1 border-light">
                                         <span>@t.TournamentGame</span>
@@ -109,13 +113,22 @@
     private bool _hasDataLoaded = false;
 
     [Inject]
-    private ITournamentService _tournamentService { get; set; } = default!;
+    private ITournamentService TournamentService { get; set; } = default!;
+    
+    [Inject]
+    private ILeagueService LeagueService { get; set; } = default!;
 
     List<TournamentDto>? _tournaments;
+    
+    private Dictionary<int, LeagueDto> _leagueLookup = new();
 
     protected override async Task OnInitializedAsync()
     {
-        _tournaments = (List<TournamentDto>?)await _tournamentService.GetAllAsync();
+        _tournaments = (List<TournamentDto>?)await TournamentService.GetAllAsync();
+
+        var leagues = await LeagueService.GetAllAsync();
+        _leagueLookup = leagues.ToDictionary(l => l.LeagueId);
+
         _hasDataLoaded = true;
     }
 }

@@ -1,6 +1,8 @@
 ﻿@inherits LayoutComponentBase
 @inject NavigationManager NavManager
 
+<!-- CHANGE HOW THE ERROR IS DISPLAYED WITH THE LOGIN, SHOULD USE DATA VALIDATION INSTEAD -->
+
 <div class="page bg-main text-main min-vh-100 d-flex flex-column">
     <main class="d-flex flex-grow-1">
         @if (!ShowLayout)
@@ -46,11 +48,11 @@
                         </ul>
                     </li>
 
-                    <li class="nav-item">
+                    <li class="nav-item nav-hover-container">
                         <NavLink href="/leagues" class="nav-link text-white d-flex align-items-center fs-5 p-2 mb-2">
                             <i class="bi bi-people me-2"></i> Leagues
                         </NavLink>
-                        
+
                         <ul class="nav-item-hover list-unstyled">
                             <li class="ps-2">
                                 <NavLink href="/leagues/new" class="nav-link text-white py-1 px-2 pt-0 pb-0 mt-2 mb-2">
@@ -71,7 +73,7 @@
                     </li>
 
                     <li class="nav-item">
-                        <NavLink href="/accounts" class="nav-link text-white d-flex align-items-center fs-5 p-2 mb-2">
+                        <NavLink href="/accounts/new" class="nav-link text-white d-flex align-items-center fs-5 p-2 mb-2">
                             <i class="bi bi-person-badge me-2"></i> Staff Management
                         </NavLink>
                     </li>

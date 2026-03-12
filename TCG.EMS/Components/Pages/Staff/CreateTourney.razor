@@ -31,6 +31,22 @@
                                class="form-control mb-3"
                                @bind-Value="_tournamentModel.TournamentName"/>
 
+                    <label for="league">League:</label>
+                    <InputSelect id="league"
+                                 class="form-control mb-3"
+                                 @bind-Value="_tournamentModel.TournamentLeague">
+
+                        <option value="">-- Select League --</option>
+
+                        @foreach (var league in _leagues)
+                        {
+                            <option value="@league.LeagueId">
+                                @league.LeagueName
+                            </option>
+                        }
+
+                    </InputSelect>
+                    
                     <label for="games">Game:</label>
                     <InputSelect id="games"
                                  class="form-control mb-3"
@@ -125,9 +141,17 @@
     private const string RoundRobinValue = "Round-Robin";
 
     private TournamentDto _tournamentModel = new();
+    
+    public int TournamentLeagueId { get; set; }
+    public string? TournamentLeague { get; set; }
 
     [Inject]
     private ITournamentService TournamentService { get; set; } = default!;
+    
+    [Inject]
+    private ILeagueService LeagueService { get; set; } = default!;
+    
+    private List<LeagueDto> _leagues = new();
 
     private Dictionary<string, Dictionary<string, Dictionary<string, string>>> formatsByGame = new()
     {
@@ -164,6 +188,11 @@
         _tournamentModel.TournamentDate = DateOnly.FromDateTime(DateTime.Now);
         _tournamentModel.TournamentTime = TimeOnly.FromDateTime(DateTime.Now);
         base.OnInitialized();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _leagues = (await LeagueService.GetAllAsync()).ToList();
     }
 
     private void OnGameChanged(ChangeEventArgs e)
