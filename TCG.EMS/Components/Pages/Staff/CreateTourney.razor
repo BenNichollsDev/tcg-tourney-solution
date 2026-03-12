@@ -5,6 +5,7 @@
 @using TCG.Application.Interfaces
 @using TCG.Application.DTOs
 @using TCG.Application.Dtos
+@using TCG.Application.Interfaces.Services
 @using TCG.Application.Services
 @using TCG.Domain.Entities
 @using TCG.EMS.Interfaces
@@ -120,14 +121,13 @@
 </div>
 
 @code {
-
     private const string SwissValue = "Swiss";
     private const string RoundRobinValue = "Round-Robin";
 
     private TournamentDto _tournamentModel = new();
 
     [Inject]
-    private IGenericService<Tournament, TournamentDto> TournamentService { get; set; } = default!;
+    private ITournamentService TournamentService { get; set; } = default!;
 
     private Dictionary<string, Dictionary<string, Dictionary<string, string>>> formatsByGame = new()
     {
@@ -251,7 +251,7 @@
     private async Task OnFormSubmit()
     {
         _tournamentModel.TournamentPairing = formatsByGame[_tournamentModel.TournamentGame][_tournamentModel.TournamentFormat]["pairing"];
-        await TournamentService.AddAsync(_tournamentModel);
+        await TournamentService.CreateAsync(_tournamentModel);
         NavService.GoTourney();
     }
 }

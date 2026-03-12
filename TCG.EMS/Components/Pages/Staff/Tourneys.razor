@@ -5,6 +5,7 @@
 @using TCG.Application.Interfaces
 @using TCG.Application.DTOs
 @using TCG.Application.Dtos
+@using TCG.Application.Interfaces.Services
 @using TCG.Domain.Entities
 @using TCG.EMS.Interfaces
 
@@ -85,12 +86,12 @@
                                         <span>@t.TournamentTime</span>
                                     </div>
                                     <div class="col-1">
-                                        <NavLink href="@($"/tournaments/view?id={t.TournamentId}")" class="btn btn-primary">
+                                        <NavLink href="@($"/tournaments/view/{t.TournamentId}")" class="btn btn-primary">
                                             View
                                         </NavLink>
                                     </div>
                                     <div class="col-1">
-                                        <NavLink href="@($"/tournaments/edit?id={t.TournamentId}")" class="btn btn-secondary">
+                                        <NavLink href="@($"/tournaments/edit/{t.TournamentId}")" class="btn btn-secondary">
                                             Edit
                                         </NavLink>
                                     </div>
@@ -107,13 +108,14 @@
     private TournamentDto _tournamentModel = new();
     private bool _hasDataLoaded = false;
 
-    [Inject] private IGenericService<Tournament, TournamentDto> _tournamentService { get; set; } = default!;
+    [Inject]
+    private ITournamentService _tournamentService { get; set; } = default!;
 
     List<TournamentDto>? _tournaments;
 
     protected override async Task OnInitializedAsync()
     {
-        _tournaments = await _tournamentService.GetAllAsync();
+        _tournaments = (List<TournamentDto>?)await _tournamentService.GetAllAsync();
         _hasDataLoaded = true;
     }
 }

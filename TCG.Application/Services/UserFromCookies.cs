@@ -1,7 +1,10 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Components.Authorization;
+using TCG.Application.Interfaces.Services;
 
-public class UserFromCookies
+namespace TCG.Application.Services;
+
+public class UserFromCookies : IUserFromCookies
 {
     private readonly AuthenticationStateProvider _authProvider;
 

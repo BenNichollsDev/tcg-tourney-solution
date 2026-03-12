@@ -1,4 +1,4 @@
-﻿@page "/tournaments/edit/{id:int}"
+﻿@page "/tournaments/edit/{tournamentId:int}"
 
 @using TCG.Application.Interfaces
 @using TCG.Application.Dtos
@@ -12,7 +12,7 @@
         <div class="col-12 col-md-8 col-lg-6">
             <div class="bg-container p-4">
                 
-                <h1 class="mb-3 text-center">Create a New Tournament</h1>
+                <h1 class="mb-3 text-center">Edit Tournament</h1>
                 
                 @if (!_hasLoaded)
                 {
@@ -176,13 +176,12 @@
     private string _participantErrorMessage = string.Empty;
     
     [Parameter]
-    [SupplyParameterFromQuery]
-    public int? Id { get; set; }
+    public int? TournamentId { get; set; }
 
     private TournamentDto? _tournamentModel = new();
 
     [Inject]
-    private IGenericService<Tournament, TournamentDto> TournamentService { get; set; } = null!;
+    private ITournamentService TournamentService { get; set; } = null!;
 
     [Inject]
     private ITournamentPlayerService TournamentPlayerService { get; set; } = null!;
@@ -226,27 +225,31 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (Id != null)
+        if (TournamentId == null)
         {
-            _tournamentModel = await TournamentService.GetByIdAsync(Id.Value);
-
-            var allPlayers = await TournamentPlayerService.GetAllAsync();
-            _participants = allPlayers
-                .Where(p => p.TpTournament == Id.Value)
-                .ToList();
-            
-            _originalParticipants = _participants.Select(p => new TournamentPlayerDto
-            {
-                TpId = p.TpId,
-                TpTournament = p.TpTournament,
-                TpPlayerName = p.TpPlayerName
-            }).ToList();
-
+            _showNull = true;
             _hasLoaded = true;
             return;
         }
 
-        _showNull = true;
+        _tournamentModel = await TournamentService.GetByIdAsync(TournamentId.Value);
+        if (_tournamentModel == null)
+        {
+            _showNull = true;
+            _hasLoaded = true;
+            return;
+        }
+
+        var allPlayers = await TournamentPlayerService.GetAllAsync();
+        _participants = allPlayers.Where(p => p.TpTournament == TournamentId.Value).ToList();
+
+        _originalParticipants = _participants.Select(p => new TournamentPlayerDto
+        {
+            TpId = p.TpId,
+            TpTournament = p.TpTournament,
+            TpPlayerName = p.TpPlayerName
+        }).ToList();
+
         _hasLoaded = true;
     }
     

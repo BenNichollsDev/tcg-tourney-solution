@@ -23,7 +23,7 @@ namespace TCG.Application.Dtos
         public string StaffPassword { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Mobile number is required.")]
-        [RegularExpression(@"^\+?[1-9]\d{9,14}$", ErrorMessage = "Invalid mobile number.")]
+        [RegularExpression(@"^(\+?[1-9]\d{1,14}|0\d{9,14})$", ErrorMessage = "Invalid mobile number.")]
         public string StaffMobile { get; set; } = string.Empty;
 
         public bool StaffRoleManagement { get; set; }

@@ -47,12 +47,14 @@ builder.Services.AddAutoMapper(cfg => cfg.AddProfile<AutoMapperProfile>());
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IStaffService, StaffService>();
+builder.Services.AddScoped<ILeagueService, LeagueService>();
 builder.Services.AddScoped<ITournamentService, TournamentService>();
+builder.Services.AddScoped<ITournamentPlayerService, TournamentPlayerService>();
 
 builder.Services.AddScoped<LoginAuthService>();
 builder.Services.AddScoped<LoginService>();
 builder.Services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
-builder.Services.AddScoped<UserFromCookies>();
+builder.Services.AddScoped<IUserFromCookies, UserFromCookies>();
 builder.Services.AddScoped<INavigationService, NavigationService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthorizationCore();

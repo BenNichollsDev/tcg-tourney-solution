@@ -1,5 +1,4 @@
-﻿@page "/personal/{id:int}"
-@page "/personal"
+﻿@page "/personal"
 
 @using TCG.Application.Dtos
 @using TCG.Application.Interfaces.Services
@@ -96,6 +95,9 @@
 
     [Inject]
     private IStaffService StaffService { get; set; } = default!;
+
+    [Inject]
+    private IUserFromCookies CookiesService { get; set; } = default!;
     
     protected override void OnInitialized()
     {
@@ -107,23 +109,29 @@
     
     protected override async Task OnInitializedAsync()
     {
-        if (Id != null)
+        var userId = await CookiesService.GetUserIdAsync();
+
+        if (userId == null)
         {
-            _staffModel = await StaffService.GetByIdAsync(Id.Value);
+            _showNull = true;
+            _hasLoaded = true;
             return;
         }
-        
-        if (_staffModel == null || Id == null)
-            _showNull = true;
-        
+
+        _staffModel = await StaffService.GetByIdAsync(userId.Value);
+
         _hasLoaded = true;
     }
-
+    
     private async Task OnFormSubmit()
     {
         if (_currentPassword == _staffModel.StaffPassword)
         {
-            _staffModel.StaffPassword = _newPassword;
+            if (string.IsNullOrEmpty(_newPassword))
+                _staffModel.StaffPassword = _currentPassword;
+            else
+                _staffModel.StaffPassword = _newPassword;
+            
             await StaffService.UpdateAsync(_staffModel);
             NavService.GoHome();
         }

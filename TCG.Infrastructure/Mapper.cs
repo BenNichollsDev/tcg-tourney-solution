@@ -25,6 +25,12 @@ namespace TCG.Infrastructure
                     srcMember != null &&
                     (!(srcMember is string s) || !string.IsNullOrWhiteSpace(s))));
 
+            CreateMap<TournamentPlayer, TournamentPlayerDto>()
+                .ForAllMembers(opt =>
+                    opt.Condition((src, dest, srcMember) =>
+                        srcMember != null &&
+                        (!(srcMember is string s) || !string.IsNullOrWhiteSpace(s))));
+
             CreateMap<Pairing, PairingDto>()
                 .ForAllMembers(opt =>
                 opt.Condition((src, dest, srcMember) =>
@@ -57,6 +63,12 @@ namespace TCG.Infrastructure
                     srcMember != null &&
                     (!(srcMember is string s) || !string.IsNullOrWhiteSpace(s))));
 
+            CreateMap<TournamentPlayerDto, TournamentPlayer>()
+                .ForAllMembers(opt =>
+                    opt.Condition((src, dest, srcMember) =>
+                        srcMember != null &&
+                        (!(srcMember is string s) || !string.IsNullOrWhiteSpace(s))));
+
             CreateMap<PairingDto, Pairing>()
                 .ForAllMembers(opt =>
                 opt.Condition((src, dest, srcMember) =>
@@ -74,10 +86,6 @@ namespace TCG.Infrastructure
                 opt.Condition((src, dest, srcMember) =>
                     srcMember != null &&
                     (!(srcMember is string s) || !string.IsNullOrWhiteSpace(s))));
-
-
-
-
         }
     }
 }
