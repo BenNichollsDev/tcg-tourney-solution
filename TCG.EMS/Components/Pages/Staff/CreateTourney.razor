@@ -273,9 +273,7 @@
         _tournamentModel.TournamentDate == DateOnly.FromDateTime(DateTime.Now);
 
     private bool IsTimeInvalid =>
-        IsDateToday
-            ? _tournamentModel.TournamentTime < TimeOnly.FromDateTime(DateTime.Now)
-            : false;
+        IsDateToday && _tournamentModel.TournamentTime < TimeOnly.FromDateTime(DateTime.Now);
 
     private async Task OnFormSubmit()
     {

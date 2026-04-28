@@ -1,5 +1,6 @@
 ﻿@page "/tournaments/view/{tournamentId:int}"
 @using TCG.Application.Dtos
+@using TCG.Domain.Entities
 
 <div class="container py-4">
     <div class="row justify-content-center">
@@ -21,61 +22,71 @@
                     <p>Start time: @_tournamentModel.TournamentTime</p>
 
                     <h3>Participants</h3>
+                    
+                    @if (_tournamentModel.TournamentFormat == "Round-Robin")
+                    {
+                        <EditForm Model="_pairings">
 
-                    <EditForm Model="_pairings">
+                            @foreach (var pairing in _pairings)
+                            {
+                                <div class="mb-3 border p-2">
+                                    <div class="row">
 
-                        @foreach (var pairing in _pairings)
-                        {
-                            <div class="mb-3 border p-2">
-                                <div class="row">
+                                        <div class="col">
+                                            <InputSelect class="form-control"
+                                                         @bind-Value="pairing.Player1Id">
+                                                <option value="">-- Select Player 1 --</option>
 
-                                    <div class="col">
-                                        <InputSelect class="form-control"
-                                                     @bind-Value="pairing.Player1Id">
-                                            <option value="">-- Select Player 1 --</option>
+                                                @foreach (var participant in GetAvailablePlayers())
+                                                {
+                                                    <option value="@participant.TpId">
+                                                        @participant.TpPlayerName
+                                                    </option>
+                                                }
+                                            </InputSelect>
+                                        </div>
 
-                                            @foreach (var participant in GetAvailablePlayers())
-                                            {
-                                                <option value="@participant.TpId">
-                                                    @participant.TpPlayerName
-                                                </option>
-                                            }
-                                        </InputSelect>
+                                        <div class="col">
+                                            <InputSelect class="form-control"
+                                                         @bind-Value="pairing.Player2Id">
+                                                <option value="">-- Select Player 2 --</option>
+
+                                                @foreach (var participant in GetAvailablePlayers())
+                                                {
+                                                    <option value="@participant.TpId">
+                                                        @participant.TpPlayerName
+                                                    </option>
+                                                }
+
+                                                @if (_isOddNumOfParticipants && GetAvailablePlayers().Count == 1)
+                                                {
+                                                    <option value="">Bye</option>
+                                                }
+                                            </InputSelect>
+                                        </div>
+
                                     </div>
-
-                                    <div class="col">
-                                        <InputSelect class="form-control"
-                                                     @bind-Value="pairing.Player2Id">
-                                            <option value="">-- Select Player 2 --</option>
-
-                                            @foreach (var participant in GetAvailablePlayers())
-                                            {
-                                                <option value="@participant.TpId">
-                                                    @participant.TpPlayerName
-                                                </option>
-                                            }
-
-                                            @if (_isOddNumOfParticipants && GetAvailablePlayers().Count == 1)
-                                            {
-                                                <option value="bye">Bye</option>
-                                            }
-                                        </InputSelect>
-                                    </div>
-
                                 </div>
-                            </div>
-                        }
+                            }
 
-                    </EditForm>
+                        </EditForm>
 
-                    <button class="btn btn-primary"
-                            disabled="@(!CanStartMatch())">
-                        Start Matches
-                    </button>
+                        <NavLink class="btn btn-primary" disabled="@(!CanStartMatch())" @onclick="StartMatchAsync">
+                            Start Match
+                        </NavLink>
 
-                    <button type="button" class="btn btn-secondary ms-2">
-                        Back
-                    </button>
+                        <NavLink class="btn btn-primary" @onclick="StartMatchRandomAsync">
+                            Auto-Assign Pairings and Start Match
+                        </NavLink>
+
+                        <button type="button" class="btn btn-secondary ms-2">
+                            Back
+                        </button>
+                    }
+                    @else
+                    {
+                        // Swiss style
+                    }
                 }
             </div>
         </div>
@@ -85,6 +96,7 @@
 @code {
     private bool _hasLoaded;
     private bool _showNull;
+    private bool _matchStarted;
     
     [Parameter]
     public int? TournamentId { get; set; }
@@ -97,6 +109,9 @@
     [Inject]
     private ITournamentPlayerService TournamentPlayerService { get; set; } = null!;
 
+    [Inject]
+    private IPairingService PairingService { get; set; } = null!;
+
     private List<TournamentPlayerDto> _participants = new();
     
     private List<PairingSelection> _pairings = new();
@@ -108,6 +123,7 @@
     {
         _hasLoaded = false;
         _showNull = false;
+        _matchStarted = false;
         
         if (TournamentId == null)
         {
@@ -165,13 +181,74 @@
     
     private bool CanStartMatch()
     {
-        // Ensure all pairings have valid selections
-        return _pairings.All(p =>
-            p.Player1Id != null &&
-            (p.Player2Id != null || GetAvailablePlayers().Count == 0));
+        return (
+            _pairings.All(p =>
+                p is { Player1Id: not null, Player2Id: not null }) &&
+            GetAvailablePlayers().Count == 0 &&
+            !_matchStarted);
+    }
+    
+    private async Task StartMatchAsync()
+    {
+        _matchStarted = true;
+        
+        foreach (var pairing in _pairings)
+        {
+            await PairingService.CreateAsync(
+                new PairingDto()
+                {
+                    PairingTp1 = pairing.Player1Id,
+                    PairingTp2 = pairing.Player2Id
+                });
+        }
+        
+        NavManager.NavigateTo($"/tournaments/inprogress/{TournamentId}");
+    }
+    
+    private async Task StartMatchRandomAsync()
+    {
+        if (_matchStarted)
+            return;
+
+        _matchStarted = true;
+
+
+        var random = new Random();
+
+        var shuffled = _participants
+            .OrderBy(_ => random.Next())
+            .ToList();
+
+        _pairings = new List<PairingSelection>();
+
+        // 2. Pair them up
+        for (int i = 0; i < shuffled.Count; i += 2)
+        {
+            var pairing = new PairingSelection
+            {
+                Player1Id = shuffled[i].TpId,
+                Player2Id = (i + 1 < shuffled.Count)
+                    ? shuffled[i + 1].TpId
+                    : null
+            };
+
+            _pairings.Add(pairing);
+        }
+        
+        foreach (var pairing in _pairings)
+        {
+            await PairingService.CreateAsync(
+                new PairingDto
+                {
+                    PairingTp1 = pairing.Player1Id,
+                    PairingTp2 = pairing.Player2Id
+                });
+        }
+        
+        NavManager.NavigateTo($"/tournaments/inprogress/{TournamentId}");
     }
 
-    public class PairingSelection
+    private class PairingSelection
     {
         public int? Player1Id { get; set; }
         public int? Player2Id { get; set; }
