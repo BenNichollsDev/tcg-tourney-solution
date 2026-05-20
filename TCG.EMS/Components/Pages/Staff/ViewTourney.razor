@@ -83,7 +83,7 @@
                             Back
                         </button>
                     }
-                    @else
+                    else
                     {
                         // Swiss style
                     }
@@ -211,8 +211,7 @@
             return;
 
         _matchStarted = true;
-
-
+        
         var random = new Random();
 
         var shuffled = _participants
@@ -221,7 +220,6 @@
 
         _pairings = new List<PairingSelection>();
 
-        // 2. Pair them up
         for (int i = 0; i < shuffled.Count; i += 2)
         {
             var pairing = new PairingSelection

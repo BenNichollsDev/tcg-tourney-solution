@@ -10,7 +10,7 @@ namespace TCG.Infrastructure
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
 
             optionsBuilder.UseNpgsql(
-                "Host=db;Port=5432;Username=postgres;Password=secret;Database=tcg_db"
+                "Host=localhost;Port=5432;Username=postgres;Password=secret;Database=tcg_db"
             );
 
             return new AppDbContext(optionsBuilder.Options);

@@ -21,8 +21,8 @@ builder.AddServiceDefaults();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-var dbString = Environment.GetEnvironmentVariable("ConnectionStrings__db-application");
-if (dbString is null) throw new NullReferenceException(nameof(dbString));
+var dbString = Environment.GetEnvironmentVariable("ConnectionStrings__db-application")
+               ?? "Host=localhost;Port=5432;Database=tcg_db;Username=postgres;Password=postgres";
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(

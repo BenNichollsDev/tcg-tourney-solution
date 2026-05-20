@@ -13,6 +13,12 @@ namespace TCG.Domain.Entities
         [Column("pairing_tp_2")]
         public int? PairingTp2 { get; private set; }
 
+        [Column("pairing_tp_1_score")]
+        public int? PairingTp1Score { get; private set; }
+
+        [Column("pairing_tp_2_score")]
+        public int? PairingTp2Score { get; private set; }
+
         [Column("pairing_winner")]
         public string? PairingWinner { get; private set; }
     }
