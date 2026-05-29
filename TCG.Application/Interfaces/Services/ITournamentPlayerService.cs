@@ -10,6 +10,8 @@ public interface ITournamentPlayerService
 
     Task<IEnumerable<TournamentPlayerDto>> GetAllAsync();
 
+    Task<IEnumerable<TournamentPlayerDto>> GetAllWhereAsync(Expression<Func<TournamentPlayer, bool>> predicate);
+
     Task<TournamentPlayerDto> GetByAsync(Expression<Func<TournamentPlayer, bool>> predicate);
 
     Task<TournamentPlayerDto> CreateAsync(TournamentPlayerDto tournamentPlayerDto);

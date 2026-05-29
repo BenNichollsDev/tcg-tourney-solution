@@ -36,6 +36,15 @@ public class TournamentPlayerService
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<TournamentPlayerDto>> GetAllWhereAsync(Expression<Func<TournamentPlayer, bool>> predicate)
+    {
+        return await context.TournamentPlayers
+            .AsNoTracking()
+            .Where(predicate)
+            .ProjectTo<TournamentPlayerDto>(mapper.ConfigurationProvider)
+            .ToListAsync();
+    }
+
     public async Task<TournamentPlayerDto> GetByAsync(Expression<Func<TournamentPlayer, bool>> predicate)
     {
         var tournamentPlayer = await context.TournamentPlayers

@@ -1,0 +1,115 @@
+﻿@page "/tournaments/inprogress/{tournamentId:int}"
+@using TCG.Application.Dtos
+@using TCG.Domain.Entities
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="bg-container p-4">
+
+                @if (!_hasLoaded)
+                {
+                    <p>Loading...</p>
+                }
+                else if (_showNull)
+                {
+                    <h2>No tournament data found.</h2>
+                }
+                else
+                {
+                    <h3>@_tournamentModel.TournamentName</h3>
+
+                    @foreach (var pairing in pairings)
+                    {
+                        <div class="mb-3 border p-2">
+                            <div class="row">
+                                <div class="col">
+                                    @pairing.Player1Name
+                                </div>
+                                <div class="col text-center">
+                                    vs
+                                </div>
+                                <div class="col">
+                                    @pairing.Player2Name
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    <p></p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private class PairingSelection
+    {
+        public int? Player1Id { get; set; }
+        public int? Player2Id { get; set; }
+
+        public string? Player1Name { get; set; }
+        public string? Player2Name { get; set; }
+    }
+
+    private bool _hasLoaded;
+    private bool _showNull;
+    private List<PairingSelection> pairings;
+
+    [Parameter]
+    public int? TournamentId { get; set; }
+
+    private TournamentDto? _tournamentModel = new();
+
+    [Inject]
+    private ITournamentService TournamentService { get; set; } = null!;
+
+    [Inject]
+    private ITournamentPlayerService TournamentPlayerService { get; set; } = null!;
+
+    [Inject]
+    private IPairingService PairingService { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _hasLoaded = false;
+        _showNull = false;
+
+        if (TournamentId == null)
+        {
+            _showNull = true;
+            _hasLoaded = true;
+            return;
+        }
+
+        _tournamentModel = await TournamentService.GetByIdAsync(TournamentId.Value);
+
+        if (_tournamentModel == null)
+        {
+            _showNull = true;
+            _hasLoaded = true;
+            return;
+        }
+
+        // CONTINUE FROM HERE
+        var allPlayers = (await TournamentPlayerService
+            .GetAllWhereAsync(tp => tp.TpTournament == TournamentId.Value))
+            .ToList();
+
+        for (int i = 0; i < allPlayers.Count; i += 2)
+        {
+            var p1 = allPlayers[i];
+            var p2 = i + 1 < allPlayers.Count ? allPlayers[i + 1] : null;
+
+            pairings.Add(new PairingSelection
+            {
+                Player1Id = p1.TpId,
+                Player2Id = p2?.TpId,
+                Player1Name = p1.TpPlayerName ?? "BYE",
+                Player2Name = p2?.TpPlayerName ?? "BYE"
+            });
+        }
+
+        _hasLoaded = true;
+    }
+}

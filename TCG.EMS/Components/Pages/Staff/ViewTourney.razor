@@ -141,7 +141,7 @@
             return;
         }
         
-        var allPlayers = await TournamentPlayerService.GetAllAsync();
+        var allPlayers = await TournamentPlayerService.GetAllWhereAsync(tp => tp.TpTournament == TournamentId.Value);
 
         _participants = allPlayers
             .Where(p => p.TpTournament == TournamentId.Value)
