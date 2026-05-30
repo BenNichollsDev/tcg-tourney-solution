@@ -36,15 +36,5 @@
       <jdbc-url>jdbc:postgresql://localhost:53922/?password=cM%29w8%7Bew%28qTsc4GSH1GhNn&amp;user=postgres</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
-    <data-source source="LOCAL" name="database-server" uuid="d8a8c42d-f222-4aee-a12f-a15f4d86e694">
-      <driver-ref>postgresql</driver-ref>
-      <synchronize>true</synchronize>
-      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost:65054/?password=cM%29w8%7Bew%28qTsc4GSH1GhNn&amp;user=postgres</jdbc-url>
-      <jdbc-additional-properties>
-        <property name="aspireResourceId" value="database-server-qsvgtugs" />
-      </jdbc-additional-properties>
-      <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
   </component>
 </project>

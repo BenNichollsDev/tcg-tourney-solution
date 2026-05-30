@@ -13,6 +13,18 @@ namespace TCG.Domain.Entities
         [Column("tp_player_name")]
         public string? PlayerName { get; private set; }
 
+        [Column("tp_player_swiss_wins")]
+        public string? PlayerSwissWins { get; private set; }
+
+        [Column("tp_player_swiss_score")]
+        public string? PlayerSwissScore { get; private set; }
+
+        [Column("tp_player_swiss_match_points")]
+        public string? PlayerSwissMatchPoints { get; private set; }
+
+        [Column("tp_player_swiss_points")]
+        public string? PlayerSwissPoints { get; private set; }
+
         public Tournament Tournament { get; private set; } = null!;
 
         // Pairings where this player is Player1

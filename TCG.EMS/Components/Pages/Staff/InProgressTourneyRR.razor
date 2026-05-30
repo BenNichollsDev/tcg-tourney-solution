@@ -1,6 +1,9 @@
 ﻿@page "/tournaments/inprogress/{tournamentId:int}"
 @using TCG.Application.Dtos
 @using TCG.Domain.Entities
+@using System
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Forms
 
 <div class="container py-4">
     <div class="row justify-content-center">
@@ -24,13 +27,29 @@
                         <div class="mb-3 border p-2">
                             <div class="row">
                                 <div class="col">
-                                    @pairing.Player1Name
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span>@pairing.Player1Name</span>
+                                        <InputNumber TValue="int"
+                                                     @bind-Value="pairing.Player1Score"
+                                                     class="form-control form-control-sm ms-2"
+                                                     style="width:4rem;"
+                                                     min="0" max="3"
+                                                     disabled="@IsBye(pairing)" />
+                                    </div>
                                 </div>
                                 <div class="col text-center">
                                     vs
                                 </div>
                                 <div class="col">
-                                    @pairing.Player2Name
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span>@pairing.Player2Name</span>
+                                        <InputNumber TValue="int"
+                                                     @bind-Value="pairing.Player2Score"
+                                                     class="form-control form-control-sm ms-2"
+                                                     style="width:4rem;"
+                                                     min="0" max="3"
+                                                     disabled="@IsBye(pairing)" />
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -50,11 +69,13 @@
 
         public string? Player1Name { get; set; }
         public string? Player2Name { get; set; }
+        public int Player1Score { get; set; }
+        public int Player2Score { get; set; }
     }
 
     private bool _hasLoaded;
     private bool _showNull;
-    private List<PairingSelection> pairings;
+    private List<PairingSelection> pairings = new();
 
     [Parameter]
     public int? TournamentId { get; set; }
@@ -106,10 +127,17 @@
                 Player1Id = p1.TpId,
                 Player2Id = p2?.TpId,
                 Player1Name = p1.TpPlayerName ?? "BYE",
-                Player2Name = p2?.TpPlayerName ?? "BYE"
+                Player2Name = p2?.TpPlayerName ?? "BYE",
+                Player1Score = 0,
+                Player2Score = 0
             });
         }
 
         _hasLoaded = true;
     }
+
+    private static bool IsBye(PairingSelection p) =>
+        string.Equals(p.Player1Name, "BYE", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(p.Player2Name, "BYE", StringComparison.OrdinalIgnoreCase);
+
 }

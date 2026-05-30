@@ -71,11 +71,11 @@
 
                         </EditForm>
 
-                        <NavLink class="btn btn-primary" disabled="@(!CanStartMatch())" @onclick="StartMatchAsync">
+                        <NavLink class="btn btn-primary" disabled="@(!CanStartMatch())" @onclick="StartRRMatchAsync">
                             Start Match
                         </NavLink>
 
-                        <NavLink class="btn btn-primary" @onclick="StartMatchRandomAsync">
+                        <NavLink class="btn btn-primary" @onclick="StartRRMatchRandomAsync">
                             Auto-Assign Pairings and Start Match
                         </NavLink>
 
@@ -85,7 +85,26 @@
                     }
                     else
                     {
-                        // Swiss style
+                        <h3>Swiss Pairings</h3>
+
+                        <div class="mb-3">
+                            <button class="btn btn-outline-primary me-2" @onclick="GenerateSwissPairings">Generate Swiss Pairings</button>
+                            <button class="btn btn-primary" @onclick="StartSwissMatchAsync" disabled="@(!_pairings.Any())">Start Swiss Round</button>
+                        </div>
+
+                        @if (_pairings.Any())
+                        {
+                            @foreach (var pairing in _pairings)
+                            {
+                                <div class="mb-2 border p-2">
+                                    <div class="row">
+                                        <div class="col">@GetPlayerName(pairing.Player1Id)</div>
+                                        <div class="col text-center">vs</div>
+                                        <div class="col">@GetPlayerName(pairing.Player2Id)@(pairing.Player2Id == null ? " (BYE)" : "")</div>
+                                    </div>
+                                </div>
+                            }
+                        }
                     }
                 }
             </div>
@@ -97,12 +116,12 @@
     private bool _hasLoaded;
     private bool _showNull;
     private bool _matchStarted;
-    
+
     [Parameter]
     public int? TournamentId { get; set; }
-    
+
     private TournamentDto? _tournamentModel = new();
-    
+
     [Inject]
     private ITournamentService TournamentService { get; set; } = null!;
 
@@ -113,25 +132,25 @@
     private IPairingService PairingService { get; set; } = null!;
 
     private List<TournamentPlayerDto> _participants = new();
-    
+
     private List<PairingSelection> _pairings = new();
-    
+
     private int _possibleNumOfPairings;
     private bool _isOddNumOfParticipants = false;
-    
+
     protected override async Task OnInitializedAsync()
     {
         _hasLoaded = false;
         _showNull = false;
         _matchStarted = false;
-        
+
         if (TournamentId == null)
         {
             _showNull = true;
             _hasLoaded = true;
             return;
         }
-        
+
         _tournamentModel = await TournamentService.GetByIdAsync(TournamentId.Value);
 
         if (_tournamentModel == null)
@@ -140,17 +159,17 @@
             _hasLoaded = true;
             return;
         }
-        
+
         var allPlayers = await TournamentPlayerService.GetAllWhereAsync(tp => tp.TournamentId == TournamentId.Value);
 
         _participants = allPlayers
             .Where(p => p.TpTournament == TournamentId.Value)
             .ToList();
-        
+
         _isOddNumOfParticipants = _participants.Count % 2 != 0;
-        
+
         _possibleNumOfPairings = _participants.Count / 2;
-        
+
         _pairings = new List<PairingSelection>();
 
         for (int i = 0; i < _possibleNumOfPairings; i++)
@@ -160,7 +179,7 @@
 
         _hasLoaded = true;
     }
-    
+
     private List<TournamentPlayerDto> GetAvailablePlayers()
     {
         var selectedIds = new List<int>();
@@ -178,7 +197,7 @@
             .Where(p => !selectedIds.Contains(p.TpId))
             .ToList();
     }
-    
+
     private bool CanStartMatch()
     {
         return (
@@ -187,11 +206,11 @@
             GetAvailablePlayers().Count == 0 &&
             !_matchStarted);
     }
-    
-    private async Task StartMatchAsync()
+
+    private async Task StartRRMatchAsync()
     {
         _matchStarted = true;
-        
+
         foreach (var pairing in _pairings)
         {
             await PairingService.CreateAsync(
@@ -201,11 +220,13 @@
                     PairingTp2 = pairing.Player2Id
                 });
         }
-        
+
+        _tournamentModel.TournamentRoundNum = 1;
+
         NavManager.NavigateTo($"/tournaments/inprogress/{TournamentId}");
     }
     
-    private async Task StartMatchRandomAsync()
+    private async Task StartRRMatchRandomAsync()
     {
         if (_matchStarted)
             return;
@@ -242,6 +263,8 @@
                     PairingTp2 = pairing.Player2Id
                 });
         }
+
+        _tournamentModel.TournamentRoundNum = 1;
         
         NavManager.NavigateTo($"/tournaments/inprogress/{TournamentId}");
     }
@@ -250,5 +273,72 @@
     {
         public int? Player1Id { get; set; }
         public int? Player2Id { get; set; }
+    }
+
+    // Swiss helpers
+    private string GetPlayerName(int? tpId)
+    {
+        if (tpId == null) return "BYE";
+        var p = _participants.FirstOrDefault(x => x.TpId == tpId.Value);
+        return p?.TpPlayerName ?? "Unknown";
+    }
+
+    private int GetPlayerScore(TournamentPlayerDto p)
+    {
+        // Try common score properties; update to use actual DTO field if present
+        var scoreTypes = new[] { "PlayerSwissWins", "PlayerSwissScore", "PlayerSwissMatchPoints", "PlayerSwissPoints" };
+        foreach (var name in scoreTypes)
+        {
+            var reflection = p.GetType().GetProperty(name);
+            if (reflection == null) continue;
+            var val = reflection.GetValue(p);
+            if (val is int iv) return iv;
+            if (val is long lv) return (int)lv;
+            if (val is double dv) return (int)dv;
+            if (val is decimal dc) return (int)dc;
+        }
+        return 0;
+    }
+
+    private void GenerateSwissPairings()
+    {
+        var sorted = _participants
+            .OrderByDescending(p => GetPlayerScore(p))
+            .ThenBy(p => p.TpId)
+            .ToList();
+
+        _pairings = new List<PairingSelection>();
+
+        for (int i = 0; i < sorted.Count; i += 2)
+        {
+            var p1 = sorted[i];
+            int? p2id = (i + 1 < sorted.Count) ? sorted[i + 1].TpId : (int?)null;
+
+            _pairings.Add(new PairingSelection
+            {
+                Player1Id = p1.TpId,
+                Player2Id = p2id
+            });
+        }
+    }
+
+    private async Task StartSwissMatchAsync()
+    {
+        if (!_pairings.Any()) return;
+
+        foreach (var pairing in _pairings)
+        {
+            await PairingService.CreateAsync(new PairingDto
+            {
+                PairingTp1 = pairing.Player1Id,
+                PairingTp2 = pairing.Player2Id
+            });
+
+            // If pairing.Player2Id == null then this is a BYE. Award points if needed here.
+            // TEST THE WGHOLE SYSTEM ASAP SO FAR AND MAKE FIXES AS NECCESARY
+        }
+
+        _tournamentModel.TournamentRoundNum = 1;
+        NavManager.NavigateTo($"/tournaments/inprogress/{TournamentId}");
     }
 }
