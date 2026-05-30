@@ -16,23 +16,34 @@ namespace TCG.Infrastructure.Configurations
                 .HasColumnName("pairing_id")
                 .ValueGeneratedOnAdd();
 
-            builder.Property(p => p.PairingTp1)
+            builder.Property(p => p.Player1Id)
                 .HasColumnName("pairing_tp_1");
 
-            builder.Property(p => p.PairingTp2)
+            builder.Property(p => p.Player2Id)
                 .HasColumnName("pairing_tp_2");
 
-            builder.Property(p => p.PairingWinner)
+            builder.Property(p => p.Player1Score)
+                .HasColumnName("pairing_tp_1_score");
+
+            builder.Property(p => p.Player2Score)
+                .HasColumnName("pairing_tp_2_score");
+
+            builder.Property(p => p.WinnerId)
                 .HasColumnName("pairing_winner");
 
-            builder.HasOne<TournamentPlayer>()
-                .WithMany()
-                .HasForeignKey(p => p.PairingTp1)
+            builder.HasOne(p => p.Player1)
+                .WithMany(tp => tp.PairingsAsPlayer1)
+                .HasForeignKey(p => p.Player1Id)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasOne<TournamentPlayer>()
+            builder.HasOne(p => p.Player2)
+                .WithMany(tp => tp.PairingsAsPlayer2)
+                .HasForeignKey(p => p.Player2Id)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(p => p.Winner)
                 .WithMany()
-                .HasForeignKey(p => p.PairingTp2)
+                .HasForeignKey(p => p.WinnerId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

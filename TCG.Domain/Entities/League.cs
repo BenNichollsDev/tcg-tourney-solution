@@ -15,5 +15,8 @@ namespace TCG.Domain.Entities
 
         [Column("league_description")]
         public string LeagueDescription { get; private set; } = string.Empty;
+
+        public ICollection<Tournament> Tournaments { get; private set; }
+            = new List<Tournament>();
     }
 }

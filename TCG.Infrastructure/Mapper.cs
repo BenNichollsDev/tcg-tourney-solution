@@ -37,12 +37,6 @@ namespace TCG.Infrastructure
                     srcMember != null &&
                     (!(srcMember is string s) || !string.IsNullOrWhiteSpace(s))));
 
-            CreateMap<Match, MatchDto>()
-                .ForAllMembers(opt =>
-                opt.Condition((src, dest, srcMember) =>
-                    srcMember != null &&
-                    (!(srcMember is string s) || !string.IsNullOrWhiteSpace(s))));
-
             CreateMap<Staff, StaffDto>()
                 .ForAllMembers(opt =>
                 opt.Condition((src, dest, srcMember) =>
@@ -70,12 +64,6 @@ namespace TCG.Infrastructure
                         (!(srcMember is string s) || !string.IsNullOrWhiteSpace(s))));
 
             CreateMap<PairingDto, Pairing>()
-                .ForAllMembers(opt =>
-                opt.Condition((src, dest, srcMember) =>
-                    srcMember != null &&
-                    (!(srcMember is string s) || !string.IsNullOrWhiteSpace(s))));
-
-            CreateMap<MatchDto, Match>()
                 .ForAllMembers(opt =>
                 opt.Condition((src, dest, srcMember) =>
                     srcMember != null &&

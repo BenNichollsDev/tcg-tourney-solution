@@ -13,57 +13,48 @@ namespace TCG.Infrastructure.Configurations
             builder.HasKey(t => t.TournamentId);
 
             builder.Property(t => t.TournamentId)
-                   .HasColumnName("tournament_id")
-                   .ValueGeneratedOnAdd();
+                .HasColumnName("tournament_id")
+                .ValueGeneratedOnAdd();
 
-            builder.Property(t => t.TournamentLeague)
-                   .HasColumnName("tournament_league");
+            builder.Property(t => t.LeagueId)
+                .HasColumnName("tournament_league");
 
-            builder.Property(t => t.TournamentName)
-                   .HasColumnName("tournament_name")
-                   .IsRequired();
-
-            builder.Property(t => t.TournamentGame)
-                   .HasColumnName("tournament_game")
-                   .IsRequired();
-
-            builder.Property(t => t.TournamentFormat)
-                   .HasColumnName("tournament_format")
-                   .IsRequired();
+            builder.Property(t => t.TournamentName).IsRequired();
+            builder.Property(t => t.TournamentGame).IsRequired();
+            builder.Property(t => t.TournamentFormat).IsRequired();
 
             builder.Property(t => t.TournamentRequireDeck)
-                   .HasColumnName("tournament_require_deck");
+                .HasColumnName("tournament_require_deck");
 
             builder.Property(t => t.TournamentRoundNum)
-                   .HasColumnName("tournament_round_num");
+                .HasColumnName("tournament_round_num");
 
             builder.Property(t => t.TournamentDescription)
-                   .HasColumnName("tournament_description");
+                .HasColumnName("tournament_description");
 
             builder.Property(t => t.TournamentPairing)
-                   .HasColumnName("tournament_pairing");
+                .HasColumnName("tournament_pairing");
 
             builder.Property(t => t.TournamentDate)
-                   .HasColumnName("tournament_date");
+                .HasColumnName("tournament_date");
 
             builder.Property(t => t.TournamentTime)
-                   .HasColumnName("tournament_time");
+                .HasColumnName("tournament_time");
 
             builder.Property(t => t.TournamentEntryFee)
-                   .HasColumnName("tournament_entry_fee")
-                   .HasColumnType("numeric(10,2)");
+                .HasColumnType("numeric(10,2)");
 
             builder.Property(t => t.TournamentMaxParticipants)
-                   .HasColumnName("tournament_max_participants");
+                .HasColumnName("tournament_max_participants");
 
             builder.HasMany(t => t.TournamentPlayers)
-                   .WithOne(tp => tp.Tournament)
-                   .HasForeignKey(tp => tp.TpTournament);
+                .WithOne(tp => tp.Tournament)
+                .HasForeignKey(tp => tp.TournamentId);
 
-            builder.HasOne<League>()
-                   .WithMany()
-                   .HasForeignKey(t => t.TournamentLeague)
-                   .OnDelete(DeleteBehavior.SetNull);
+            builder.HasOne(t => t.League)
+                .WithMany(l => l.Tournaments)
+                .HasForeignKey(t => t.LeagueId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

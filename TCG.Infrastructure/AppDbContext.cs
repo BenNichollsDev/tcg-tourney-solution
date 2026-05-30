@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Microsoft.Extensions.Configuration;
 using TCG.Domain.Entities;
 
 namespace TCG.Infrastructure
@@ -18,8 +19,6 @@ namespace TCG.Infrastructure
 
         public virtual DbSet<Pairing> Pairings { get; set; }
 
-        public virtual DbSet<Match> Matches { get; set; }
-
         public virtual DbSet<Staff> Staff { get; set; }
 
         public virtual DbSet<TournamentPlayer> TournamentPlayers { get; set; }
@@ -27,6 +26,24 @@ namespace TCG.Infrastructure
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+
+            modelBuilder.Entity<Pairing>(entity =>
+            {
+                entity.HasOne(p => p.Player1)
+                    .WithMany(tp => tp.PairingsAsPlayer1)
+                    .HasForeignKey(p => p.Player1Id)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(p => p.Player2)
+                    .WithMany(tp => tp.PairingsAsPlayer2)
+                    .HasForeignKey(p => p.Player2Id)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(p => p.Winner)
+                    .WithMany()
+                    .HasForeignKey(p => p.WinnerId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
         }
     }
 }

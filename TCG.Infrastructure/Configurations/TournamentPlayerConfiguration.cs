@@ -10,21 +10,21 @@ namespace TCG.Infrastructure.Configurations
         {
             builder.ToTable("tournament_players");
 
-            builder.HasKey(tp => tp.TpId);
+            builder.HasKey(tp => tp.TournamentPlayerId);
 
-            builder.Property(tp => tp.TpId)
+            builder.Property(tp => tp.TournamentPlayerId)
                 .HasColumnName("tp_id")
                 .ValueGeneratedOnAdd();
 
-            builder.Property(tp => tp.TpTournament)
+            builder.Property(tp => tp.TournamentId)
                 .HasColumnName("tp_tournament");
 
-            builder.Property(tp => tp.TpPlayerName)
+            builder.Property(tp => tp.PlayerName)
                 .HasColumnName("tp_player_name");
 
             builder.HasOne(tp => tp.Tournament)
                 .WithMany(t => t.TournamentPlayers)
-                .HasForeignKey(tp => tp.TpTournament)
+                .HasForeignKey(tp => tp.TournamentId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

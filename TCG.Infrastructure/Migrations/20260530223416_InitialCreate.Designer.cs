@@ -12,8 +12,8 @@ using TCG.Infrastructure;
 namespace TCG.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260309210749_InitialSchema")]
-    partial class InitialSchema
+    [Migration("20260530223416_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -54,38 +54,6 @@ namespace TCG.Infrastructure.Migrations
                     b.ToTable("leagues", (string)null);
                 });
 
-            modelBuilder.Entity("TCG.Domain.Entities.Match", b =>
-                {
-                    b.Property<int>("MatchId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("match_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("MatchId"));
-
-                    b.Property<int>("MatchRoundNum")
-                        .HasColumnType("integer")
-                        .HasColumnName("match_round_num");
-
-                    b.Property<int>("PairingId")
-                        .HasColumnType("integer")
-                        .HasColumnName("pairing_id");
-
-                    b.Property<bool>("Player1Winner")
-                        .HasColumnType("boolean")
-                        .HasColumnName("player_1_winner");
-
-                    b.Property<bool>("Player2Winner")
-                        .HasColumnType("boolean")
-                        .HasColumnName("player_2_winner");
-
-                    b.HasKey("MatchId");
-
-                    b.HasIndex("PairingId");
-
-                    b.ToTable("matches", (string)null);
-                });
-
             modelBuilder.Entity("TCG.Domain.Entities.Pairing", b =>
                 {
                     b.Property<int>("PairingId")
@@ -95,23 +63,33 @@ namespace TCG.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PairingId"));
 
-                    b.Property<int>("PairingTp1")
+                    b.Property<int>("Player1Id")
                         .HasColumnType("integer")
                         .HasColumnName("pairing_tp_1");
 
-                    b.Property<int>("PairingTp2")
+                    b.Property<int?>("Player1Score")
+                        .HasColumnType("integer")
+                        .HasColumnName("pairing_tp_1_score");
+
+                    b.Property<int?>("Player2Id")
                         .HasColumnType("integer")
                         .HasColumnName("pairing_tp_2");
 
-                    b.Property<string>("PairingWinner")
-                        .HasColumnType("text")
+                    b.Property<int?>("Player2Score")
+                        .HasColumnType("integer")
+                        .HasColumnName("pairing_tp_2_score");
+
+                    b.Property<int?>("WinnerId")
+                        .HasColumnType("integer")
                         .HasColumnName("pairing_winner");
 
                     b.HasKey("PairingId");
 
-                    b.HasIndex("PairingTp1");
+                    b.HasIndex("Player1Id");
 
-                    b.HasIndex("PairingTp2");
+                    b.HasIndex("Player2Id");
+
+                    b.HasIndex("WinnerId");
 
                     b.ToTable("pairings", (string)null);
                 });
@@ -172,6 +150,10 @@ namespace TCG.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("TournamentId"));
 
+                    b.Property<int?>("LeagueId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tournament_league");
+
                     b.Property<DateOnly>("TournamentDate")
                         .HasColumnType("date")
                         .HasColumnName("tournament_date");
@@ -194,10 +176,6 @@ namespace TCG.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("tournament_game");
-
-                    b.Property<int?>("TournamentLeague")
-                        .HasColumnType("integer")
-                        .HasColumnName("tournament_league");
 
                     b.Property<int>("TournamentMaxParticipants")
                         .HasColumnType("integer")
@@ -227,81 +205,96 @@ namespace TCG.Infrastructure.Migrations
 
                     b.HasKey("TournamentId");
 
-                    b.HasIndex("TournamentLeague");
+                    b.HasIndex("LeagueId");
 
                     b.ToTable("tournaments", (string)null);
                 });
 
             modelBuilder.Entity("TCG.Domain.Entities.TournamentPlayer", b =>
                 {
-                    b.Property<int>("TpId")
+                    b.Property<int>("TournamentPlayerId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("tp_id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("TpId"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("TournamentPlayerId"));
 
-                    b.Property<string>("TpPlayerName")
+                    b.Property<string>("PlayerName")
                         .HasColumnType("text")
                         .HasColumnName("tp_player_name");
 
-                    b.Property<int>("TpTournament")
+                    b.Property<int>("TournamentId")
                         .HasColumnType("integer")
                         .HasColumnName("tp_tournament");
 
-                    b.HasKey("TpId");
+                    b.HasKey("TournamentPlayerId");
 
-                    b.HasIndex("TpTournament");
+                    b.HasIndex("TournamentId");
 
                     b.ToTable("tournament_players", (string)null);
                 });
 
-            modelBuilder.Entity("TCG.Domain.Entities.Match", b =>
-                {
-                    b.HasOne("TCG.Domain.Entities.Pairing", null)
-                        .WithMany()
-                        .HasForeignKey("PairingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("TCG.Domain.Entities.Pairing", b =>
                 {
-                    b.HasOne("TCG.Domain.Entities.TournamentPlayer", null)
-                        .WithMany()
-                        .HasForeignKey("PairingTp1")
+                    b.HasOne("TCG.Domain.Entities.TournamentPlayer", "Player1")
+                        .WithMany("PairingsAsPlayer1")
+                        .HasForeignKey("Player1Id")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("TCG.Domain.Entities.TournamentPlayer", null)
+                    b.HasOne("TCG.Domain.Entities.TournamentPlayer", "Player2")
+                        .WithMany("PairingsAsPlayer2")
+                        .HasForeignKey("Player2Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("TCG.Domain.Entities.TournamentPlayer", "Winner")
                         .WithMany()
-                        .HasForeignKey("PairingTp2")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .HasForeignKey("WinnerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Player1");
+
+                    b.Navigation("Player2");
+
+                    b.Navigation("Winner");
                 });
 
             modelBuilder.Entity("TCG.Domain.Entities.Tournament", b =>
                 {
-                    b.HasOne("TCG.Domain.Entities.League", null)
-                        .WithMany()
-                        .HasForeignKey("TournamentLeague")
+                    b.HasOne("TCG.Domain.Entities.League", "League")
+                        .WithMany("Tournaments")
+                        .HasForeignKey("LeagueId")
                         .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("League");
                 });
 
             modelBuilder.Entity("TCG.Domain.Entities.TournamentPlayer", b =>
                 {
                     b.HasOne("TCG.Domain.Entities.Tournament", "Tournament")
                         .WithMany("TournamentPlayers")
-                        .HasForeignKey("TpTournament")
+                        .HasForeignKey("TournamentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Tournament");
                 });
 
+            modelBuilder.Entity("TCG.Domain.Entities.League", b =>
+                {
+                    b.Navigation("Tournaments");
+                });
+
             modelBuilder.Entity("TCG.Domain.Entities.Tournament", b =>
                 {
                     b.Navigation("TournamentPlayers");
+                });
+
+            modelBuilder.Entity("TCG.Domain.Entities.TournamentPlayer", b =>
+                {
+                    b.Navigation("PairingsAsPlayer1");
+
+                    b.Navigation("PairingsAsPlayer2");
                 });
 #pragma warning restore 612, 618
         }

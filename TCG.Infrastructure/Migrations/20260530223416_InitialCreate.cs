@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace TCG.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialSchema : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -103,8 +103,10 @@ namespace TCG.Infrastructure.Migrations
                     pairing_id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     pairing_tp_1 = table.Column<int>(type: "integer", nullable: false),
-                    pairing_tp_2 = table.Column<int>(type: "integer", nullable: false),
-                    pairing_winner = table.Column<string>(type: "text", nullable: true)
+                    pairing_tp_2 = table.Column<int>(type: "integer", nullable: true),
+                    pairing_tp_1_score = table.Column<int>(type: "integer", nullable: true),
+                    pairing_tp_2_score = table.Column<int>(type: "integer", nullable: true),
+                    pairing_winner = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -121,34 +123,13 @@ namespace TCG.Infrastructure.Migrations
                         principalTable: "tournament_players",
                         principalColumn: "tp_id",
                         onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "matches",
-                columns: table => new
-                {
-                    match_id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    pairing_id = table.Column<int>(type: "integer", nullable: false),
-                    match_round_num = table.Column<int>(type: "integer", nullable: false),
-                    player_1_winner = table.Column<bool>(type: "boolean", nullable: false),
-                    player_2_winner = table.Column<bool>(type: "boolean", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_matches", x => x.match_id);
                     table.ForeignKey(
-                        name: "FK_matches_pairings_pairing_id",
-                        column: x => x.pairing_id,
-                        principalTable: "pairings",
-                        principalColumn: "pairing_id",
-                        onDelete: ReferentialAction.Cascade);
+                        name: "FK_pairings_tournament_players_pairing_winner",
+                        column: x => x.pairing_winner,
+                        principalTable: "tournament_players",
+                        principalColumn: "tp_id",
+                        onDelete: ReferentialAction.Restrict);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_matches_pairing_id",
-                table: "matches",
-                column: "pairing_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_pairings_pairing_tp_1",
@@ -159,6 +140,11 @@ namespace TCG.Infrastructure.Migrations
                 name: "IX_pairings_pairing_tp_2",
                 table: "pairings",
                 column: "pairing_tp_2");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_pairings_pairing_winner",
+                table: "pairings",
+                column: "pairing_winner");
 
             migrationBuilder.CreateIndex(
                 name: "IX_tournament_players_tp_tournament",
@@ -175,13 +161,10 @@ namespace TCG.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "matches");
+                name: "pairings");
 
             migrationBuilder.DropTable(
                 name: "staff");
-
-            migrationBuilder.DropTable(
-                name: "pairings");
 
             migrationBuilder.DropTable(
                 name: "tournament_players");

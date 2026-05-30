@@ -45,9 +45,5 @@
     <ProjectReference Include="..\TCG.Domain\TCG.Domain.csproj" />
 	<ProjectReference Include="..\TCG.Application\TCG.Application.csproj" />
   </ItemGroup>
-	
-  <ItemGroup>
-    <Folder Include="Migrations\" />
-  </ItemGroup>
 
 </Project>

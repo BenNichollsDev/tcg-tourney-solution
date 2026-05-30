@@ -9,7 +9,7 @@ namespace TCG.Domain.Entities
         public int TournamentId { get; private set; }
 
         [Column("tournament_league")]
-        public int? TournamentLeague { get; private set; }
+        public int? LeagueId { get; private set; }
 
         [Column("tournament_name")]
         public string TournamentName { get; private set; } = string.Empty;
@@ -43,8 +43,10 @@ namespace TCG.Domain.Entities
 
         [Column("tournament_max_participants")]
         public int TournamentMaxParticipants { get; private set; }
-        
-        public ICollection<TournamentPlayer> TournamentPlayers { get; private set; } 
+
+        public League League { get; private set; } = null!;
+
+        public ICollection<TournamentPlayer> TournamentPlayers { get; private set; }
             = new List<TournamentPlayer>();
     }
 }

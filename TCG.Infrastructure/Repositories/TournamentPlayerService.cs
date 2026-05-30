@@ -21,7 +21,7 @@ public class TournamentPlayerService
     {
         var tournamentPlayer = await context.TournamentPlayers
             .AsNoTracking()
-            .Where(s => s.TpId == tpId)
+            .Where(s => s.TournamentPlayerId == tpId)
             .ProjectTo<TournamentPlayerDto>(mapper.ConfigurationProvider)
             .FirstOrDefaultAsync();
 
@@ -69,7 +69,7 @@ public class TournamentPlayerService
     public async Task<TournamentPlayerDto> UpdateAsync(TournamentPlayerDto tournamentPlayerDto)
     {
         var existingTournamentPlayer = await context.TournamentPlayers
-            .FirstOrDefaultAsync(s => s.TpId == tournamentPlayerDto.TpId);
+            .FirstOrDefaultAsync(s => s.TournamentPlayerId == tournamentPlayerDto.TpId);
 
         if (existingTournamentPlayer == null)
             throw new Exception($"Player with id {tournamentPlayerDto.TpId} not found");
@@ -85,7 +85,7 @@ public class TournamentPlayerService
     public async Task<TournamentPlayerDto> DeleteAsync(int id)
     {
         var tournamentPlayer = await context.TournamentPlayers
-            .FirstOrDefaultAsync(s => s.TpId == id);
+            .FirstOrDefaultAsync(s => s.TournamentPlayerId == id);
 
         if (tournamentPlayer == null)
             throw new Exception($"Player with id {id} not found");

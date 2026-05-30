@@ -17,12 +17,16 @@ if (builder.Environment.IsDevelopment())
 }
 
 var dbString = Environment.GetEnvironmentVariable("ConnectionStrings__db-application")
-               ?? "Host=localhost;Port=5432;Database=tcg_db;Username=postgres;Password=postgres";
+               ?? "Host=localhost;Port=5433;Database=tcg_db;Username=postgres;Password=postgres";
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(
         dbString,
-        npgsqlOptions => npgsqlOptions.EnableRetryOnFailure()
+        npgsqlOptions =>
+        {
+            npgsqlOptions.EnableRetryOnFailure();
+            npgsqlOptions.CommandTimeout(180);
+        }
     )
 );
 
@@ -30,11 +34,10 @@ var app = builder.Build();
 
 app.MapDefaultEndpoints();
 
-/* 🔥 AUTOMATIC MIGRATIONS */
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    dbContext.Database.Migrate();
+    //dbContext.Database.Migrate();
 }
 
 if (!app.Environment.IsDevelopment())

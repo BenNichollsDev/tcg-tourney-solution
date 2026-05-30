@@ -22,12 +22,16 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 var dbString = Environment.GetEnvironmentVariable("ConnectionStrings__db-application")
-               ?? "Host=localhost;Port=5432;Database=tcg_db;Username=postgres;Password=postgres";
+               ?? "Host=localhost;Port=5433;Database=tcg_db;Username=postgres;Password=postgres";
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(
         dbString,
-        npgsqlOptions => npgsqlOptions.EnableRetryOnFailure()
+        npgsqlOptions =>
+        {
+            npgsqlOptions.EnableRetryOnFailure();
+            npgsqlOptions.CommandTimeout(180);
+        }
     )
 );
 
