@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.Configuration;
 
 namespace TCG.Infrastructure
 {
@@ -7,15 +8,20 @@ namespace TCG.Infrastructure
     {
         public AppDbContext CreateDbContext(string[] args)
         {
-            var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
+            var builder = new DbContextOptionsBuilder<AppDbContext>();
 
             var connectionString =
-                Environment.GetEnvironmentVariable("ConnectionStrings__db-application")
-                ?? "Host=localhost;Port=5432;Database=tcg_db;Username=postgres;Password=postgres";
+                Environment.GetEnvironmentVariable("ConnectionStrings__db-application");
 
-            optionsBuilder.UseNpgsql(connectionString);
+            if (string.IsNullOrWhiteSpace(connectionString))
+            {
+                throw new InvalidOperationException(
+                    "Connection string invalid.");
+            }
 
-            return new AppDbContext(optionsBuilder.Options);
+            builder.UseNpgsql(connectionString);
+
+            return new AppDbContext(builder.Options);
         }
     }
 }

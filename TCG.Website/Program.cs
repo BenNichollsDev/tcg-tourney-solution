@@ -16,12 +16,12 @@ if (builder.Environment.IsDevelopment())
     StaticWebAssetsLoader.UseStaticWebAssets(builder.Environment, builder.Configuration);
 }
 
-var dbString = Environment.GetEnvironmentVariable("ConnectionStrings__db-application")
-               ?? "Host=localhost;Port=5433;Database=tcg_db;Username=postgres;Password=postgres";
+var connectionString =
+    builder.Configuration.GetConnectionString("db-application");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(
-        dbString,
+        connectionString,
         npgsqlOptions =>
         {
             npgsqlOptions.EnableRetryOnFailure();
