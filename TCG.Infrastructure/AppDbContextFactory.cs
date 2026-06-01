@@ -10,16 +10,25 @@ namespace TCG.Infrastructure
         {
             var builder = new DbContextOptionsBuilder<AppDbContext>();
 
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: true)
+                .AddJsonFile("appsettings.Development.json", optional: true)
+                .AddEnvironmentVariables()
+                .Build();
+
+            //var connectionString = configuration.GetConnectionString("db-application");
+
             var connectionString =
-                Environment.GetEnvironmentVariable("ConnectionStrings__db-application");
+                "Host=localhost;Port=5432;Database=db-application;Username=postgres;Password=postgres";
+
+            builder.UseNpgsql(connectionString);
 
             if (string.IsNullOrWhiteSpace(connectionString))
             {
                 throw new InvalidOperationException(
                     "Connection string invalid.");
             }
-
-            builder.UseNpgsql(connectionString);
 
             return new AppDbContext(builder.Options);
         }

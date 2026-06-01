@@ -10,12 +10,12 @@ namespace TCG.Application.Dtos
 
         public string? TpPlayerName { get; set; }
 
-        public int PlayerSwissWins { get; set; }
+        public int? PlayerSwissWins { get; set; }
 
-        public int PlayerSwissScore { get; set; }
+        public int? PlayerSwissScore { get; set; }
 
-        public int PlayerSwissMatchPoints { get; set; }
+        public int? PlayerSwissMatchPoints { get; set; }
 
-        public int PlayerSwissPoints { get; set; }
+        public int? PlayerSwissPoints { get; set; }
     }
 }

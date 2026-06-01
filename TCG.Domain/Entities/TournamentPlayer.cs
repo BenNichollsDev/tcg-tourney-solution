@@ -14,16 +14,16 @@ namespace TCG.Domain.Entities
         public string? PlayerName { get; private set; }
 
         [Column("tp_player_swiss_wins")]
-        public string? PlayerSwissWins { get; private set; }
+        public int? PlayerSwissWins { get; private set; }
 
         [Column("tp_player_swiss_score")]
-        public string? PlayerSwissScore { get; private set; }
+        public int? PlayerSwissScore { get; private set; }
 
         [Column("tp_player_swiss_match_points")]
-        public string? PlayerSwissMatchPoints { get; private set; }
+        public int? PlayerSwissMatchPoints { get; private set; }
 
         [Column("tp_player_swiss_points")]
-        public string? PlayerSwissPoints { get; private set; }
+        public int? PlayerSwissPoints { get; private set; }
 
         public Tournament Tournament { get; private set; } = null!;
 
