@@ -88,6 +88,24 @@
                                                @bind-Value="_tournamentModel.TournamentRequireDeck"/>
                             </div>
                         }
+                    
+                        <label for="pairing">Pairing Type:</label>
+                        <InputSelect id="pairing"
+                                     class="form-control mb-3"
+                                     @bind-Value="_tournamentModel.TournamentPairing"
+                                     @onchange="OnPairingChanged">
+
+                            <option value="">-- Select Pairing --</option>
+                            <option value="Round-Robin">
+                                Round-Robin
+                            </option>
+                            <option value="Swiss">
+                                Swiss
+                            </option>
+
+                        </InputSelect>
+                    
+                        <ValidationMessage For="@(() => _tournamentModel.TournamentPairing)" />
 
                         <label for="tourneydate">Date:</label>
                         <input type="date" id="tourneydate" class="form-control mb-3"
@@ -163,7 +181,7 @@
                         }
 
                         <div>
-                            <button type="submit" class="btn btn-secondary">
+                            <button type="submit" class="btn btn-primary">
                                 Submit
                             </button>
                             <NavLink href="/tournaments" type="button" class="btn btn-secondary">
@@ -316,6 +334,11 @@
         StateHasChanged();
     }
 
+    private void OnPairingChanged(ChangeEventArgs e)
+    {
+        StateHasChanged();
+    }
+
     private void OnDateInputChanged(ChangeEventArgs e)
     {
         if (e?.Value is string s && DateOnly.TryParse(s, out var d))
@@ -389,8 +412,7 @@
     {
         if (_tournamentModel == null) return;
 
-        _tournamentModel.TournamentPairing =
-            _formatsByGame[_tournamentModel?.TournamentGame!][_tournamentModel?.TournamentFormat!]["pairing"];
+        //_tournamentModel.TournamentPairing = _formatsByGame[_tournamentModel?.TournamentGame!][_tournamentModel?.TournamentFormat!]["pairing"];
         
         await TournamentService.UpdateAsync(_tournamentModel);
         

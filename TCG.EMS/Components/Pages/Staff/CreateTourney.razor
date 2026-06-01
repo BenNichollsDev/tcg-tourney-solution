@@ -29,7 +29,8 @@
                     <label for="name">Name:</label>
                     <InputText id="name"
                                class="form-control mb-3"
-                               @bind-Value="_tournamentModel.TournamentName"/>
+                               @bind-Value="_tournamentModel.TournamentName"
+                               required/>
 
                     <label for="league">League:</label>
                     <InputSelect id="league"
@@ -51,7 +52,9 @@
                     <InputSelect id="games"
                                  class="form-control mb-3"
                                  @bind-Value="_tournamentModel.TournamentGame"
-                                 @onchange="OnGameChanged">
+                                 @onchange="OnGameChanged"
+                                 required>
+                        
                         <option value="">-- Select --</option>
                         <option value="MtG">Magic the Gathering</option>
                         <option value="Pokémon">Pokémon</option>
@@ -62,7 +65,9 @@
                                  @key="_tournamentModel.TournamentGame"
                                  class="form-control mb-3"
                                  @bind-Value="_tournamentModel.TournamentFormat"
-                                 @bind-Value:after="OnFormatChanged">
+                                 @bind-Value:after="OnFormatChanged"
+                                 required>
+                        
                         @if (!string.IsNullOrEmpty(_tournamentModel.TournamentGame))
                         {
                             <option value="">-- Select Format --</option>
@@ -86,6 +91,25 @@
                                            @bind-Value="_tournamentModel.TournamentRequireDeck"/>
                         </div>
                     }
+                    
+                    <label for="pairing">Pairing Type:</label>
+                    <InputSelect id="pairing"
+                                 class="form-control mb-3"
+                                 @bind-Value="_tournamentModel.TournamentPairing"
+                                 @onchange="OnPairingChanged"
+                                 required>
+
+                        <option value="">-- Select Pairing --</option>
+                        <option value="Round-Robin">
+                            Round-Robin
+                        </option>
+                        <option value="Swiss">
+                            Swiss
+                        </option>
+
+                    </InputSelect>
+                    
+                    <ValidationMessage For="@(() => _tournamentModel.TournamentPairing)" />
 
                     <label for="tourneydate">Date:</label>
                     <input type="date" id="tourneydate" class="form-control mb-3"
@@ -123,7 +147,7 @@
                     
                     <!--CONTINUE HERE TO LINK CLICKED ON TOURNEY TO AN INPROGRESS PAGE, AND ALLOW FOR PARTICIPANTS TO BE ADDED IN THE CREATE TOURNEY PAGE-->
                     <div>
-                        <button type="submit" class="btn btn-secondary">
+                        <button type="submit" class="btn btn-primary">
                             Submit
                         </button>
                         <NavLink href="/tournaments" type="button" class="btn btn-secondary">
@@ -203,6 +227,11 @@
         StateHasChanged();
     }
 
+    private void OnPairingChanged(ChangeEventArgs e)
+    {
+        StateHasChanged();
+    }
+
     private void OnDateInputChanged(ChangeEventArgs e)
     {
         if (e?.Value is string s && DateOnly.TryParse(s, out var d))
@@ -250,7 +279,8 @@
     private void OnFormatChanged()
     {
         _tournamentModel.TournamentRequireDeck = false;
-
+        
+        /*
         if (!string.IsNullOrEmpty(_tournamentModel.TournamentGame)
             && !string.IsNullOrEmpty(_tournamentModel.TournamentFormat)
             && formatsByGame.TryGetValue(_tournamentModel.TournamentGame, out var formats)
@@ -261,6 +291,7 @@
                 _tournamentModel.TournamentPairing = pairing;
             }
         }
+        */
     }
 
     private string MinDateString =>
@@ -277,7 +308,8 @@
 
     private async Task OnFormSubmit()
     {
-        _tournamentModel.TournamentPairing = formatsByGame[_tournamentModel.TournamentGame][_tournamentModel.TournamentFormat]["pairing"];
+        //_tournamentModel.TournamentPairing = formatsByGame[_tournamentModel.TournamentGame][_tournamentModel.TournamentFormat]["pairing"];
+        _tournamentModel.TournamentRoundNum = 1;
         await TournamentService.CreateAsync(_tournamentModel);
         NavService.GoTourney();
     }

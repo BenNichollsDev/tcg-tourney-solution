@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TCG.Domain.Entities
@@ -29,6 +30,7 @@ namespace TCG.Domain.Entities
         [Column("tournament_description")]
         public string TournamentDescription { get; private set; } = string.Empty;
 
+        [Required(ErrorMessage = "Pairing type is required")]
         [Column("tournament_pairing")]
         public string TournamentPairing { get; private set; } = string.Empty;
 
