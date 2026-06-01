@@ -69,10 +69,10 @@ public class TournamentPlayerService
     public async Task<TournamentPlayerDto> UpdateAsync(TournamentPlayerDto tournamentPlayerDto)
     {
         var existingTournamentPlayer = await context.TournamentPlayers
-            .FirstOrDefaultAsync(s => s.TournamentPlayerId == tournamentPlayerDto.TpId);
+            .FirstOrDefaultAsync(s => s.TournamentPlayerId == tournamentPlayerDto.TournamentPlayerId);
 
         if (existingTournamentPlayer == null)
-            throw new Exception($"Player with id {tournamentPlayerDto.TpId} not found");
+            throw new Exception($"Player with id {tournamentPlayerDto.TournamentPlayerId} not found");
 
         mapper.Map(tournamentPlayerDto, existingTournamentPlayer);
 

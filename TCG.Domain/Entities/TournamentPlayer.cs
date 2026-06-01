@@ -4,10 +4,10 @@ namespace TCG.Domain.Entities
 {
     public partial class TournamentPlayer
     {
-        [Column("tp_id")]
+        [Column("tp_tournament_player_id")]
         public int TournamentPlayerId { get; private set; }
 
-        [Column("tp_tournament")]
+        [Column("tp_tournament_id")]
         public int TournamentId { get; private set; }
 
         [Column("tp_player_name")]

@@ -12,8 +12,8 @@ using TCG.Infrastructure;
 namespace TCG.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260531212631_DBUpdate")]
-    partial class DBUpdate
+    [Migration("20260601161849_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -223,20 +223,20 @@ namespace TCG.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("tp_player_name");
 
-                    b.Property<string>("PlayerSwissMatchPoints")
-                        .HasColumnType("text")
+                    b.Property<int?>("PlayerSwissMatchPoints")
+                        .HasColumnType("integer")
                         .HasColumnName("tp_player_swiss_match_points");
 
-                    b.Property<string>("PlayerSwissPoints")
-                        .HasColumnType("text")
+                    b.Property<int?>("PlayerSwissPoints")
+                        .HasColumnType("integer")
                         .HasColumnName("tp_player_swiss_points");
 
-                    b.Property<string>("PlayerSwissScore")
-                        .HasColumnType("text")
+                    b.Property<int?>("PlayerSwissScore")
+                        .HasColumnType("integer")
                         .HasColumnName("tp_player_swiss_score");
 
-                    b.Property<string>("PlayerSwissWins")
-                        .HasColumnType("text")
+                    b.Property<int?>("PlayerSwissWins")
+                        .HasColumnType("integer")
                         .HasColumnName("tp_player_swiss_wins");
 
                     b.Property<int>("TournamentId")

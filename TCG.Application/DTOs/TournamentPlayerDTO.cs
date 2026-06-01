@@ -4,11 +4,11 @@ namespace TCG.Application.Dtos
 {
     public class TournamentPlayerDto
     {
-        public int TpId { get; set; }
+        public int TournamentPlayerId { get; set; }
 
-        public int TpTournament { get; set; }
+        public int TournamentId { get; set; }
 
-        public string? TpPlayerName { get; set; }
+        public string? PlayerName { get; set; }
 
         public int? PlayerSwissWins { get; set; }
 

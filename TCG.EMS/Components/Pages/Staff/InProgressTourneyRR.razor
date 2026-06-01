@@ -124,10 +124,10 @@
 
             pairings.Add(new PairingSelection
             {
-                Player1Id = p1.TpId,
-                Player2Id = p2?.TpId,
-                Player1Name = p1.TpPlayerName ?? "BYE",
-                Player2Name = p2?.TpPlayerName ?? "BYE",
+                Player1Id = p1.TournamentPlayerId,
+                Player2Id = p2?.TournamentPlayerId,
+                Player1Name = p1.PlayerName ?? "BYE",
+                Player2Name = p2?.PlayerName ?? "BYE",
                 Player1Score = 0,
                 Player2Score = 0
             });

@@ -39,8 +39,8 @@
 
                                                 @foreach (var participant in GetAvailablePlayers())
                                                 {
-                                                    <option value="@participant.TpId">
-                                                        @participant.TpPlayerName
+                                                    <option value="@participant.TournamentPlayerId">
+                                                        @participant.PlayerName
                                                     </option>
                                                 }
                                             </InputSelect>
@@ -53,8 +53,8 @@
 
                                                 @foreach (var participant in GetAvailablePlayers())
                                                 {
-                                                    <option value="@participant.TpId">
-                                                        @participant.TpPlayerName
+                                                    <option value="@participant.TournamentPlayerId">
+                                                        @participant.PlayerName
                                                     </option>
                                                 }
 
@@ -163,7 +163,7 @@
         var allPlayers = await TournamentPlayerService.GetAllWhereAsync(tp => tp.TournamentId == TournamentId.Value);
 
         _participants = allPlayers
-            .Where(p => p.TpTournament == TournamentId.Value)
+            .Where(p => p.TournamentId == TournamentId.Value)
             .ToList();
 
         _isOddNumOfParticipants = _participants.Count % 2 != 0;
@@ -194,7 +194,7 @@
         }
 
         return _participants
-            .Where(p => !selectedIds.Contains(p.TpId))
+            .Where(p => !selectedIds.Contains(p.TournamentPlayerId))
             .ToList();
     }
 
@@ -245,9 +245,9 @@
         {
             var pairing = new PairingSelection
             {
-                Player1Id = shuffled[i].TpId,
+                Player1Id = shuffled[i].TournamentPlayerId,
                 Player2Id = (i + 1 < shuffled.Count)
-                    ? shuffled[i + 1].TpId
+                    ? shuffled[i + 1].TournamentPlayerId
                     : null
             };
 
@@ -279,8 +279,8 @@
     private string GetPlayerName(int? tpId)
     {
         if (tpId == null) return "BYE";
-        var p = _participants.FirstOrDefault(x => x.TpId == tpId.Value);
-        return p?.TpPlayerName ?? "Unknown";
+        var p = _participants.FirstOrDefault(x => x.TournamentPlayerId == tpId.Value);
+        return p?.PlayerName ?? "Unknown";
     }
 
     private int GetPlayerScore(TournamentPlayerDto p)
@@ -304,7 +304,7 @@
     {
         var sorted = _participants
             .OrderByDescending(p => GetPlayerScore(p))
-            .ThenBy(p => p.TpId)
+            .ThenBy(p => p.TournamentPlayerId)
             .ToList();
 
         _pairings = new List<PairingSelection>();
@@ -312,11 +312,11 @@
         for (int i = 0; i < sorted.Count; i += 2)
         {
             var p1 = sorted[i];
-            int? p2id = (i + 1 < sorted.Count) ? sorted[i + 1].TpId : (int?)null;
+            int? p2id = (i + 1 < sorted.Count) ? sorted[i + 1].TournamentPlayerId : (int?)null;
 
             _pairings.Add(new PairingSelection
             {
-                Player1Id = p1.TpId,
+                Player1Id = p1.TournamentPlayerId,
                 Player2Id = p2id
             });
         }

@@ -150,7 +150,7 @@
                                 @foreach (var p in _participants)
                                 {
                                     <div class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span class="flex-grow-1">@p.TpPlayerName</span>
+                                        <span class="flex-grow-1">@p.PlayerName</span>
 
                                         <button type="button"
                                                 class="btn btn-sm btn-danger"
@@ -265,13 +265,13 @@
         }
 
         var allPlayers = await TournamentPlayerService.GetAllAsync();
-        _participants = allPlayers.Where(p => p.TpTournament == TournamentId.Value).ToList();
+        _participants = allPlayers.Where(p => p.TournamentId == TournamentId.Value).ToList();
 
         _originalParticipants = _participants.Select(p => new TournamentPlayerDto
         {
-            TpId = p.TpId,
-            TpTournament = p.TpTournament,
-            TpPlayerName = p.TpPlayerName
+            TournamentPlayerId = p.TournamentPlayerId,
+            TournamentId = p.TournamentId,
+            PlayerName = p.PlayerName
         }).ToList();
 
         _leagues = (await LeagueService.GetAllAsync()).ToList();
@@ -286,7 +286,7 @@
 
         var trimmedName = _newParticipantName.Trim();
         
-        if (_participants.Any(p => string.Equals(p.TpPlayerName, trimmedName, StringComparison.OrdinalIgnoreCase)))
+        if (_participants.Any(p => string.Equals(p.PlayerName, trimmedName, StringComparison.OrdinalIgnoreCase)))
         {
             _participantErrorMessage = "A participant with this name already exists.";
             return;
@@ -296,8 +296,8 @@
 
         _participants.Add(new TournamentPlayerDto
         {
-            TpTournament = _tournamentModel.TournamentId,
-            TpPlayerName = trimmedName
+            TournamentId = _tournamentModel.TournamentId,
+            PlayerName = trimmedName
         });
 
         _newParticipantName = string.Empty;
@@ -395,19 +395,19 @@
         await TournamentService.UpdateAsync(_tournamentModel);
         
         var removedPlayers = _originalParticipants
-            .Where(op => _participants.All(p => p.TpId != op.TpId))
+            .Where(op => _participants.All(p => p.TournamentPlayerId != op.TournamentPlayerId))
             .ToList();
 
         foreach (var player in removedPlayers)
         {
-            await TournamentPlayerService.DeleteAsync(player.TpId);
+            await TournamentPlayerService.DeleteAsync(player.TournamentPlayerId);
         }
         
         foreach (var player in _participants)
         {
-            player.TpTournament = _tournamentModel.TournamentId;
+            player.TournamentId = _tournamentModel.TournamentId;
 
-            if (player.TpId == 0)
+            if (player.TournamentPlayerId == 0)
             {
                 await TournamentPlayerService.CreateAsync(player);
             }
@@ -419,9 +419,9 @@
         
         _originalParticipants = _participants.Select(p => new TournamentPlayerDto
         {
-            TpId = p.TpId,
-            TpTournament = p.TpTournament,
-            TpPlayerName = p.TpPlayerName
+            TournamentPlayerId = p.TournamentPlayerId,
+            TournamentId = p.TournamentId,
+            PlayerName = p.PlayerName
         }).ToList();
 
         NavService.GoTourney();

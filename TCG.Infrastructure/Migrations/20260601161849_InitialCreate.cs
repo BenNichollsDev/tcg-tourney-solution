@@ -83,7 +83,11 @@ namespace TCG.Infrastructure.Migrations
                     tp_id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     tp_tournament = table.Column<int>(type: "integer", nullable: false),
-                    tp_player_name = table.Column<string>(type: "text", nullable: true)
+                    tp_player_name = table.Column<string>(type: "text", nullable: true),
+                    tp_player_swiss_wins = table.Column<int>(type: "integer", nullable: true),
+                    tp_player_swiss_score = table.Column<int>(type: "integer", nullable: true),
+                    tp_player_swiss_match_points = table.Column<int>(type: "integer", nullable: true),
+                    tp_player_swiss_points = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
