@@ -27,6 +27,9 @@ namespace TCG.Domain.Entities
         [Column("tournament_round_num")]
         public int? TournamentRoundNum { get; private set; }
 
+        [Column("tournament_max_round_num")]
+        public int? TournamentMaxRoundNum { get; private set; }
+
         [Column("tournament_description")]
         public string TournamentDescription { get; private set; } = string.Empty;
 
@@ -45,6 +48,12 @@ namespace TCG.Domain.Entities
 
         [Column("tournament_max_participants")]
         public int TournamentMaxParticipants { get; private set; }
+
+        [Column("tournament_swiss_topcut")]
+        public bool TournamentSwissTopcut { get; private set; }
+
+        [Column("tournament_swiss_topcut_num")]
+        public int TournamentSwissTopcutNum { get; private set; }
 
         public League League { get; private set; } = null!;
 

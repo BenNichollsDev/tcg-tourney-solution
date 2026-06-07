@@ -18,16 +18,22 @@ namespace TCG.Application.Dtos
 
         public int? TournamentRoundNum { get; set; }
 
+        public int? TournamentMaxRoundNum { get; set; }
+
         public string TournamentDescription { get; set; } = string.Empty;
 
+        public int TournamentMaxParticipants { get; set; }
+
         public string TournamentPairing { get; set; } = string.Empty;
+        
+        public bool TournamentSwissTopcut { get; set; }
+        
+        public int? TournamentSwissTopcutNum { get; set; }
 
         public DateOnly TournamentDate { get; set; }
 
         public TimeOnly TournamentTime { get; set; }
 
         public decimal TournamentEntryFee { get; set; }
-
-        public int TournamentMaxParticipants { get; set; }
     }
 }

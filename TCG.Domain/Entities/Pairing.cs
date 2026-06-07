@@ -24,7 +24,9 @@ namespace TCG.Domain.Entities
 
         // Navigation
         public TournamentPlayer Player1 { get; private set; } = null!;
+        
         public TournamentPlayer? Player2 { get; private set; }
+        
         public TournamentPlayer? Winner { get; private set; }
     }
 }

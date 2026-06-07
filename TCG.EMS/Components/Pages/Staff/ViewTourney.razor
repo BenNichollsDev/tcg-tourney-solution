@@ -52,7 +52,7 @@
                                                     @key="pairing"
                                                     class="form-control"
                                                     @bind="pairing.Player1Id"
-                                                    @bind:event="oninput" 
+                                                    @bind:event="oninput"
                                                     @bind:after="() => OnPlayer1Changed(pairing, pairing.Player1Id)">
 
                                                 <option value="">-- Select Player 1 --</option>
@@ -71,7 +71,7 @@
                                                     @key="pairing"
                                                     class="form-control"
                                                     @bind="pairing.Player2Id"
-                                                    @bind:event="oninput" 
+                                                    @bind:event="oninput"
                                                     @bind:after="() => OnPlayer2Changed(pairing, pairing.Player2Id)">
 
                                                 <option value="">-- Select Player 2 --</option>
@@ -123,7 +123,7 @@
                                                     @key="pairing"
                                                     class="form-control"
                                                     @bind="pairing.Player1Id"
-                                                    @bind:event="oninput" 
+                                                    @bind:event="oninput"
                                                     @bind:after="() => OnPlayer1Changed(pairing, pairing.Player1Id)">
 
                                                 <option value="">-- Select Player 1 --</option>
@@ -142,7 +142,7 @@
                                                     @key="pairing"
                                                     class="form-control"
                                                     @bind="pairing.Player2Id"
-                                                    @bind:event="oninput" 
+                                                    @bind:event="oninput"
                                                     @bind:after="() => OnPlayer2Changed(pairing, pairing.Player2Id)">
 
                                                 <option value="">-- Select Player 2 --</option>
@@ -226,6 +226,11 @@
         _hasLoaded = true;
     }
 
+    private void NavigateToInProgress()
+    {
+        NavManager.NavigateTo($"/tournaments/inprogress/{TournamentId}");
+    }
+
     private async Task StartRRMatchRandomAsync()
     {
         var shuffled = _participants
@@ -234,9 +239,10 @@
 
         _pairings = BuildPairings(shuffled);
 
-        await StartTournamentAsync();
+        await SavePairingsAsync();
+        NavigateToInProgress();
     }
-    
+
     private void GenerateSwissPairings()
     {
         var sorted = _participants
@@ -246,7 +252,6 @@
 
         if (sorted.Count % 2 != 0)
         {
-            // Lowest-ranked player gets the bye
             var byePlayer = sorted.Last();
             sorted.RemoveAt(sorted.Count - 1);
 
@@ -263,7 +268,7 @@
             _pairings = BuildPairings(sorted);
         }
     }
-    
+
     private static List<PairingSelection> BuildPairings(List<TournamentPlayerDto> players)
     {
         var result = new List<PairingSelection>();
@@ -281,11 +286,11 @@
 
         return result;
     }
-    
+
     private async Task StartTournamentAsync()
     {
         await SavePairingsAsync();
-        NavManager.NavigateTo($"/tournaments/inprogress/{TournamentId}");
+        NavigateToInProgress();
     }
 
     private async Task SavePairingsAsync()
@@ -296,7 +301,7 @@
                 p.Player1Id = null;
             if (p.Player2Id == "bye")
                 p.Player2Id = null;
-            
+
             await PairingService.CreateAsync(new PairingDto
             {
                 PairingTp1 = p.Player1Id is null ? null : int.Parse(p.Player1Id),
@@ -313,24 +318,23 @@
 
         return assigned == _participants.Count;
     }
-    
+
     private Task OnPlayer1Changed(PairingSelection selectedPairing, string? playerId)
     {
         RemoveDuplicatePlayer(selectedPairing, playerId);
-        
         return InvokeAsync(StateHasChanged);
     }
-    
+
     private Task OnPlayer2Changed(PairingSelection selectedPairing, string? playerId)
     {
         RemoveDuplicatePlayer(selectedPairing, playerId);
-        
         return InvokeAsync(StateHasChanged);
     }
 
     private void RemoveDuplicatePlayer(PairingSelection selectedPairing, string? playerId)
     {
         int pairingCounter = 0;
+
         foreach (var pairing in _pairings)
         {
             if (Equals(pairing, selectedPairing))
@@ -340,16 +344,12 @@
             }
 
             if (pairing.Player1Id == playerId)
-            {
                 _pairings[pairingCounter].Player1Id = null;
-            }
 
             if (pairing.Player2Id == playerId)
-            {
                 _pairings[pairingCounter].Player2Id = null;
-            }
-            
-            pairingCounter ++;
+
+            pairingCounter++;
         }
     }
 }
