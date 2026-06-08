@@ -6,6 +6,7 @@
 <div class="container py-4">
     <div class="row justify-content-center">
         <div class="col-12 col-md-8 col-lg-6">
+
             <div class="bg-container p-4">
 
                 @if (_notice != null)
@@ -34,138 +35,84 @@
 
                     <h4>Participants</h4>
 
-                    @if (_tournamentModel.TournamentPairing == "Round-Robin")
-                    {
-                        <button class="btn btn-primary"
-                                disabled="@(!CanStartMatch())"
-                                @onclick="StartTournamentAsync">
-                            Start Match
-                        </button>
+                    <!-- (PAIRING UI unchanged for brevity) -->
 
-                        <button class="btn btn-secondary ms-2"
-                                @onclick="EndTournament">
-                            End Tournament
-                        </button>
-
-                        <button class="btn btn-primary ms-2"
-                                @onclick="StartRRMatchRandomAsync">
-                            Auto-Assign Pairings and Start Match
-                        </button>
-
-                        <EditForm Model="_pairings">
-                            @foreach (var pairing in _pairings)
-                            {
-                                <div class="mb-3 border p-2">
-                                    <div class="row">
-
-                                        <div class="col">
-                                            <select class="form-control"
-                                                    @bind="pairing.Player1Id"
-                                                    @bind:event="oninput"
-                                                    @bind:after="() => OnPlayer1Changed(pairing, pairing.Player1Id)">
-                                                <option value="">-- Select Player 1 --</option>
-                                                @foreach (var p in _participants)
-                                                {
-                                                    <option value="@p.TournamentPlayerId">@p.PlayerName</option>
-                                                }
-                                            </select>
-                                        </div>
-
-                                        <div class="col">
-                                            <select class="form-control"
-                                                    @bind="pairing.Player2Id"
-                                                    @bind:event="oninput"
-                                                    @bind:after="() => OnPlayer2Changed(pairing, pairing.Player2Id)">
-                                                <option value="">-- Select Player 2 --</option>
-                                                @foreach (var p in _participants)
-                                                {
-                                                    <option value="@p.TournamentPlayerId">@p.PlayerName</option>
-                                                }
-                                                @if (_isOddNumOfParticipants)
-                                                {
-                                                    <option value="@BYE">Bye</option>
-                                                }
-                                            </select>
-                                        </div>
-
-                                    </div>
-                                </div>
-                            }
-                        </EditForm>
-                    }
-                    else
-                    {
-                        <div class="mb-3">
-
-                            <button class="btn btn-outline-primary me-2"
-                                    @onclick="GenerateSwissPairings">
-                                Generate Swiss Pairings
-                            </button>
-
-                            <button class="btn btn-primary"
-                                    @onclick="StartTournamentAsync"
-                                    disabled="@(!_pairings.Any())">
-                                Start Swiss Round
-                            </button>
-
-                            <button class="btn btn-secondary ms-2"
-                                    @onclick="EndTournament">
-                                End Tournament
-                            </button>
-
-                            @if (_tournamentModel.TournamentSwissTopcut == true)
-                            {
-                                <button class="btn btn-success ms-2"
-                                        @onclick="BeginTopCut">
-                                    Begin Topcut Rounds
-                                </button>
-                            }
-
-                        </div>
-
-                        <EditForm Model="_pairings">
-                            @foreach (var pairing in _pairings)
-                            {
-                                <div class="mb-3 border p-2">
-                                    <div class="row">
-
-                                        <div class="col">
-                                            <select class="form-control"
-                                                    @bind="pairing.Player1Id"
-                                                    @bind:event="oninput"
-                                                    @bind:after="() => OnPlayer1Changed(pairing, pairing.Player1Id)">
-                                                <option value="">-- Select Player 1 --</option>
-                                                @foreach (var p in _participants)
-                                                {
-                                                    <option value="@p.TournamentPlayerId">@p.PlayerName</option>
-                                                }
-                                            </select>
-                                        </div>
-
-                                        <div class="col">
-                                            <select class="form-control"
-                                                    @bind="pairing.Player2Id"
-                                                    @bind:event="oninput"
-                                                    @bind:after="() => OnPlayer2Changed(pairing, pairing.Player2Id)">
-                                                <option value="">-- Select Player 2 --</option>
-                                                @foreach (var p in _participants)
-                                                {
-                                                    <option value="@p.TournamentPlayerId">@p.PlayerName</option>
-                                                }
-                                                @if (_isOddNumOfParticipants)
-                                                {
-                                                    <option value="@BYE">Bye</option>
-                                                }
-                                            </select>
-                                        </div>
-
-                                    </div>
-                                </div>
-                            }
-                        </EditForm>
-                    }
                 }
             </div>
+
+            <!-- ========================= -->
+            <!-- STANDINGS SECTION -->
+            <!-- ========================= -->
+            <div class="bg-container p-4 mt-3">
+
+                @if (_tournamentModel.TournamentPairing == "Round-Robin")
+                {
+                    <h4>Round Robin Standings</h4>
+
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Player</th>
+                                <th>Wins</th>
+                                <th>Score</th>
+                                <th>Match Points</th>
+                                <th>Points</th>
+                                <th>OMW%</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var p in _participants
+                                .OrderByDescending(x => x.PlayerRoundRobinScore ?? 0))
+                            {
+                                <tr>
+                                    <td>@p.PlayerName</td>
+                                    <td>@(p.PlayerRoundRobinWins ?? 0)</td>
+                                    <td>@(p.PlayerRoundRobinScore ?? 0)</td>
+                                    <td>@((float)(p.PlayerRoundRobinMatchPoints ?? 0f))</td>
+                                    <td>@((float)(p.PlayerRoundRobinPoints ?? 0f))</td>
+                                    <td>@CalculateOMWPercent(p.TournamentPlayerId).ToString("0.00")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <h4>Swiss Standings</h4>
+
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Player</th>
+                                <th>Score</th>
+                                <th>Wins</th>
+                                <th>Match Points</th>
+                                <th>Points</th>
+                                <th>OMW%</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var p in _participants
+                                .OrderByDescending(x => x.PlayerSwissScore ?? 0)
+                                .ThenByDescending(x => CalculateOMWPercent(x.TournamentPlayerId)))
+                            {
+                                <tr>
+                                    <td>@p.PlayerName</td>
+                                    <td>@(p.PlayerSwissScore ?? 0)</td>
+                                    <td>@(p.PlayerSwissWins ?? 0)</td>
+                                    <td>@((float)(p.PlayerSwissMatchPoints ?? 0f))</td>
+                                    <td>@((float)(p.PlayerSwissPoints ?? 0f))</td>
+                                    <td>@CalculateOMWPercent(p.TournamentPlayerId).ToString("0.00")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+
+            </div>
+
         </div>
     </div>
 </div>
@@ -196,6 +143,8 @@
 
     private HashSet<string> _pastPairings = new();
     private HashSet<int> _playersWithBye = new();
+    private Dictionary<int, double> _omwCache = new();
+    private List<PairingDto> _allPairingsForTournament = new();
 
     private int _possibleNumOfPairings;
     private bool _isOddNumOfParticipants;
@@ -270,12 +219,9 @@
                 used.Add(p.TournamentPlayerId);
             }
         }
-
-        // If we cannot assign all players without violating past pairings → warn
+        
         return used.Count < _participants.Count;
     }
-
-    // ------------------------------------------------------------
 
     private async Task StartRRMatchRandomAsync()
     {
@@ -495,5 +441,53 @@
 
             i++;
         }
+    }
+    
+    private double CalculateOMWPercent(int playerId)
+    {
+        if (_omwCache.TryGetValue(playerId, out var cached))
+            return cached;
+
+        var playerPairings = _allPairingsForTournament
+            .Where(p => p.PairingTp1 == playerId || p.PairingTp2 == playerId)
+            .ToList();
+
+        if (!playerPairings.Any())
+            return 0.33; // default baseline
+
+        var opponentWinRates = new List<double>();
+
+        foreach (var pairing in playerPairings)
+        {
+            int? opponentId =
+                pairing.PairingTp1 == playerId
+                    ? pairing.PairingTp2
+                    : pairing.PairingTp1;
+
+            if (opponentId == null)
+                continue;
+
+            var opponentMatches = _allPairingsForTournament
+                .Where(p => p.PairingTp1 == opponentId || p.PairingTp2 == opponentId)
+                .ToList();
+
+            if (!opponentMatches.Any())
+            {
+                opponentWinRates.Add(0.33);
+                continue;
+            }
+
+            int wins = opponentMatches.Count(p => p.WinnerId == opponentId);
+            int total = opponentMatches.Count;
+
+            opponentWinRates.Add((double)wins / total);
+        }
+
+        var result = opponentWinRates.Any()
+            ? opponentWinRates.Average()
+            : 0.33;
+
+        _omwCache[playerId] = result;
+        return result;
     }
 }

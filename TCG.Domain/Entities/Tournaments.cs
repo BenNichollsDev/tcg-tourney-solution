@@ -57,7 +57,8 @@ namespace TCG.Domain.Entities
 
         public League League { get; private set; } = null!;
 
-        public ICollection<TournamentPlayer> TournamentPlayers { get; private set; }
-            = new List<TournamentPlayer>();
+        public ICollection<TournamentPlayer> TournamentPlayers { get; private set; } = new List<TournamentPlayer>();
+        
+        public ICollection<Pairing> Pairings { get; private set; } = new List<Pairing>();
     }
 }

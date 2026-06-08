@@ -7,6 +7,12 @@ namespace TCG.Domain.Entities
         [Column("pairing_id")]
         public int PairingId { get; private set; }
 
+        [Column("pairing_tournament_id")]
+        public int TournamentId { get; private set; }
+
+        [Column("pairing_round_num")]
+        public int RoundNumber { get; private set; }
+
         [Column("pairing_tp_1")]
         public int Player1Id { get; private set; }
 
@@ -22,11 +28,12 @@ namespace TCG.Domain.Entities
         [Column("pairing_winner")]
         public int? WinnerId { get; private set; }
 
-        // Navigation
+        public Tournament Tournament { get; private set; } = null!;
+
         public TournamentPlayer Player1 { get; private set; } = null!;
-        
+
         public TournamentPlayer? Player2 { get; private set; }
-        
+
         public TournamentPlayer? Winner { get; private set; }
     }
 }

@@ -12,6 +12,18 @@ namespace TCG.Domain.Entities
 
         [Column("tp_player_name")]
         public string? PlayerName { get; private set; }
+        
+        [Column("tp_player_round_robin_wins")]
+        public int? PlayerRoundRobinWins { get; private set; }
+
+        [Column("tp_player_round_robin_score")]
+        public int? PlayerRoundRobinScore { get; private set; }
+
+        [Column("tp_player_round_robin_match_points")]
+        public float? PlayerRoundRobinMatchPoints { get; private set; }
+
+        [Column("tp_player_round_robin_points")]
+        public float? PlayerRoundRobinPoints { get; private set; }
 
         [Column("tp_player_swiss_wins")]
         public int? PlayerSwissWins { get; private set; }
@@ -20,18 +32,16 @@ namespace TCG.Domain.Entities
         public int? PlayerSwissScore { get; private set; }
 
         [Column("tp_player_swiss_match_points")]
-        public int? PlayerSwissMatchPoints { get; private set; }
+        public float? PlayerSwissMatchPoints { get; private set; }
 
         [Column("tp_player_swiss_points")]
-        public int? PlayerSwissPoints { get; private set; }
+        public float? PlayerSwissPoints { get; private set; }
 
         public Tournament Tournament { get; private set; } = null!;
-
-        // Pairings where this player is Player1
+        
         public ICollection<Pairing> PairingsAsPlayer1 { get; private set; }
             = new List<Pairing>();
-
-        // Pairings where this player is Player2
+        
         public ICollection<Pairing> PairingsAsPlayer2 { get; private set; }
             = new List<Pairing>();
     }

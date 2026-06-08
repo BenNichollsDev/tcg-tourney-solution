@@ -1,8 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.Extensions.Configuration;
 using TCG.Domain.Entities;
 
 namespace TCG.Infrastructure
@@ -29,6 +25,11 @@ namespace TCG.Infrastructure
 
             modelBuilder.Entity<Pairing>(entity =>
             {
+                entity.HasOne(p => p.Tournament)
+                    .WithMany(t => t.Pairings)
+                    .HasForeignKey(p => p.TournamentId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
                 entity.HasOne(p => p.Player1)
                     .WithMany(tp => tp.PairingsAsPlayer1)
                     .HasForeignKey(p => p.Player1Id)
