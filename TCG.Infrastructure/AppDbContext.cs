@@ -1,27 +1,32 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TCG.Domain.Entities;
+using TCG.Infrastructure.Configurations;
 
 namespace TCG.Infrastructure
 {
     public class AppDbContext : DbContext
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
-        {
-        }
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-        public virtual DbSet<League> Leagues { get; set; }
+        public virtual DbSet<League> Leagues { get; set; } = null!;
 
-        public virtual DbSet<Tournament> Tournaments { get; set; }
+        public virtual DbSet<Tournament> Tournaments { get; set; } = null!;
 
-        public virtual DbSet<Pairing> Pairings { get; set; }
+        public virtual DbSet<Pairing> Pairings { get; set; } = null!;
 
-        public virtual DbSet<Staff> Staff { get; set; }
+        public virtual DbSet<Staff> Staff { get; set; } = null!;
 
-        public virtual DbSet<TournamentPlayer> TournamentPlayers { get; set; }
+        public virtual DbSet<TournamentPlayer> TournamentPlayers { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+
+            modelBuilder.ApplyConfiguration(new TournamentConfiguration());
+            modelBuilder.ApplyConfiguration(new TournamentPlayerConfiguration());
+            modelBuilder.ApplyConfiguration(new PairingConfiguration());
+            modelBuilder.ApplyConfiguration(new StaffConfiguration());
+            modelBuilder.ApplyConfiguration(new LeagueConfiguration());
 
             modelBuilder.Entity<Pairing>(entity =>
             {

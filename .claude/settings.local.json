@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs -I {} bash -c 'grep -l \"bg-container\\\\|sidebar\" \"{}\" 2>/dev/null')",
+      "Bash(xargs grep -l \"partial.*TournamentPlayer\")"
+    ]
+  }
+}

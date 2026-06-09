@@ -28,6 +28,15 @@ namespace TCG.Domain.Entities
         [Column("pairing_winner")]
         public int? WinnerId { get; private set; }
 
+        [Column("pairing_player_1_game_count")]
+        public int? Player1GameCount { get; private set; }
+
+        [Column("pairing_player_2_game_count")]
+        public int? Player2GameCount { get; private set; }
+
+        [Column("pairing_has_result")]
+        public bool HasResult { get; private set; }
+
         public Tournament Tournament { get; private set; } = null!;
 
         public TournamentPlayer Player1 { get; private set; } = null!;

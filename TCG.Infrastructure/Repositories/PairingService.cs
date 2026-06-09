@@ -36,6 +36,15 @@ public class PairingService
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<PairingDto>> GetAllWhereAsync(Expression<Func<Pairing, bool>> predicate)
+    {
+        return await context.Pairings
+            .AsNoTracking()
+            .Where(predicate)
+            .ProjectTo<PairingDto>(mapper.ConfigurationProvider)
+            .ToListAsync();
+    }
+
     public async Task<PairingDto> GetByAsync(Expression<Func<Pairing, bool>> predicate)
     {
         var league = await context.Pairings

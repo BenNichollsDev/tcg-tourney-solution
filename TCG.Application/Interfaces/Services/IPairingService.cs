@@ -10,6 +10,8 @@ public interface IPairingService
 
     Task<IEnumerable<PairingDto>> GetAllAsync();
 
+    Task<IEnumerable<PairingDto>> GetAllWhereAsync(Expression<Func<Pairing, bool>> predicate);
+
     Task<PairingDto> GetByAsync(Expression<Func<Pairing, bool>> predicate);
 
     Task<PairingDto> CreateAsync(PairingDto leagueDto);

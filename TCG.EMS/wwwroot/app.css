@@ -122,3 +122,19 @@ body {
     width: 10em;
     max-width: 100%;
 }
+
+/* ----- Additional layout rules for sticky sidebar and responsive content ----- */
+
+/* Make the sidebar static (sticky) without affecting layout */
+.sidebar-static {
+  position: sticky;
+  top: 0;
+  z-index: 1020; /* above content but below modals */
+}
+
+/* Content container: allow expansion horizontally but enforce a minimum width and enable horizontal scrolling when needed */
+.page-inner-responsive {
+  min-width: 800px; /* adjust as needed based on current design */
+  width: auto;
+  overflow-x: auto;
+}

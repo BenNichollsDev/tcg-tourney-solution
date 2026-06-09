@@ -49,6 +49,7 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<AutoMapperProfile>());
 
+// Register application services
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IPairingService, PairingService>();
 builder.Services.AddScoped<IStaffService, StaffService>();
@@ -56,6 +57,7 @@ builder.Services.AddScoped<ILeagueService, LeagueService>();
 builder.Services.AddScoped<ITournamentService, TournamentService>();
 builder.Services.AddScoped<ITournamentPlayerService, TournamentPlayerService>();
 
+builder.Services.AddScoped<TournamentScoringService>();
 builder.Services.AddScoped<LoginAuthService>();
 builder.Services.AddScoped<LoginService>();
 builder.Services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();

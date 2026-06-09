@@ -26,7 +26,6 @@
                 {
                     <EditForm Model="@_tournamentModel" OnValidSubmit="OnFormSubmit" style="padding-left: 5em; padding-right: 5em; ">
                         <DataAnnotationsValidator/>
-                        <ValidationSummary/>
 
                         <label for="name">Name:</label>
                         <InputText id="name"
@@ -145,6 +144,10 @@
                         
                         <h4>Add Participants</h4>
 
+                        <p class="text-muted">
+                            Players: @_participants.Count / @_tournamentModel.TournamentMaxParticipants
+                        </p>
+                        
                         <div class="d-flex mb-3">
                             <InputText class="form-control me-2"
                                        placeholder="Enter participant name"
@@ -152,7 +155,9 @@
 
                             <button type="button"
                                     class="btn btn-primary"
-                                    @onclick="AddParticipant">
+                                    @onclick="AddParticipant"
+                                    disabled="@(_tournamentModel != null &&
+                                              _participants.Count >= _tournamentModel.TournamentMaxParticipants)">
                                 Add
                             </button>
                         </div>
@@ -302,14 +307,22 @@
         if (string.IsNullOrWhiteSpace(_newParticipantName) || _tournamentModel == null)
             return;
 
+        if (_participants.Count >= _tournamentModel.TournamentMaxParticipants)
+        {
+            _participantErrorMessage =
+                $"This tournament has reached its maximum of {_tournamentModel.TournamentMaxParticipants} players.";
+            return;
+        }
+
         var trimmedName = _newParticipantName.Trim();
-        
-        if (_participants.Any(p => string.Equals(p.PlayerName, trimmedName, StringComparison.OrdinalIgnoreCase)))
+
+        if (_participants.Any(p =>
+                string.Equals(p.PlayerName, trimmedName, StringComparison.OrdinalIgnoreCase)))
         {
             _participantErrorMessage = "A participant with this name already exists.";
             return;
         }
-        
+
         _participantErrorMessage = string.Empty;
 
         _participants.Add(new TournamentPlayerDto

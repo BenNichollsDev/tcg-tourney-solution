@@ -8,22 +8,41 @@ namespace TCG.Application.Dtos
 
         public int TournamentId { get; set; }
 
-        public string? PlayerName { get; set; }
-        
+        public int PlayerId { get; set; }
+
+        public string PlayerName { get; set; } = string.Empty;
+
+        // Round-robin fields
         public int? PlayerRoundRobinWins { get; set; }
+
+        public int? PlayerRoundRobinDraws { get; set; }
+
+        public int? PlayerRoundRobinLosses { get; set; }
 
         public int? PlayerRoundRobinScore { get; set; }
 
-        public float? PlayerRoundRobinMatchPoints { get; set; }
+        public int? PlayerRoundRobinMatchPoints { get; set; }
 
-        public float? PlayerRoundRobinPoints { get; set; }
+        public int? PlayerRoundRobinPoints { get; set; }
 
+        // Swiss fields
         public int? PlayerSwissWins { get; set; }
+
+        public int? PlayerSwissDraws { get; set; }
+
+        public int? PlayerSwissLosses { get; set; }
 
         public int? PlayerSwissScore { get; set; }
 
-        public float? PlayerSwissMatchPoints { get; set; }
+        public int? PlayerSwissMatchPoints { get; set; }
 
-        public float? PlayerSwissPoints { get; set; }
+        public int? PlayerSwissPoints { get; set; }
+
+        // Tracking for byes and games
+        public bool HasReceivedBye { get; set; }
+
+        public int? GamesWon { get; set; }
+
+        public int? GamesPlayed { get; set; }
     }
 }
