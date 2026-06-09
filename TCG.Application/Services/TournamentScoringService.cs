@@ -34,88 +34,119 @@ namespace TCG.Application.Services
         // Computes standings and on-demand OMW% and game win% for all players in the tournament
         public async Task<List<PlayerComputedStats>> ComputeAllAsync(int tournamentId)
         {
-            var players = (await _tpService.GetAllWhereAsync(tp => tp.TournamentId == tournamentId)).ToList();
-            var pairings = (await _pairingService.GetAllWhereAsync(p => p.TournamentId == tournamentId)).ToList();
+            var players = (await _tpService.GetAllWhereAsync(tp => tp.TournamentId == tournamentId))
+                .ToList();
 
-            var stats = players.Select(p => new PlayerComputedStats
-            {
-                TournamentPlayerId = p.TournamentPlayerId,
-                Wins = 0,
-                Draws = 0,
-                Losses = 0,
-                Points = 0,
-                OmwPercent = 0,
-                GameWinPercent = 0,
-                GamesWon = p.GamesWon ?? 0,
-                GamesPlayed = p.GamesPlayed ?? 0
-            }).ToDictionary(x => x.TournamentPlayerId);
+            var pairings = (await _pairingService.GetAllWhereAsync(p => p.TournamentId == tournamentId))
+                .Where(p => p.PairingHasResult)
+                .ToList();
 
-            // Process pairings with results
-            foreach (var pairing in pairings.Where(x => x.PairingHasResult))
+            var stats = players.ToDictionary(
+                p => p.TournamentPlayerId,
+                p => new PlayerComputedStats
+                {
+                    TournamentPlayerId = p.TournamentPlayerId,
+                    GamesWon = p.GamesWon ?? 0,
+                    GamesPlayed = p.GamesPlayed ?? 0
+                });
+
+            // Track opponents per player (for OMW)
+            var opponents = players.ToDictionary(
+                p => p.TournamentPlayerId,
+                _ => new List<int>());
+
+            foreach (var pairing in pairings)
             {
                 var p1 = pairing.PairingTp1;
                 var p2 = pairing.PairingTp2;
 
+                // BYE
                 if (p2 == null)
                 {
-                    // bye -> award a win to p1
-                    if (p1.HasValue && stats.ContainsKey(p1.Value))
+                    if (p1.HasValue)
                     {
-                        stats[p1.Value].Wins += 1;
+                        stats[p1.Value].Wins++;
                         stats[p1.Value].Points += 3;
                     }
-
                     continue;
                 }
 
-                if (!pairing.PairingPlayer1Score.HasValue || !pairing.PairingPlayer2Score.HasValue)
+                if (!pairing.PairingPlayer1Score.HasValue ||
+                    !pairing.PairingPlayer2Score.HasValue)
                     continue;
 
                 var s1 = pairing.PairingPlayer1Score.Value;
                 var s2 = pairing.PairingPlayer2Score.Value;
 
-                if (s1 > s2)
+                if (p1.HasValue && p2.HasValue)
                 {
-                    if (p1.HasValue) { stats[p1.Value].Wins += 1; stats[p1.Value].Points += 3; }
-                    if (p2.HasValue) { stats[p2.Value].Losses += 1; }
-                }
-                else if (s1 < s2)
-                {
-                    if (p2.HasValue) { stats[p2.Value].Wins += 1; stats[p2.Value].Points += 3; }
-                    if (p1.HasValue) { stats[p1.Value].Losses += 1; }
-                }
-                else
-                {
-                    if (p1.HasValue) { stats[p1.Value].Draws += 1; stats[p1.Value].Points += 1; }
-                    if (p2.HasValue) { stats[p2.Value].Draws += 1; stats[p2.Value].Points += 1; }
-                }
+                    opponents[p1.Value].Add(p2.Value);
+                    opponents[p2.Value].Add(p1.Value);
 
-                // game counts
-                if (pairing.PairingPlayer1GameCount.HasValue && pairing.PairingPlayer2GameCount.HasValue)
-                {
-                    if (p1.HasValue) { stats[p1.Value].GamesPlayed += pairing.PairingPlayer1GameCount.Value + pairing.PairingPlayer2GameCount.Value; stats[p1.Value].GamesWon += pairing.PairingPlayer1GameCount.Value; }
-                    if (p2.HasValue) { stats[p2.Value].GamesPlayed += pairing.PairingPlayer1GameCount.Value + pairing.PairingPlayer2GameCount.Value; stats[p2.Value].GamesWon += pairing.PairingPlayer2GameCount.Value; }
+                    if (s1 > s2)
+                    {
+                        stats[p1.Value].Wins++;
+                        stats[p1.Value].Points += 3;
+                        stats[p2.Value].Losses++;
+                    }
+                    else if (s1 < s2)
+                    {
+                        stats[p2.Value].Wins++;
+                        stats[p2.Value].Points += 3;
+                        stats[p1.Value].Losses++;
+                    }
+                    else
+                    {
+                        stats[p1.Value].Draws++;
+                        stats[p2.Value].Draws++;
+                        stats[p1.Value].Points += 1;
+                        stats[p2.Value].Points += 1;
+                    }
+
+                    // Game stats
+                    if (pairing.PairingPlayer1GameCount.HasValue &&
+                        pairing.PairingPlayer2GameCount.HasValue)
+                    {
+                        stats[p1.Value].GamesPlayed +=
+                            pairing.PairingPlayer1GameCount.Value +
+                            pairing.PairingPlayer2GameCount.Value;
+
+                        stats[p2.Value].GamesPlayed +=
+                            pairing.PairingPlayer1GameCount.Value +
+                            pairing.PairingPlayer2GameCount.Value;
+
+                        stats[p1.Value].GamesWon += pairing.PairingPlayer1GameCount.Value;
+                        stats[p2.Value].GamesWon += pairing.PairingPlayer2GameCount.Value;
+                    }
                 }
             }
 
-            // Compute OMW% for each player
+            // Compute OMW + Game Win %
             foreach (var s in stats.Values)
             {
-                var playerPairings = pairings.Where(x => x.PairingHasResult)
-                    .Where(x => x.PairingTp1 == s.TournamentPlayerId || x.PairingTp2 == s.TournamentPlayerId)
+                var opps = opponents[s.TournamentPlayerId];
+
+                var oppStats = opps
+                    .Where(id => stats.ContainsKey(id))
+                    .Select(id => stats[id])
                     .ToList();
 
-                var opponentIds = playerPairings.Select(x => x.PairingTp1 == s.TournamentPlayerId ? x.PairingTp2 : x.PairingTp1).Where(id => id.HasValue).Select(id => id!.Value).ToList();
+                var oppWins = oppStats.Sum(x => x.Wins);
+                var oppGames = oppStats.Sum(x => x.Wins + x.Draws + x.Losses);
 
-                var opponentWinsSum = opponentIds.Sum(id => stats.ContainsKey(id) ? stats[id].Wins : 0);
-                var opponentMatchesCompleted = opponentIds.Sum(id => stats.ContainsKey(id) ? stats[id].Wins + stats[id].Draws + stats[id].Losses : 0);
+                s.OmwPercent = oppGames == 0
+                    ? 0
+                    : (oppWins / (double)oppGames) * 100.0;
 
-                s.OmwPercent = opponentMatchesCompleted == 0 ? 0 : (opponentWinsSum / (double)opponentMatchesCompleted) * 100.0;
-
-                s.GameWinPercent = s.GamesPlayed == 0 ? 0 : (s.GamesWon / (double)s.GamesPlayed) * 100.0;
+                s.GameWinPercent = s.GamesPlayed == 0
+                    ? 0
+                    : (s.GamesWon / (double)s.GamesPlayed) * 100.0;
             }
 
-            return stats.Values.OrderByDescending(x => x.Points).ThenByDescending(x => x.OmwPercent).ToList();
+            return stats.Values
+                .OrderByDescending(x => x.Points)
+                .ThenByDescending(x => x.OmwPercent)
+                .ToList();
         }
     }
 }

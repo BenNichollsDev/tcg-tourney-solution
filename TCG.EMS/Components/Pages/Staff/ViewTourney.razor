@@ -242,6 +242,7 @@
     private bool _hasLoaded;
     private bool _showNull;
     private string? _notice;
+    private bool _pairingsAreValid = false;
 
     private TournamentDto? _tournamentModel = new();
 
@@ -364,43 +365,177 @@
         if (isPlayer1) pairing.Player1Id = value; else pairing.Player2Id = value;
     }
 
-    private void GenerateRoundRobinPairings()
+    private async Task<HashSet<(int, int)>> GetExistingPairings()
     {
-        // simple round robin generator: pair sequentially
-        _pairings.Clear();
-        for (int i = 0; i < _participants.Count; i += 2)
-        {
-            var p1 = _participants[i];
-            var p2 = i + 1 < _participants.Count ? _participants[i + 1] : null;
+        var existing = await PairingService.GetAllWhereAsync(
+            x => x.TournamentId == TournamentId);
 
-            _pairings.Add(new PairingSelection
-            {
-                Player1Id = p1.TournamentPlayerId.ToString(),
-                Player2Id = p2?.TournamentPlayerId.ToString() ?? BYE
-            });
-        }
+        return existing
+            .Where(x => x.PairingTp1.HasValue && x.PairingTp2.HasValue)
+            .Select(x =>
+            (
+                Math.Min(x.PairingTp1!.Value, x.PairingTp2!.Value),
+                Math.Max(x.PairingTp1!.Value, x.PairingTp2!.Value)
+            ))
+            .ToHashSet();
     }
 
-    private void GenerateSwissPairings()
+    private async Task GenerateRoundRobinPairings()
     {
-        // simple swiss: use computed stats order
-        var ordered = _computedStats.Select(s => s.TournamentPlayerId).ToList();
-        _pairings.Clear();
-        for (int i = 0; i < ordered.Count; i += 2)
+        _notice = null;
+
+        var occurred = await GetExistingPairings();
+
+        var players = _participants
+            .Select(p => p.TournamentPlayerId)
+            .ToList();
+
+        // Check if any player has faced everyone else
+        foreach (var player in players)
         {
-            var p1 = ordered[i];
-            var p2 = i + 1 < ordered.Count ? ordered[i + 1] : (int?)null;
-            _pairings.Add(new PairingSelection
+            var opponentCount = occurred.Count(p =>
+                p.Item1 == player || p.Item2 == player);
+
+            if (opponentCount >= players.Count - 1)
             {
-                Player1Id = p1.ToString(),
-                Player2Id = p2?.ToString() ?? BYE
-            });
+                _notice = "Cannot generate a unique pairing.";
+                return;
+            }
         }
+
+        var rnd = new Random();
+
+        const int maxAttempts = 1000;
+
+        for (int attempt = 0; attempt < maxAttempts; attempt++)
+        {
+            var shuffled = players
+                .OrderBy(_ => rnd.Next())
+                .ToList();
+
+            bool valid = true;
+
+            for (int i = 0; i + 1 < shuffled.Count; i += 2)
+            {
+                var pair = (
+                    Math.Min(shuffled[i], shuffled[i + 1]),
+                    Math.Max(shuffled[i], shuffled[i + 1]));
+
+                if (occurred.Contains(pair))
+                {
+                    valid = false;
+                    break;
+                }
+            }
+
+            if (!valid)
+                continue;
+
+            _pairings.Clear();
+
+            for (int i = 0; i < shuffled.Count; i += 2)
+            {
+                _pairings.Add(new PairingSelection
+                {
+                    Player1Id = shuffled[i].ToString(),
+                    Player2Id = i + 1 < shuffled.Count
+                        ? shuffled[i + 1].ToString()
+                        : BYE
+                });
+            }
+
+            _pairingsAreValid = true;
+
+            return;
+        }
+
+        _notice = "Cannot generate a unique pairing.";
+        _pairingsAreValid = false;
+    }
+
+    private async Task GenerateSwissPairings()
+    {
+        _notice = null;
+
+        var occurred = await GetExistingPairings();
+
+        var players = _participants
+            .OrderByDescending(p => p.PlayerSwissPoints ?? 0)
+            .ThenByDescending(p => p.PlayerSwissMatchPoints ?? 0)
+            .Select(p => p.TournamentPlayerId)
+            .ToList();
+
+        if (players.Count < 2)
+        {
+            _notice = "Not enough participants to generate pairings.";
+            return;
+        }
+
+        var rnd = new Random();
+        const int maxAttempts = 1000;
+
+        for (int attempt = 0; attempt < maxAttempts; attempt++)
+        {
+            // small randomness within same-score groups
+            var shuffled = players
+                .OrderBy(x => rnd.Next())
+                .ToList();
+
+            bool valid = true;
+
+            var pairs = new List<(int, int?)>();
+
+            for (int i = 0; i < shuffled.Count; i += 2)
+            {
+                var p1 = shuffled[i];
+                var p2 = i + 1 < shuffled.Count ? shuffled[i + 1] : (int?)null;
+
+                if (p2 != null)
+                {
+                    var pair = (
+                        Math.Min(p1, p2.Value),
+                        Math.Max(p1, p2.Value));
+
+                    if (occurred.Contains(pair))
+                    {
+                        valid = false;
+                        break;
+                    }
+
+                    pairs.Add((p1, p2));
+                }
+                else
+                {
+                    pairs.Add((p1, null)); // BYE
+                }
+            }
+
+            if (!valid)
+                continue;
+
+            _pairings.Clear();
+
+            foreach (var (p1, p2) in pairs)
+            {
+                _pairings.Add(new PairingSelection
+                {
+                    Player1Id = p1.ToString(),
+                    Player2Id = p2?.ToString() ?? BYE
+                });
+            }
+
+            _pairingsAreValid = true;
+
+            return;
+        }
+
+        _notice = "Failed to generate Swiss pairings without repeats.";
+        _pairingsAreValid = false;
     }
 
     private bool CanStartMatch()
     {
-        // ensure all pairings have at least one player
-        return _pairings.All(p => !string.IsNullOrWhiteSpace(p.Player1Id) || !string.IsNullOrWhiteSpace(p.Player2Id));
+        // ensure all pairings have at least one player and that the pairings are legitimate
+        return _pairingsAreValid && _pairings.All(p => !string.IsNullOrWhiteSpace(p.Player1Id) || !string.IsNullOrWhiteSpace(p.Player2Id));
     }
 }
