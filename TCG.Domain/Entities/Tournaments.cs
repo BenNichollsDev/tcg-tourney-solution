@@ -7,58 +7,61 @@ namespace TCG.Domain.Entities
     public partial class Tournament
     {
         [Column("tournament_id")]
-        public int TournamentId { get; private set; }
+        public int TournamentId { get; set; }
 
         [Column("tournament_league")]
-        public int? LeagueId { get; private set; }
+        public int? LeagueId { get; set; }
 
         [Column("tournament_name")]
-        public string TournamentName { get; private set; } = string.Empty;
+        public string TournamentName { get; set; } = string.Empty;
 
         [Column("tournament_game")]
-        public string TournamentGame { get; private set; } = string.Empty;
+        public string TournamentGame { get; set; } = string.Empty;
 
         [Column("tournament_format")]
-        public string TournamentFormat { get; private set; } = string.Empty;
+        public string TournamentFormat { get; set; } = string.Empty;
 
         [Column("tournament_require_deck")]
-        public bool TournamentRequireDeck { get; private set; }
+        public bool TournamentRequireDeck { get; set; }
 
         [Column("tournament_round_num")]
-        public int? TournamentRoundNum { get; private set; }
+        public int? TournamentRoundNum { get; set; }
 
         [Column("tournament_max_round_num")]
-        public int? TournamentMaxRoundNum { get; private set; }
+        public int? TournamentMaxRoundNum { get; set; }
 
         [Column("tournament_description")]
-        public string TournamentDescription { get; private set; } = string.Empty;
+        public string TournamentDescription { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Pairing type is required")]
         [Column("tournament_pairing")]
-        public string TournamentPairing { get; private set; } = string.Empty;
+        public string TournamentPairing { get; set; } = string.Empty;
 
         [Column("tournament_date")]
-        public DateOnly TournamentDate { get; private set; }
+        public DateOnly TournamentDate { get; set; }
 
         [Column("tournament_time")]
-        public TimeOnly TournamentTime { get; private set; }
+        public TimeOnly TournamentTime { get; set; }
 
         [Column("tournament_entry_fee")]
-        public decimal TournamentEntryFee { get; private set; }
+        public decimal TournamentEntryFee { get; set; }
 
         [Column("tournament_max_participants")]
-        public int TournamentMaxParticipants { get; private set; }
+        public int TournamentMaxParticipants { get; set; }
 
         [Column("tournament_swiss_topcut")]
-        public bool TournamentSwissTopcut { get; private set; }
+        public bool TournamentSwissTopcut { get; set; }
 
         [Column("tournament_swiss_topcut_num")]
-        public int TournamentSwissTopcutNum { get; private set; }
+        public int TournamentSwissTopcutNum { get; set; }
 
-        public League League { get; private set; } = null!;
+        [Column("tournament_in_progress")]
+        public bool TournamentInProgress { get; set; }
 
-        public ICollection<TournamentPlayer> TournamentPlayers { get; private set; } = new List<TournamentPlayer>();
+        public League League { get; set; } = null!;
+
+        public ICollection<TournamentPlayer> TournamentPlayers { get; set; } = new List<TournamentPlayer>();
         
-        public ICollection<Pairing> Pairings { get; private set; } = new List<Pairing>();
+        public ICollection<Pairing> Pairings { get; set; } = new List<Pairing>();
     }
 }

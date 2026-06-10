@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TCG.Infrastructure;
@@ -11,9 +12,11 @@ using TCG.Infrastructure;
 namespace TCG.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260610173657_UpdatedModel3")]
+    partial class UpdatedModel3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -90,7 +93,7 @@ namespace TCG.Infrastructure.Migrations
 
                     b.Property<int>("RoundNumber")
                         .HasColumnType("integer")
-                        .HasColumnName("pairing_round_number");
+                        .HasColumnName("pairing_round_num");
 
                     b.Property<int>("TournamentId")
                         .HasColumnType("integer")

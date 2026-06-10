@@ -25,12 +25,12 @@
                 else
                 {
                     <EditForm Model="@_tournamentModel" OnValidSubmit="OnFormSubmit" style="padding-left: 5em; padding-right: 5em; ">
-                        <DataAnnotationsValidator/>
+                        <DataAnnotationsValidator />
 
                         <label for="name">Name:</label>
                         <InputText id="name"
                                    class="form-control mb-3"
-                                   @bind-Value="_tournamentModel.TournamentName"/>
+                                   @bind-Value="_tournamentModel.TournamentName" />
 
                         <label for="league">League:</label>
                         <InputSelect id="league"
@@ -47,12 +47,13 @@
                             }
 
                         </InputSelect>
-                        
+
                         <label for="games">Game:</label>
                         <InputSelect id="games"
                                      class="form-control mb-3"
                                      @bind-Value="_tournamentModel.TournamentGame"
-                                     @onchange="OnGameChanged">
+                                     @bind:after="OnGameChanged">
+
                             <option value="">-- Select --</option>
                             <option value="MtG">Magic the Gathering</option>
                             <option value="Pokémon">Pokémon</option>
@@ -63,7 +64,8 @@
                                      @key="_tournamentModel.TournamentGame"
                                      class="form-control mb-3"
                                      @bind-Value="_tournamentModel.TournamentFormat"
-                                     @bind-Value:after="OnFormatChanged">
+                                     @bind:after="OnFormatChanged">
+
                             @if (!string.IsNullOrEmpty(_tournamentModel.TournamentGame))
                             {
                                 <option value="">-- Select Format --</option>
@@ -84,70 +86,75 @@
                                 <label for="decklist" class="mb-0">Require a Decklist?</label>
                                 <InputCheckbox id="decklist"
                                                class="form-check-input ms-2"
-                                               @bind-Value="_tournamentModel.TournamentRequireDeck"/>
+                                               @bind-Value="_tournamentModel.TournamentRequireDeck" />
                             </div>
                         }
-                    
+
                         <label for="pairing">Pairing Type:</label>
                         <InputSelect id="pairing"
                                      class="form-control mb-3"
                                      @bind-Value="_tournamentModel.TournamentPairing"
-                                     @onchange="OnPairingChanged">
+                                     @bind:after="OnPairingChanged">
 
                             <option value="">-- Select Pairing --</option>
-                            <option value="Round-Robin">
-                                Round-Robin
-                            </option>
-                            <option value="Swiss">
-                                Swiss
-                            </option>
+                            <option value="Round-Robin">Round-Robin</option>
+                            <option value="Swiss">Swiss</option>
 
                         </InputSelect>
-                    
+
                         <ValidationMessage For="@(() => _tournamentModel.TournamentPairing)" />
 
                         <label for="tourneydate">Date:</label>
                         <input type="date" id="tourneydate" class="form-control mb-3"
                                value='@_tournamentModel.TournamentDate.ToString("yyyy-MM-dd")'
                                min="@MinDateString"
-                               @onchange="OnDateInputChanged"/>
+                               @onchange="OnDateInputChanged" />
 
                         <label for="tourneytime">Time:</label>
                         <input type="time" id="tourneytime" class="form-control mb-3"
                                value='@_tournamentModel.TournamentTime.ToString("HH:mm")'
                                min="@(IsDateToday ? MinTimeString : string.Empty)"
-                               @onchange="OnTimeInputChanged"/>
+                               @onchange="OnTimeInputChanged" />
 
                         <label for="playernum">Max Number of Players:</label>
-                        @if (_tournamentModel != null)
-                        {
-                            <InputNumber id="playernum"
-                                         class="form-control mb-3"
-                                         @bind-Value="_tournamentModel.TournamentMaxParticipants"
-                                         min="2"
-                                         required/>
-                            <ValidationMessage For="@(() => _tournamentModel.TournamentMaxParticipants)"/>
 
-                            <label for="price">Entry Fee (£):</label>
-                            <InputNumber id="price"
-                                         class="form-control mb-3"
-                                         step="0.01"
-                                         @bind-Value="_tournamentModel.TournamentEntryFee"
-                                         @onchange="OnPriceInputChanged"/>
+                        <InputNumber id="playernum"
+                                     class="form-control mb-3"
+                                     @bind-Value="_tournamentModel.TournamentMaxParticipants"
+                                     min="2"
+                                     required />
 
-                            <label for="description">Description:</label>
-                            <InputTextArea id="description"
-                                           class="form-control mb-3"
-                                           @bind-Value="_tournamentModel.TournamentDescription"
-                                           required/>
-                        }
-                        
+                        <ValidationMessage For="@(() => _tournamentModel.TournamentMaxParticipants)" />
+
+                        <label for="playernum">Max Number of Rounds:</label>
+
+                        <InputNumber id="maxroundnum"
+                                     class="form-control mb-3"
+                                     @key="nameof(_tournamentModel.TournamentMaxRoundNum)"
+                                     @bind-Value="_tournamentModel.TournamentMaxRoundNum"
+                                     min="1"
+                                     required />
+
+                        <label for="price">Entry Fee (£):</label>
+
+                        <InputNumber id="price"
+                                     class="form-control mb-3"
+                                     step="0.01"
+                                     @bind-Value="_tournamentModel.TournamentEntryFee"
+                                     @bind:after="OnPriceInputChanged" />
+
+                        <label for="description">Description:</label>
+
+                        <InputTextArea id="description"
+                                       class="form-control mb-3"
+                                       @bind-Value="_tournamentModel.TournamentDescription" />
+
                         <h4>Add Participants</h4>
 
                         <p class="text-muted">
                             Players: @_participants.Count / @_tournamentModel.TournamentMaxParticipants
                         </p>
-                        
+
                         <div class="d-flex mb-3">
                             <InputText class="form-control me-2"
                                        placeholder="Enter participant name"
@@ -157,11 +164,11 @@
                                     class="btn btn-primary"
                                     @onclick="AddParticipant"
                                     disabled="@(_tournamentModel != null &&
-                                              _participants.Count >= _tournamentModel.TournamentMaxParticipants)">
+                                                              _participants.Count >= _tournamentModel.TournamentMaxParticipants)">
                                 Add
                             </button>
                         </div>
-                        
+
                         @if (!string.IsNullOrEmpty(_participantErrorMessage))
                         {
                             <div class="text-danger mb-3">@_participantErrorMessage</div>

@@ -20,5 +20,7 @@
         public int? PairingPlayer2GameCount { get; set; }
 
         public bool PairingHasResult { get; set; }
+
+        public int RoundNumber { get; set; }
     }
 }

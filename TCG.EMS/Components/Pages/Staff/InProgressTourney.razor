@@ -24,6 +24,10 @@
                 {
                     <h3>@_tournamentModel.TournamentName</h3>
 
+                    <h4>Round @_tournamentModel.TournamentRoundNum/@_tournamentModel.TournamentMaxRoundNum</h4>
+
+                    <br />
+
                     @foreach (var pairing in pairings)
                     {
                         <div class="mb-3 border p-2">
@@ -31,8 +35,7 @@
                                 <div class="col">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <span>@pairing.Player1Name</span>
-                                        <InputNumber TValue="int"
-                                                     @bind-Value="pairing.Player1Score"
+                                        <InputNumber @bind-Value="pairing.Player1Score"
                                                      class="form-control form-control-sm ms-2"
                                                      style="width:4rem;"
                                                      min="0" max="3"
@@ -45,8 +48,7 @@
                                 <div class="col">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <span>@pairing.Player2Name</span>
-                                        <InputNumber TValue="int"
-                                                     @bind-Value="pairing.Player2Score"
+                                        <InputNumber @bind-Value="pairing.Player2Score"
                                                      class="form-control form-control-sm ms-2"
                                                      style="width:4rem;"
                                                      min="0" max="3"
@@ -58,6 +60,20 @@
                     }
                     <p></p>
                 }
+
+                <div class="mt-3 d-flex gap-2">
+
+                    <button class="btn btn-primary"
+                            @onclick="SaveResults">
+                        Save Results
+                    </button>
+
+                    <button class="btn btn-secondary"
+                            @onclick="BacktoPairings">
+                        Back to Pairings
+                    </button>
+
+                </div>
             </div>
         </div>
     </div>
@@ -114,25 +130,73 @@
             return;
         }
 
-        // CONTINUE FROM HERE
-        var allPlayers = (await TournamentPlayerService
-            .GetAllWhereAsync(tp => tp.TournamentId == TournamentId.Value))
+        // If tournament is NOT in progress, redirect to view page
+        if (!_tournamentModel.TournamentInProgress)
+        {
+            NavManager.NavigateTo($"/tournaments/view/{TournamentId}");
+            return;
+        }
+
+        // Load pairings from database for the current round
+        var dbPairings = (await PairingService
+            .GetAllWhereAsync(p => p.TournamentId == TournamentId.Value && p.RoundNumber == _tournamentModel.TournamentRoundNum))
             .ToList();
 
-        for (int i = 0; i < allPlayers.Count; i += 2)
+        if (dbPairings.Any())
         {
-            var p1 = allPlayers[i];
-            var p2 = i + 1 < allPlayers.Count ? allPlayers[i + 1] : null;
+            // Use pairings from database
+            var allPlayers = (await TournamentPlayerService
+                .GetAllWhereAsync(tp => tp.TournamentId == TournamentId.Value))
+                .ToDictionary(tp => tp.TournamentPlayerId);
 
-            pairings.Add(new PairingSelection
+            foreach (var pairing in dbPairings)
             {
-                Player1Id = p1.TournamentPlayerId,
-                Player2Id = p2?.TournamentPlayerId,
-                Player1Name = p1.PlayerName ?? "BYE",
-                Player2Name = p2?.PlayerName ?? "BYE",
-                Player1Score = 0,
-                Player2Score = 0
-            });
+                var p1Name = "BYE";
+                var p2Name = "BYE";
+
+                if (pairing.PairingTp1.HasValue && allPlayers.TryGetValue(pairing.PairingTp1.Value, out var player1))
+                {
+                    p1Name = player1.PlayerName ?? "Unknown";
+                }
+
+                if (pairing.PairingTp2.HasValue && allPlayers.TryGetValue(pairing.PairingTp2.Value, out var player2))
+                {
+                    p2Name = player2.PlayerName ?? "Unknown";
+                }
+
+                pairings.Add(new PairingSelection
+                {
+                    Player1Id = pairing.PairingTp1,
+                    Player2Id = pairing.PairingTp2,
+                    Player1Name = p1Name,
+                    Player2Name = p2Name,
+                    Player1Score = pairing.PairingPlayer1Score ?? 0,
+                    Player2Score = pairing.PairingPlayer2Score ?? 0
+                });
+            }
+        }
+        else
+        {
+            // Fallback: construct from participant list (shouldn't normally reach here if pairings were saved)
+            var allPlayers = (await TournamentPlayerService
+                .GetAllWhereAsync(tp => tp.TournamentId == TournamentId.Value))
+                .ToList();
+
+            for (int i = 0; i < allPlayers.Count; i += 2)
+            {
+                var p1 = allPlayers[i];
+                var p2 = i + 1 < allPlayers.Count ? allPlayers[i + 1] : null;
+
+                pairings.Add(new PairingSelection
+                {
+                    Player1Id = p1.TournamentPlayerId,
+                    Player2Id = p2?.TournamentPlayerId,
+                    Player1Name = p1.PlayerName ?? "BYE",
+                    Player2Name = p2?.PlayerName ?? "BYE",
+                    Player1Score = 0,
+                    Player2Score = 0
+                });
+            }
         }
 
         _hasLoaded = true;
@@ -142,4 +206,99 @@
         string.Equals(p.Player1Name, "BYE", StringComparison.OrdinalIgnoreCase)
         || string.Equals(p.Player2Name, "BYE", StringComparison.OrdinalIgnoreCase);
 
+    private async Task SaveResults()
+    {
+        if (TournamentId == null || _tournamentModel == null)
+            return;
+
+        var dbPairings = (await PairingService
+            .GetAllWhereAsync(p => p.TournamentId == TournamentId.Value))
+            .ToList();
+
+        foreach (var uiPairing in pairings)
+        {
+            if (uiPairing.Player1Id == null)
+                continue;
+
+            int? p1 = uiPairing.Player1Id;
+            int? p2 = uiPairing.Player2Id;
+
+            var dbPairing = dbPairings.FirstOrDefault(x =>
+                x.PairingTp1 == p1 &&
+                x.PairingTp2 == p2);
+
+            if (dbPairing == null)
+                continue;
+
+            // Save results
+            dbPairing.PairingPlayer1Score = uiPairing.Player1Score;
+            dbPairing.PairingPlayer2Score = uiPairing.Player2Score;
+
+            dbPairing.PairingHasResult = true;
+
+            await PairingService.UpdateAsync(dbPairing);
+
+            ApplyPlayerResults(uiPairing);
+        }
+
+        // Increment round
+        _tournamentModel.TournamentRoundNum += 1;
+
+        // Keep tournament NOT in progress (you return to view screen)
+        _tournamentModel.TournamentInProgress = false;
+
+        await TournamentService.UpdateAsync(_tournamentModel);
+
+        NavManager.NavigateTo($"/tournaments/view/{TournamentId}");
+    }
+
+    private async void ApplyPlayerResults(PairingSelection p)
+    {
+        if (p.Player1Id == null || p.Player2Id == null)
+            return;
+
+        var p1 = await TournamentPlayerService.GetByIdAsync(p.Player1Id.Value);
+        var p2 = await TournamentPlayerService.GetByIdAsync(p.Player2Id.Value);
+
+        if (p.Player1Score > p.Player2Score)
+        {
+            p1.PlayerSwissWins = (p1.PlayerSwissWins ?? 0) + 1;
+            p2.PlayerSwissLosses = (p2.PlayerSwissLosses ?? 0) + 1;
+        }
+        else if (p.Player2Score > p.Player1Score)
+        {
+            p2.PlayerSwissWins = (p2.PlayerSwissWins ?? 0) + 1;
+            p1.PlayerSwissLosses = (p1.PlayerSwissLosses ?? 0) + 1;
+        }
+        else
+        {
+            p1.PlayerSwissDraws = (p1.PlayerSwissDraws ?? 0) + 1;
+            p2.PlayerSwissDraws = (p2.PlayerSwissDraws ?? 0) + 1;
+        }
+
+        await TournamentPlayerService.UpdateAsync(p1);
+        await TournamentPlayerService.UpdateAsync(p2);
+    }
+
+    private async Task BacktoPairings()
+    {
+        if (TournamentId == null || _tournamentModel == null)
+            return;
+
+        var dbPairings = await PairingService
+            .GetAllWhereAsync(p => p.TournamentId == TournamentId.Value);
+
+        foreach (var pairing in dbPairings)
+        {
+            if (pairing.PairingId.HasValue)
+                await PairingService.DeleteAsync(pairing.PairingId.Value);
+        }
+
+        // Round is no longer in progress
+        _tournamentModel.TournamentInProgress = false;
+
+        await TournamentService.UpdateAsync(_tournamentModel);
+
+        NavManager.NavigateTo($"/tournaments/view/{TournamentId}");
+    }
 }

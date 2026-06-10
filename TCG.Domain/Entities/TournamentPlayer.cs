@@ -5,65 +5,65 @@ namespace TCG.Domain.Entities
     public partial class TournamentPlayer
     {
         [Column("tp_tournament_player_id")]
-        public int TournamentPlayerId { get; private set; }
+        public int TournamentPlayerId { get; set; }
 
         [Column("tp_tournament_id")]
-        public int TournamentId { get; private set; }
+        public int TournamentId { get; set; }
 
         [Column("tp_player_name")]
-        public string? PlayerName { get; private set; }
+        public string? PlayerName { get; set; }
         
         [Column("tp_player_round_robin_wins")]
-        public int? PlayerRoundRobinWins { get; private set; }
+        public int? PlayerRoundRobinWins { get; set; }
 
         [Column("tp_player_round_robin_draws")]
-        public int? PlayerRoundRobinDraws { get; private set; }
+        public int? PlayerRoundRobinDraws { get; set; }
 
         [Column("tp_player_round_robin_losses")]
-        public int? PlayerRoundRobinLosses { get; private set; }
+        public int? PlayerRoundRobinLosses { get; set; }
 
         [Column("tp_player_round_robin_score")]
-        public int? PlayerRoundRobinScore { get; private set; }
+        public int? PlayerRoundRobinScore { get; set; }
 
         [Column("tp_player_round_robin_match_points")]
-        public int? PlayerRoundRobinMatchPoints { get; private set; }
+        public int? PlayerRoundRobinMatchPoints { get; set; }
 
         [Column("tp_player_round_robin_points")]
-        public int? PlayerRoundRobinPoints { get; private set; }
+        public int? PlayerRoundRobinPoints { get; set; }
 
         [Column("tp_player_swiss_wins")]
-        public int? PlayerSwissWins { get; private set; }
+        public int? PlayerSwissWins { get; set; }
 
         [Column("tp_player_swiss_draws")]
-        public int? PlayerSwissDraws { get; private set; }
+        public int? PlayerSwissDraws { get; set; }
 
         [Column("tp_player_swiss_losses")]
-        public int? PlayerSwissLosses { get; private set; }
+        public int? PlayerSwissLosses { get; set; }
 
         [Column("tp_player_swiss_score")]
-        public int? PlayerSwissScore { get; private set; }
+        public int? PlayerSwissScore { get; set; }
 
         [Column("tp_player_swiss_match_points")]
-        public int? PlayerSwissMatchPoints { get; private set; }
+        public int? PlayerSwissMatchPoints { get; set; }
 
         [Column("tp_player_swiss_points")]
-        public int? PlayerSwissPoints { get; private set; }
+        public int? PlayerSwissPoints { get; set; }
 
         [Column("tp_has_received_bye")]
-        public bool HasReceivedBye { get; private set; }
+        public bool HasReceivedBye { get; set; }
 
         [Column("tp_games_won")]
-        public int? GamesWon { get; private set; }
+        public int? GamesWon { get; set; }
 
         [Column("tp_games_played")]
-        public int? GamesPlayed { get; private set; }
+        public int? GamesPlayed { get; set; }
 
-        public Tournament Tournament { get; private set; } = null!;
+        public Tournament Tournament { get; set; } = null!;
         
-        public ICollection<Pairing> PairingsAsPlayer1 { get; private set; }
+        public ICollection<Pairing> PairingsAsPlayer1 { get; set; }
             = new List<Pairing>();
         
-        public ICollection<Pairing> PairingsAsPlayer2 { get; private set; }
+        public ICollection<Pairing> PairingsAsPlayer2 { get; set; }
             = new List<Pairing>();
     }
 }

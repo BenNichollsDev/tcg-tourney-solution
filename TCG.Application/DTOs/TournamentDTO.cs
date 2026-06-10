@@ -35,5 +35,7 @@ namespace TCG.Application.Dtos
         public TimeOnly TournamentTime { get; set; }
 
         public decimal TournamentEntryFee { get; set; }
+
+        public bool TournamentInProgress { get; set; }
     }
 }

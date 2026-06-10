@@ -23,14 +23,14 @@
                 <h1 class="mb-3 text-center">Create a New Tournament</h1>
 
                 <EditForm Model="@_tournamentModel" OnValidSubmit="OnFormSubmit" style="padding-left: 5em; padding-right: 5em; ">
-                    <DataAnnotationsValidator/>
-                    <ValidationSummary/>
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
 
                     <label for="name">Name:</label>
                     <InputText id="name"
                                class="form-control mb-3"
                                @bind-Value="_tournamentModel.TournamentName"
-                               required/>
+                               required />
 
                     <label for="league">League:</label>
                     <InputSelect id="league"
@@ -47,14 +47,14 @@
                         }
 
                     </InputSelect>
-                    
+
                     <label for="games">Game:</label>
                     <InputSelect id="games"
                                  class="form-control mb-3"
                                  @bind-Value="_tournamentModel.TournamentGame"
-                                 @onchange="OnGameChanged"
+                                 @bind:after="OnGameChanged"
                                  required>
-                        
+
                         <option value="">-- Select --</option>
                         <option value="MtG">Magic the Gathering</option>
                         <option value="Pokémon">Pokémon</option>
@@ -65,9 +65,9 @@
                                  @key="_tournamentModel.TournamentGame"
                                  class="form-control mb-3"
                                  @bind-Value="_tournamentModel.TournamentFormat"
-                                 @bind-Value:after="OnFormatChanged"
+                                 @bind:after="OnFormatChanged"
                                  required>
-                        
+
                         @if (!string.IsNullOrEmpty(_tournamentModel.TournamentGame))
                         {
                             <option value="">-- Select Format --</option>
@@ -88,24 +88,20 @@
                             <label for="decklist" class="mb-0">Require a Decklist?</label>
                             <InputCheckbox id="decklist"
                                            class="form-check-input ms-2"
-                                           @bind-Value="_tournamentModel.TournamentRequireDeck"/>
+                                           @bind-Value="_tournamentModel.TournamentRequireDeck" />
                         </div>
                     }
-                    
+
                     <label for="pairing">Pairing Type:</label>
                     <InputSelect id="pairing"
                                  class="form-control mb-3"
                                  @bind-Value="_tournamentModel.TournamentPairing"
-                                 @onchange="OnPairingChanged"
+                                 @bind:after="OnPairingChanged"
                                  required>
 
                         <option value="">-- Select Pairing --</option>
-                        <option value="Round-Robin">
-                            Round-Robin
-                        </option>
-                        <option value="Swiss">
-                            Swiss
-                        </option>
+                        <option value="Round-Robin">Round-Robin</option>
+                        <option value="Swiss">Swiss</option>
 
                     </InputSelect>
 
@@ -113,36 +109,42 @@
                     <input type="date" id="tourneydate" class="form-control mb-3"
                            value='@_tournamentModel.TournamentDate.ToString("yyyy-MM-dd")'
                            min="@MinDateString"
-                           @onchange="OnDateInputChanged"/>
+                           @onchange="OnDateInputChanged" />
 
                     <label for="tourneytime">Time:</label>
                     <input type="time" id="tourneytime" class="form-control mb-3"
                            value='@_tournamentModel.TournamentTime.ToString("HH:mm")'
                            min="@(IsDateToday ? MinTimeString : string.Empty)"
-                           @onchange="OnTimeInputChanged"/>
+                           @onchange="OnTimeInputChanged" />
 
                     <label for="playernum">Max Number of Players:</label>
                     <InputNumber id="playernum"
                                  class="form-control mb-3"
                                  @bind-Value="_tournamentModel.TournamentMaxParticipants"
                                  min="2"
-                                 required/>
+                                 required />
+
+                    <label for="playernum">Max Number of Rounds:</label>
+                    <InputNumber id="maxroundnum"
+                                 class="form-control mb-3"
+                                 @key="nameof(_tournamentModel.TournamentMaxRoundNum)"
+                                 @bind-Value="_tournamentModel.TournamentMaxRoundNum"
+                                 min="1"
+                                 required />
 
                     <label for="price">Entry Fee (£):</label>
                     <InputNumber id="price"
                                  class="form-control mb-3"
                                  step="0.01"
                                  @bind-Value="_tournamentModel.TournamentEntryFee"
-                                 @onchange="OnPriceInputChanged"/>
+                                 @bind:after="OnPriceInputChanged" />
 
                     <label for="description">Description:</label>
                     <InputTextArea id="description"
                                    class="form-control mb-3"
                                    @bind-Value="_tournamentModel.TournamentDescription"
-                                   required/>
+                                   required />
 
-                    
-                    <!--CONTINUE HERE TO LINK CLICKED ON TOURNEY TO AN INPROGRESS PAGE, AND ALLOW FOR PARTICIPANTS TO BE ADDED IN THE CREATE TOURNEY PAGE-->
                     <div>
                         <button type="submit" class="btn btn-primary">
                             Submit
@@ -307,6 +309,7 @@
     {
         //_tournamentModel.TournamentPairing = formatsByGame[_tournamentModel.TournamentGame][_tournamentModel.TournamentFormat]["pairing"];
         _tournamentModel.TournamentRoundNum = 1;
+        _tournamentModel.TournamentInProgress = false;
         await TournamentService.CreateAsync(_tournamentModel);
         NavService.GoTourney();
     }

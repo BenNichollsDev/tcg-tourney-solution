@@ -5,18 +5,18 @@ namespace TCG.Domain.Entities
     public partial class League
     {
         [Column("league_id")]
-        public int LeagueId { get; private set; }
+        public int LeagueId { get; set; }
 
         [Column("league_name")]
-        public string LeagueName { get; private set; } = string.Empty;
+        public string LeagueName { get; set; } = string.Empty;
 
         [Column("league_game")]
-        public string LeagueGame { get; private set; } = string.Empty;
+        public string LeagueGame { get; set; } = string.Empty;
 
         [Column("league_description")]
-        public string LeagueDescription { get; private set; } = string.Empty;
+        public string LeagueDescription { get; set; } = string.Empty;
 
-        public ICollection<Tournament> Tournaments { get; private set; }
+        public ICollection<Tournament> Tournaments { get; set; }
             = new List<Tournament>();
     }
 }
