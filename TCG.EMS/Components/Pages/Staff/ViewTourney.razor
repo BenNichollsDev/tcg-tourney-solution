@@ -8,7 +8,6 @@
     <div class="row justify-content-center">
         <div class="col-12 col-md-8 col-lg-6">
             <div class="bg-container p-4">
-
                 @if (_notice != null)
                 {
                     <div class="alert alert-warning">
@@ -110,13 +109,14 @@
 
                         <div class="mt-3 d-flex gap-2">
                             <button class="btn btn-primary"
-                                    @onclick="GenerateRoundRobinPairings">
-                                Generate Pairings and Start Round
+                                    @onclick="GenerateRoundRobinPairings"
+                                    disabled="@HasInsufficientParticipants">
+                                Generate Pairings
                             </button>
 
                             <button class="btn btn-primary"
                                     @onclick="StartRoundAsync"
-                                    disabled="@(!CanStartMatch())">
+                                    disabled="@(!CanStartMatch() || HasInsufficientParticipants)">
                                 Start Round
                             </button>
                         </div>
@@ -165,13 +165,14 @@
                         <div class="mt-3 d-flex gap-2">
 
                             <button class="btn btn-secondary"
-                                    @onclick="GenerateSwissPairings">
-                                Generate Pairings and Start Round
+                                    @onclick="GenerateSwissPairings"
+                                    disabled="@HasInsufficientParticipants">
+                                Generate Pairings
                             </button>
 
                             <button class="btn btn-primary"
                                     @onclick="StartRoundAsync"
-                                    disabled="@(!CanStartMatch())">
+                                    disabled="@(!CanStartMatch() || HasInsufficientParticipants)">
                                 Start Round
                             </button>
 
@@ -230,7 +231,8 @@
     private bool _hasLoaded;
     private bool _showNull;
     private string? _notice;
-    private bool _pairingsAreValid = false;
+
+    private bool HasInsufficientParticipants => _participants.Count < 2;
 
     private TournamentDto? _tournamentModel = new();
 
@@ -296,6 +298,10 @@
         _computedStats = await ScoringService.ComputeAllAsync(TournamentId.Value);
 
         _hasLoaded = true;
+
+        if (HasInsufficientParticipants)
+            _notice = "This tournament has fewer than two participants. More participants must be added to be able to start the tournament.";
+
     }
 
     // Normalize pairings so Player1 is always the actual player and Player2 is BYE if applicable
@@ -359,7 +365,6 @@
 
     private void AssignPlayer(PairingSelection pairing, bool isPlayer1, string? value)
     {
-        // assign first
         if (isPlayer1)
             pairing.Player1Id = value;
         else
@@ -367,27 +372,49 @@
 
         _notice = null;
 
-        // ignore empty or BYE
-        if (string.IsNullOrWhiteSpace(value) ||
-            value.Equals(BYE, StringComparison.OrdinalIgnoreCase))
+        if (IsRealPlayer(value))
         {
-            return;
-        }
+            foreach (var other in _pairings)
+            {
+                if (other == pairing)
+                    continue;
 
-        // remove this player from all OTHER pairings
-        foreach (var other in _pairings)
-        {
-            if (other == pairing)
-                continue;
+                if (other.Player1Id == value)
+                    other.Player1Id = null;
 
-            if (other.Player1Id == value)
-                other.Player1Id = null;
-
-            if (other.Player2Id == value)
-                other.Player2Id = null;
+                if (other.Player2Id == value)
+                    other.Player2Id = null;
+            }
         }
 
         StateHasChanged();
+    }
+
+    private static bool IsRealPlayer(string? id) =>
+        !string.IsNullOrWhiteSpace(id) &&
+        !id.Equals(BYE, StringComparison.OrdinalIgnoreCase);
+
+    private static bool IsBye(string? id) =>
+        !string.IsNullOrWhiteSpace(id) &&
+        id.Equals(BYE, StringComparison.OrdinalIgnoreCase);
+
+    private static bool IsValidPairingForStart(PairingSelection pairing)
+    {
+        var p1Real = IsRealPlayer(pairing.Player1Id);
+        var p2Real = IsRealPlayer(pairing.Player2Id);
+        var p1Bye = IsBye(pairing.Player1Id);
+        var p2Bye = IsBye(pairing.Player2Id);
+
+        if (p1Real && p2Real)
+            return pairing.Player1Id != pairing.Player2Id;
+
+        if (p1Real && p2Bye)
+            return true;
+
+        if (p2Real && p1Bye)
+            return true;
+
+        return false;
     }
 
     private async Task<HashSet<(int, int)>> GetExistingPairings()
@@ -408,6 +435,9 @@
     private async Task GenerateRoundRobinPairings()
     {
         _notice = null;
+
+        if (HasInsufficientParticipants)
+            return;
 
         var occurred = await GetExistingPairings();
 
@@ -469,13 +499,10 @@
                 });
             }
 
-            _pairingsAreValid = true;
-
             return;
         }
 
         _notice = "Cannot generate a unique pairing.";
-        _pairingsAreValid = false;
     }
 
     private async Task GenerateSwissPairings()
@@ -490,11 +517,8 @@
             .Select(p => p.TournamentPlayerId)
             .ToList();
 
-        if (players.Count < 2)
-        {
-            _notice = "Not enough participants to generate pairings.";
+        if (HasInsufficientParticipants)
             return;
-        }
 
         var rnd = new Random();
         const int maxAttempts = 1000;
@@ -549,18 +573,17 @@
                 });
             }
 
-            _pairingsAreValid = true;
-
             return;
         }
 
         _notice = "Failed to generate Swiss pairings without repeats.";
-        _pairingsAreValid = false;
     }
 
     private bool CanStartMatch()
     {
-        // ensure all pairings have at least one player and that the pairings are legitimate
-        return _pairingsAreValid && _pairings.All(p => !string.IsNullOrWhiteSpace(p.Player1Id) || !string.IsNullOrWhiteSpace(p.Player2Id));
+        if (HasInsufficientParticipants)
+            return false;
+
+        return _pairings.Any(IsValidPairingForStart);
     }
 }
