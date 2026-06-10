@@ -21,6 +21,6 @@
 
         public bool PairingHasResult { get; set; }
 
-        public int RoundNumber { get; set; }
+        public int? RoundNumber { get; set; }
     }
 }

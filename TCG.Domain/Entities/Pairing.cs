@@ -11,7 +11,7 @@ namespace TCG.Domain.Entities
         public int TournamentId { get; set; }
 
         [Column("pairing_round_number")]
-        public int RoundNumber { get; set; }
+        public int? RoundNumber { get; set; }
 
         [Column("pairing_tp_1")]
         public int Player1Id { get; set; }

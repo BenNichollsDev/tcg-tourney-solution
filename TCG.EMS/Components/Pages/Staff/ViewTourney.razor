@@ -348,6 +348,7 @@
         var normalized = NormalizePairingsForPersist();
         foreach (var dto in normalized)
         {
+            dto.RoundNumber = _tournamentModel.TournamentRoundNum;
             await PairingService.CreateAsync(dto);
         }
     }
@@ -357,7 +358,9 @@
         // normalize and save
         await NormalizeAndSavePairingsAsync();
 
+        // Match now in progress
         _tournamentModel.TournamentInProgress = true;
+        await TournamentService.UpdateAsync(_tournamentModel);
 
         // navigate to in-progress page or refresh
         NavManager.NavigateTo($"/tournaments/inprogress/{TournamentId}");
