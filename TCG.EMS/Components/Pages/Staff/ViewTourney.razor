@@ -41,22 +41,17 @@
 
                         @foreach (var pairing in _pairings)
                         {
-                            <div class="d-flex gap-2 mb-2" @key="pairing">
+                            <div class="d-flex gap-2 mb-2">
 
                                 <select class="form-select"
-                                        value="@(pairing.Player1Id ?? "")"
-                                        @onchange="args => OnPlayer1Changed(pairing, args)">
+                                        @bind="pairing.Player1Id"
+                                        @bind:after="() => AssignPlayer(pairing, true, pairing.Player1Id)">
 
                                     <option value="">-- Player 1 --</option>
 
-                                    @foreach (var p in GetPlayerLists().unassigned)
+                                    @foreach (var p in _participants)
                                     {
                                         <option value="@p.TournamentPlayerId">@p.PlayerName</option>
-                                    }
-
-                                    @foreach (var p in GetPlayerLists().assigned)
-                                    {
-                                        <option value="@p.TournamentPlayerId" style="color: gray;">@p.PlayerName</option>
                                     }
 
                                     <option value="@BYE">BYE</option>
@@ -65,19 +60,14 @@
                                 <span class="align-self-center">VS</span>
 
                                 <select class="form-select"
-                                        value="@(pairing.Player2Id ?? "")"
-                                        @onchange="args => OnPlayer2Changed(pairing, args)">
+                                        @bind="pairing.Player2Id"
+                                        @bind:after="() => AssignPlayer(pairing, false, pairing.Player2Id)">
 
                                     <option value="">-- Player 2 --</option>
 
-                                    @foreach (var p in GetPlayerLists().unassigned)
+                                    @foreach (var p in _participants)
                                     {
                                         <option value="@p.TournamentPlayerId">@p.PlayerName</option>
-                                    }
-
-                                    @foreach (var p in GetPlayerLists().assigned)
-                                    {
-                                        <option value="@p.TournamentPlayerId" style="color: gray;">@p.PlayerName</option>
                                     }
 
                                     <option value="@BYE">BYE</option>
@@ -92,42 +82,41 @@
 
                         <table class="table table-striped">
                             <thead>
-                            <tr>
-                                <th>Player</th>
-                                <th>Wins</th>
-                                <th>Draws</th>
-                                <th>Losses</th>
-                                <th>Points</th>
-                                <th>OMW%</th>
-                            </tr>
+                                <tr>
+                                    <th>Player</th>
+                                    <th>Wins</th>
+                                    <th>Draws</th>
+                                    <th>Losses</th>
+                                    <th>Points</th>
+                                    <th>OMW%</th>
+                                </tr>
                             </thead>
 
                             <tbody>
-                            @foreach (var s in _computedStats)
-                            {
-                                var player = _participants.FirstOrDefault(x => x.TournamentPlayerId == s.TournamentPlayerId);
-                                <tr>
-                                    <td>@(player?.PlayerName ?? "Unknown")</td>
-                                    <td>@s.Wins</td>
-                                    <td>@s.Draws</td>
-                                    <td>@s.Losses</td>
-                                    <td>@s.Points</td>
-                                    <td>@s.OmwPercent.ToString("0.00")</td>
-                                </tr>
-                            }
+                                @foreach (var s in _computedStats)
+                                {
+                                    var player = _participants.FirstOrDefault(x => x.TournamentPlayerId == s.TournamentPlayerId);
+                                    <tr>
+                                        <td>@(player?.PlayerName ?? "Unknown")</td>
+                                        <td>@s.Wins</td>
+                                        <td>@s.Draws</td>
+                                        <td>@s.Losses</td>
+                                        <td>@s.Points</td>
+                                        <td>@s.OmwPercent.ToString("0.00")</td>
+                                    </tr>
+                                }
                             </tbody>
                         </table>
 
                         <div class="mt-3 d-flex gap-2">
                             <button class="btn btn-primary"
-                                    @onclick="GenerateRoundRobinPairings"
-                                    disabled="@(!HasMinimumPlayers)">
+                                    @onclick="GenerateRoundRobinPairings">
                                 Generate Pairings and Start Round
                             </button>
 
                             <button class="btn btn-primary"
                                     @onclick="StartRoundAsync"
-                                    disabled="@(!CanStartMatch() && !HasMinimumPlayers)">
+                                    disabled="@(!CanStartMatch())">
                                 Start Round
                             </button>
                         </div>
@@ -138,22 +127,17 @@
 
                         @foreach (var pairing in _pairings)
                         {
-                            <div class="d-flex gap-2 mb-2" @key="pairing">
+                            <div class="d-flex gap-2 mb-2">
 
                                 <select class="form-select"
-                                        value="@(pairing.Player1Id ?? "")"
-                                        @onchange="args => OnPlayer1Changed(pairing, args)">
+                                        @bind="pairing.Player1Id"
+                                        @bind:after="() => AssignPlayer(pairing, true, pairing.Player1Id)">
 
                                     <option value="">-- Player 1 --</option>
 
-                                    @foreach (var p in GetPlayerLists().unassigned)
+                                    @foreach (var p in _participants)
                                     {
                                         <option value="@p.TournamentPlayerId">@p.PlayerName</option>
-                                    }
-
-                                    @foreach (var p in GetPlayerLists().assigned)
-                                    {
-                                        <option value="@p.TournamentPlayerId" style="color: gray;">@p.PlayerName</option>
                                     }
 
                                     <option value="@BYE">BYE</option>
@@ -162,19 +146,14 @@
                                 <span class="align-self-center">VS</span>
 
                                 <select class="form-select"
-                                        value="@(pairing.Player2Id ?? "")"
-                                        @onchange="args => OnPlayer2Changed(pairing, args)">
+                                        @bind="pairing.Player2Id"
+                                        @bind:after="() => AssignPlayer(pairing, false, pairing.Player2Id)">
 
                                     <option value="">-- Player 2 --</option>
 
-                                    @foreach (var p in GetPlayerLists().unassigned)
+                                    @foreach (var p in _participants)
                                     {
                                         <option value="@p.TournamentPlayerId">@p.PlayerName</option>
-                                    }
-
-                                    @foreach (var p in GetPlayerLists().assigned)
-                                    {
-                                        <option value="@p.TournamentPlayerId" style="color: gray;">@p.PlayerName</option>
                                     }
 
                                     <option value="@BYE">BYE</option>
@@ -186,14 +165,13 @@
                         <div class="mt-3 d-flex gap-2">
 
                             <button class="btn btn-secondary"
-                                    @onclick="GenerateSwissPairings"
-                                    disabled="@(!HasMinimumPlayers)">
+                                    @onclick="GenerateSwissPairings">
                                 Generate Pairings and Start Round
                             </button>
 
                             <button class="btn btn-primary"
                                     @onclick="StartRoundAsync"
-                                    disabled="@(!CanStartMatch() && !HasMinimumPlayers)">
+                                    disabled="@(!CanStartMatch())">
                                 Start Round
                             </button>
 
@@ -205,31 +183,31 @@
 
                         <table class="table table-striped">
                             <thead>
-                            <tr>
-                                <th>Player</th>
-                                <th>Points</th>
-                                <th>Wins</th>
-                                <th>Draws</th>
-                                <th>Losses</th>
-                                <th>Game Win %</th>
-                                <th>OMW%</th>
-                            </tr>
+                                <tr>
+                                    <th>Player</th>
+                                    <th>Points</th>
+                                    <th>Wins</th>
+                                    <th>Draws</th>
+                                    <th>Losses</th>
+                                    <th>Game Win %</th>
+                                    <th>OMW%</th>
+                                </tr>
                             </thead>
 
                             <tbody>
-                            @foreach (var s in _computedStats)
-                            {
-                                var player = _participants.FirstOrDefault(x => x.TournamentPlayerId == s.TournamentPlayerId);
-                                <tr>
-                                    <td>@(player?.PlayerName ?? "Unknown")</td>
-                                    <td>@s.Points</td>
-                                    <td>@s.Wins</td>
-                                    <td>@s.Draws</td>
-                                    <td>@s.Losses</td>
-                                    <td>@s.GameWinPercent.ToString("0.00")</td>
-                                    <td>@s.OmwPercent.ToString("0.00")</td>
-                                </tr>
-                            }
+                                @foreach (var s in _computedStats)
+                                {
+                                    var player = _participants.FirstOrDefault(x => x.TournamentPlayerId == s.TournamentPlayerId);
+                                    <tr>
+                                        <td>@(player?.PlayerName ?? "Unknown")</td>
+                                        <td>@s.Points</td>
+                                        <td>@s.Wins</td>
+                                        <td>@s.Draws</td>
+                                        <td>@s.Losses</td>
+                                        <td>@s.GameWinPercent.ToString("0.00")</td>
+                                        <td>@s.OmwPercent.ToString("0.00")</td>
+                                    </tr>
+                                }
                             </tbody>
                         </table>
                     }
@@ -253,9 +231,6 @@
     private bool _showNull;
     private string? _notice;
     private bool _pairingsAreValid = false;
-    private int _roundNum;
-
-    private bool HasMinimumPlayers => _participants.Count >= 2;
 
     private TournamentDto? _tournamentModel = new();
 
@@ -304,7 +279,7 @@
             return;
         }
 
-        // If tournament is in progress, redirect to in-progress page
+        // If tournament is in progress, redirect to view page
         if (_tournamentModel.TournamentInProgress)
         {
             NavManager.NavigateTo($"/tournaments/inprogress/{TournamentId}");
@@ -313,17 +288,7 @@
 
         _participants = (await TournamentPlayerService.GetAllWhereAsync(tp => tp.TournamentId == TournamentId.Value)).ToList();
 
-        // Check if there are at least two participants
-        _participants = (await TournamentPlayerService
-            .GetAllWhereAsync(tp => tp.TournamentId == TournamentId.Value))
-            .ToList();
-
-        if (!HasMinimumPlayers)
-        {
-            _notice = "You must add at least two players to be able to start this tournament.";
-        }
-
-        // initialise pairings based on participants count
+        // initialize pairings based on participants count
         _pairings = new List<PairingSelection>();
         int pairCount = _participants.Count / 2;
         for (int i = 0; i < pairCount; i++) _pairings.Add(new PairingSelection());
@@ -331,11 +296,9 @@
         _computedStats = await ScoringService.ComputeAllAsync(TournamentId.Value);
 
         _hasLoaded = true;
-
-        _roundNum = _tournamentModel.TournamentRoundNum == null ? 0 : _tournamentModel.TournamentRoundNum.Value;
     }
 
-    // Normalise pairings so Player1 is always the actual player and Player2 is BYE if applicable
+    // Normalize pairings so Player1 is always the actual player and Player2 is BYE if applicable
     private List<PairingDto> NormalizePairingsForPersist()
     {
         var result = new List<PairingDto>();
@@ -347,12 +310,6 @@
             // Interpret BYE strings as null
             if (string.Equals(p1, BYE, StringComparison.OrdinalIgnoreCase)) p1 = null;
             if (string.Equals(p2, BYE, StringComparison.OrdinalIgnoreCase)) p2 = null;
-
-            // Skip pairings with two BYEs
-            if (p1 == null && p2 == null)
-            {
-                continue;
-            }
 
             // If only one side has a player, ensure player is set to Player1 and Player2 is null (BYE)
             if (p1 == null && p2 != null)
@@ -371,7 +328,7 @@
 
             result.Add(new PairingDto
             {
-                PairingTournamentId = TournamentId.Value,
+                PairingTournamentId = TournamentId,
                 PairingTp1 = tp1,
                 PairingTp2 = tp2
             });
@@ -385,37 +342,16 @@
         var normalized = NormalizePairingsForPersist();
         foreach (var dto in normalized)
         {
-            dto.RoundNumber = _roundNum;
             await PairingService.CreateAsync(dto);
         }
     }
 
     private async Task StartRoundAsync()
     {
-
-        // Check for duplicates
-        if (!ArePairingsValid())
-        {
-            _notice = "Cannot have duplicate players in pairings";
-            return;
-        }
-
-        // Check for minimum players
-        if (!HasMinimumPlayers)
-        {
-            _notice = "You must add at least two players to be able to start this tournament.";
-            return;
-        }
-
         // normalize and save
         await NormalizeAndSavePairingsAsync();
 
-        // Set tournament to in progress
-        //if (_tournamentModel != null)
-        //{
-            _tournamentModel.TournamentInProgress = true;
-            await TournamentService.UpdateAsync(_tournamentModel);
-        //}
+        _tournamentModel.TournamentInProgress = true;
 
         // navigate to in-progress page or refresh
         NavManager.NavigateTo($"/tournaments/inprogress/{TournamentId}");
@@ -423,41 +359,35 @@
 
     private void AssignPlayer(PairingSelection pairing, bool isPlayer1, string? value)
     {
-        if (isPlayer1) 
-            pairing.Player1Id = value; 
-        else 
+        // assign first
+        if (isPlayer1)
+            pairing.Player1Id = value;
+        else
             pairing.Player2Id = value;
 
-        // Handle duplicate detection and removal
-        if (!string.IsNullOrWhiteSpace(value) && value != BYE)
+        _notice = null;
+
+        // ignore empty or BYE
+        if (string.IsNullOrWhiteSpace(value) ||
+            value.Equals(BYE, StringComparison.OrdinalIgnoreCase))
         {
-            // Clear the same player from the other slot in this pairing
-            if (isPlayer1)
-            {
-                if (pairing.Player2Id == value)
-                    pairing.Player2Id = null;
-            }
-            else
-            {
-                if (pairing.Player1Id == value)
-                    pairing.Player1Id = null;
-            }
-
-            // Check for duplicates and remove them from other pairings
-            foreach (var otherPairing in _pairings)
-            {
-                if (otherPairing == pairing) continue;
-
-                if (otherPairing.Player1Id == value)
-                    otherPairing.Player1Id = null;
-
-                if (otherPairing.Player2Id == value)
-                    otherPairing.Player2Id = null;
-            }
+            return;
         }
 
-        // Clear the notice since the user is making changes
-        _notice = null;
+        // remove this player from all OTHER pairings
+        foreach (var other in _pairings)
+        {
+            if (other == pairing)
+                continue;
+
+            if (other.Player1Id == value)
+                other.Player1Id = null;
+
+            if (other.Player2Id == value)
+                other.Player2Id = null;
+        }
+
+        StateHasChanged();
     }
 
     private async Task<HashSet<(int, int)>> GetExistingPairings()
@@ -540,7 +470,6 @@
             }
 
             _pairingsAreValid = true;
-            StateHasChanged();
 
             return;
         }
@@ -572,7 +501,7 @@
 
         for (int attempt = 0; attempt < maxAttempts; attempt++)
         {
-            // Some small randomness within groups with similar scores
+            // small randomness within same-score groups
             var shuffled = players
                 .OrderBy(x => rnd.Next())
                 .ToList();
@@ -621,7 +550,6 @@
             }
 
             _pairingsAreValid = true;
-            StateHasChanged();
 
             return;
         }
@@ -630,84 +558,9 @@
         _pairingsAreValid = false;
     }
 
-    private bool AreAllPlayersAssigned()
-    {
-        // Check if every pairing has both players assigned (no empty selections)
-        // BYE is allowed but actual players must be assigned
-        return _pairings.All(p =>
-        {
-            bool p1HasValue = !string.IsNullOrWhiteSpace(p.Player1Id);
-            bool p2HasValue = !string.IsNullOrWhiteSpace(p.Player2Id);
-            return p1HasValue && p2HasValue;
-        });
-    }
-
-    private bool ArePairingsValid()
-    {
-        // Check for duplicate players (only count non-BYE values)
-        var assignedPlayers = new HashSet<string>();
-        foreach (var pairing in _pairings)
-        {
-            if (!string.IsNullOrWhiteSpace(pairing.Player1Id) && pairing.Player1Id != BYE)
-            {
-                if (!assignedPlayers.Add(pairing.Player1Id))
-                    return false; // Duplicate found
-            }
-
-            if (!string.IsNullOrWhiteSpace(pairing.Player2Id) && pairing.Player2Id != BYE)
-            {
-                if (!assignedPlayers.Add(pairing.Player2Id))
-                    return false; // Duplicate found
-            }
-        }
-
-        return true;
-    }
-
     private bool CanStartMatch()
     {
-        // Button is enabled if pairings are valid (generated) and no duplicates exist
-        // Check for all players being assigned happens when the button is clicked
-        return _pairingsAreValid && ArePairingsValid();
-    }
-
-    private HashSet<int> GetAssignedPlayers()
-    {
-        var assignedPlayers = new HashSet<int>();
-        foreach (var pairing in _pairings)
-        {
-            if (!string.IsNullOrWhiteSpace(pairing.Player1Id) && pairing.Player1Id != BYE && int.TryParse(pairing.Player1Id, out var id1))
-                assignedPlayers.Add(id1);
-
-            if (!string.IsNullOrWhiteSpace(pairing.Player2Id) && pairing.Player2Id != BYE && int.TryParse(pairing.Player2Id, out var id2))
-                assignedPlayers.Add(id2);
-        }
-        return assignedPlayers;
-    }
-
-    private (List<TournamentPlayerDto> unassigned, List<TournamentPlayerDto> assigned) GetPlayerLists()
-    {
-        var assignedPlayers = GetAssignedPlayers();
-        var unassignedPlayers = _participants
-            .Where(p => !assignedPlayers.Contains(p.TournamentPlayerId))
-            .OrderBy(p => p.PlayerName)
-            .ToList();
-        var assignedPlayersList = _participants
-            .Where(p => assignedPlayers.Contains(p.TournamentPlayerId))
-            .OrderBy(p => p.PlayerName)
-            .ToList();
-        return (unassignedPlayers, assignedPlayersList);
-    }
-
-    private void OnPlayer1Changed(PairingSelection pairing, ChangeEventArgs args)
-    {
-        AssignPlayer(pairing, true, args.Value as string);
-        StateHasChanged();
-    }
-
-    private void OnPlayer2Changed(PairingSelection pairing, ChangeEventArgs args)
-    {
-        AssignPlayer(pairing, false, args.Value as string);
-        StateHasChanged();
+        // ensure all pairings have at least one player and that the pairings are legitimate
+        return _pairingsAreValid && _pairings.All(p => !string.IsNullOrWhiteSpace(p.Player1Id) || !string.IsNullOrWhiteSpace(p.Player2Id));
     }
 }
