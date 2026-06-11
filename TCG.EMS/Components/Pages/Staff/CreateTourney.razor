@@ -164,16 +164,16 @@
     private const string RoundRobinValue = "Round-Robin";
 
     private TournamentDto _tournamentModel = new();
-    
+
     public int TournamentLeagueId { get; set; }
     public string? TournamentLeague { get; set; }
 
     [Inject]
     private ITournamentService TournamentService { get; set; } = default!;
-    
+
     [Inject]
     private ILeagueService LeagueService { get; set; } = default!;
-    
+
     private List<LeagueDto> _leagues = new();
 
     private Dictionary<string, Dictionary<string, Dictionary<string, string>>> formatsByGame = new()
@@ -278,18 +278,18 @@
     private void OnFormatChanged()
     {
         _tournamentModel.TournamentRequireDeck = false;
-        
+
         /*
         if (!string.IsNullOrEmpty(_tournamentModel.TournamentGame)
-            && !string.IsNullOrEmpty(_tournamentModel.TournamentFormat)
-            && formatsByGame.TryGetValue(_tournamentModel.TournamentGame, out var formats)
-            && formats.TryGetValue(_tournamentModel.TournamentFormat, out var meta))
+        && !string.IsNullOrEmpty(_tournamentModel.TournamentFormat)
+        && formatsByGame.TryGetValue(_tournamentModel.TournamentGame, out var formats)
+        && formats.TryGetValue(_tournamentModel.TournamentFormat, out var meta))
         {
             if (meta.TryGetValue("pairing", out var pairing))
             {
                 _tournamentModel.TournamentPairing = pairing;
+                }
             }
-        }
         */
     }
 
@@ -309,7 +309,9 @@
     {
         //_tournamentModel.TournamentPairing = formatsByGame[_tournamentModel.TournamentGame][_tournamentModel.TournamentFormat]["pairing"];
         _tournamentModel.TournamentRoundNum = 1;
-        _tournamentModel.TournamentInProgress = false;
+        _tournamentModel.TournamentRoundInProgress = false;
+        _tournamentModel.TournamentFinished = false;
+        _tournamentModel.TournamentCancelled = false;
         await TournamentService.CreateAsync(_tournamentModel);
         NavService.GoTourney();
     }

@@ -11,6 +11,13 @@
     <div class="row justify-content-center">
         <div class="col-12 col-md-8 col-lg-6">
             <div class="bg-container p-4">
+
+                @if (_notice != null)
+                {
+                    <div class="alert alert-warning">
+                        @_notice
+                    </div>
+                }
                 
                 <h1 class="mb-3 text-center">Edit Tournament</h1>
                 
@@ -30,12 +37,14 @@
                         <label for="name">Name:</label>
                         <InputText id="name"
                                    class="form-control mb-3"
-                                   @bind-Value="_tournamentModel.TournamentName" />
+                                   @bind-Value="_tournamentModel.TournamentName"
+                                   disabled="@_isReadOnly" />
 
                         <label for="league">League:</label>
                         <InputSelect id="league"
                                      class="form-control mb-3"
-                                     @bind-Value="_tournamentModel.TournamentLeague">
+                                     @bind-Value="_tournamentModel.TournamentLeague"
+                                     disabled="@_isReadOnly">
 
                             <option value="">-- Select League --</option>
 
@@ -52,7 +61,8 @@
                         <InputSelect id="games"
                                      class="form-control mb-3"
                                      @bind-Value="_tournamentModel.TournamentGame"
-                                     @bind:after="OnGameChanged">
+                                     @bind:after="OnGameChanged"
+                                     disabled="@_isReadOnly">
 
                             <option value="">-- Select --</option>
                             <option value="MtG">Magic the Gathering</option>
@@ -64,7 +74,8 @@
                                      @key="_tournamentModel.TournamentGame"
                                      class="form-control mb-3"
                                      @bind-Value="_tournamentModel.TournamentFormat"
-                                     @bind:after="OnFormatChanged">
+                                     @bind:after="OnFormatChanged"
+                                     disabled="@_isReadOnly">
 
                             @if (!string.IsNullOrEmpty(_tournamentModel.TournamentGame))
                             {
@@ -86,7 +97,8 @@
                                 <label for="decklist" class="mb-0">Require a Decklist?</label>
                                 <InputCheckbox id="decklist"
                                                class="form-check-input ms-2"
-                                               @bind-Value="_tournamentModel.TournamentRequireDeck" />
+                                               @bind-Value="_tournamentModel.TournamentRequireDeck"
+                                               disabled="@_isReadOnly" />
                             </div>
                         }
 
@@ -94,7 +106,8 @@
                         <InputSelect id="pairing"
                                      class="form-control mb-3"
                                      @bind-Value="_tournamentModel.TournamentPairing"
-                                     @bind:after="OnPairingChanged">
+                                     @bind:after="OnPairingChanged"
+                                     disabled="@_isReadOnly">
 
                             <option value="">-- Select Pairing --</option>
                             <option value="Round-Robin">Round-Robin</option>
@@ -108,13 +121,15 @@
                         <input type="date" id="tourneydate" class="form-control mb-3"
                                value='@_tournamentModel.TournamentDate.ToString("yyyy-MM-dd")'
                                min="@MinDateString"
-                               @onchange="OnDateInputChanged" />
+                               @onchange="OnDateInputChanged"
+                               disabled="@_isReadOnly" />
 
                         <label for="tourneytime">Time:</label>
                         <input type="time" id="tourneytime" class="form-control mb-3"
                                value='@_tournamentModel.TournamentTime.ToString("HH:mm")'
                                min="@(IsDateToday ? MinTimeString : string.Empty)"
-                               @onchange="OnTimeInputChanged" />
+                               @onchange="OnTimeInputChanged"
+                               disabled="@_isReadOnly" />
 
                         <label for="playernum">Max Number of Players:</label>
 
@@ -122,7 +137,8 @@
                                      class="form-control mb-3"
                                      @bind-Value="_tournamentModel.TournamentMaxParticipants"
                                      min="2"
-                                     required />
+                                     required
+                                     disabled="@_isReadOnly" />
 
                         <ValidationMessage For="@(() => _tournamentModel.TournamentMaxParticipants)" />
 
@@ -133,7 +149,8 @@
                                      @key="nameof(_tournamentModel.TournamentMaxRoundNum)"
                                      @bind-Value="_tournamentModel.TournamentMaxRoundNum"
                                      min="1"
-                                     required />
+                                     required
+                                     disabled="@_isReadOnly" />
 
                         <label for="price">Entry Fee (£):</label>
 
@@ -141,30 +158,34 @@
                                      class="form-control mb-3"
                                      step="0.01"
                                      @bind-Value="_tournamentModel.TournamentEntryFee"
-                                     @bind:after="OnPriceInputChanged" />
+                                     @bind:after="OnPriceInputChanged"
+                                     disabled="@_isReadOnly" />
 
                         <label for="description">Description:</label>
 
                         <InputTextArea id="description"
                                        class="form-control mb-3"
-                                       @bind-Value="_tournamentModel.TournamentDescription" />
+                                       @bind-Value="_tournamentModel.TournamentDescription"
+                                       disabled="@_isReadOnly" />
 
                         <h4>Add Participants</h4>
 
-                        <p class="text-muted">
+                        <p class="">
                             Players: @_participants.Count / @_tournamentModel.TournamentMaxParticipants
                         </p>
 
                         <div class="d-flex mb-3">
                             <InputText class="form-control me-2"
                                        placeholder="Enter participant name"
-                                       @bind-Value="_newParticipantName" />
+                                       @bind-Value="_newParticipantName"
+                                       disabled="@_isReadOnly" />
 
                             <button type="button"
                                     class="btn btn-primary"
                                     @onclick="AddParticipant"
-                                    disabled="@(_tournamentModel != null &&
-                                                              _participants.Count >= _tournamentModel.TournamentMaxParticipants)">
+                                    disabled="@((_tournamentModel != null &&
+                                        _participants.Count >= _tournamentModel.TournamentMaxParticipants)
+                                        || _isReadOnly)">
                                 Add
                             </button>
                         </div>
@@ -184,7 +205,8 @@
 
                                         <button type="button"
                                                 class="btn btn-sm btn-danger"
-                                                @onclick="() => RemoveParticipant(p)">
+                                                @onclick="() => RemoveParticipant(p)"
+                                                disabled="@_isReadOnly">
                                             Delete
                                         </button>
                                     </div>
@@ -193,9 +215,23 @@
                         }
 
                         <div>
-                            <button type="submit" class="btn btn-primary">
-                                Submit
+                            <button type="submit" class="btn btn-primary"
+                                disabled="@_isReadOnly">
+                                Save Changes
                             </button>
+
+                            <button type="submit" class="btn btn-primary"
+                                    disabled="@_isReadOnly">
+                                Delete Tournament
+                            </button>
+
+                            <button type="submit" class="btn btn-primary"
+                                    disabled="@(!_canBeCancelled)">
+                                Cancel Tournament
+                            </button>
+                        </div>
+
+                        <div>
                             <NavLink href="/tournaments" type="button" class="btn btn-secondary">
                                 Back
                             </NavLink>
@@ -209,21 +245,25 @@
 
 @code {
     private string _newParticipantName = string.Empty;
-    
+
     private List<TournamentPlayerDto> _participants = new();
     private List<TournamentPlayerDto> _originalParticipants = new();
-    
+
     private const string SwissValue = "Swiss";
     private const string RoundRobinValue = "Round-Robin";
 
     private bool _hasLoaded;
     private bool _showNull;
-    
+    private string? _notice;
+
     public int TournamentLeagueId { get; set; }
     public string? TournamentLeague { get; set; }
-    
+
     private string _participantErrorMessage = string.Empty;
-    
+
+    private bool _isReadOnly;
+    private bool _canBeCancelled;
+
     [Parameter]
     public int? TournamentId { get; set; }
 
@@ -234,12 +274,12 @@
 
     [Inject]
     private ITournamentPlayerService TournamentPlayerService { get; set; } = null!;
-    
+
     [Inject]
     private ILeagueService LeagueService { get; set; } = default!;
-    
+
     private List<LeagueDto> _leagues = new();
-    
+
     private readonly Dictionary<string, Dictionary<string, Dictionary<string, string>>> _formatsByGame = new()
     {
         ["MtG"] = new Dictionary<string, Dictionary<string, string>>
@@ -269,7 +309,7 @@
             }
         }
     };
-    
+
     protected override void OnInitialized()
     {
         _hasLoaded = false;
@@ -292,6 +332,27 @@
             _showNull = true;
             _hasLoaded = true;
             return;
+        }
+
+        _canBeCancelled = false;
+
+        if (_tournamentModel.TournamentStarted)
+        {
+            _notice = "This tournament is currently in progress and details cannot be modified.";
+            _isReadOnly = true;
+            _canBeCancelled = true;
+        }
+        else if (_tournamentModel.TournamentFinished)
+        {
+            _notice = "This tournament has finished and details cannot be modified.";
+            _isReadOnly = true;
+            _canBeCancelled = false;
+        }
+        else if (_tournamentModel.TournamentCancelled)
+        {
+            _notice = "This tournament has been cancelled and details cannot be modified.";
+            _isReadOnly = true;
+            _canBeCancelled = false;
         }
 
         var allPlayers = await TournamentPlayerService.GetAllAsync();
@@ -467,5 +528,24 @@
         }).ToList();
 
         NavService.GoTourney();
+    }
+
+    private async Task CancelTournamentAsync()
+    {
+        // Cancel tournament
+        _tournamentModel.TournamentCancelled = true;
+
+        await TournamentService.UpdateAsync(_tournamentModel);
+
+        // Navigate to results page
+        NavManager.NavigateTo($"/tournaments/results/{TournamentId}");
+    }
+
+    private async Task DeleteTournamentAsync()
+    {
+        await TournamentService.DeleteAsync(_tournamentModel.TournamentId);
+
+        // Navigate to tournaments page
+        NavManager.NavigateTo($"/tournaments/tournaments");
     }
 }

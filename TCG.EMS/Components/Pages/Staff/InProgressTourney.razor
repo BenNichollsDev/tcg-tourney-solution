@@ -133,7 +133,7 @@
         }
 
         // If tournament is NOT in progress, redirect to view page
-        if (!_tournamentModel.TournamentInProgress)
+        if (!_tournamentModel.TournamentRoundInProgress)
         {
             NavManager.NavigateTo($"/tournaments/view/{TournamentId}");
             return;
@@ -245,7 +245,7 @@
         _tournamentModel.TournamentRoundNum += 1;
 
         // Keep tournament NOT in progress (you return to view screen)
-        _tournamentModel.TournamentInProgress = false;
+        _tournamentModel.TournamentRoundInProgress = false;
 
         await TournamentService.UpdateAsync(_tournamentModel);
 
@@ -297,7 +297,7 @@
         }
 
         // Round is no longer in progress
-        _tournamentModel.TournamentInProgress = false;
+        _tournamentModel.TournamentRoundInProgress = false;
         await TournamentService.UpdateAsync(_tournamentModel);
 
         NavManager.NavigateTo($"/tournaments/view/{TournamentId}");

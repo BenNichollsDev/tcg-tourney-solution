@@ -196,9 +196,9 @@ namespace TCG.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("tournament_game");
 
-                    b.Property<bool>("TournamentInProgress")
+                    b.Property<bool>("TournamentRoundInProgress")
                         .HasColumnType("boolean")
-                        .HasColumnName("tournament_in_progress");
+                        .HasColumnName("tournament_round_in_progress");
 
                     b.Property<int>("TournamentMaxParticipants")
                         .HasColumnType("integer")

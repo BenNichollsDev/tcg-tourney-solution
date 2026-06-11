@@ -11,7 +11,7 @@ namespace TCG.Infrastructure.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<bool>(
-                name: "tournament_in_progress",
+                name: "tournament_round_in_progress",
                 table: "tournaments",
                 type: "boolean",
                 nullable: false,
@@ -22,7 +22,7 @@ namespace TCG.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "tournament_in_progress",
+                name: "tournament_round_in_progress",
                 table: "tournaments");
         }
     }

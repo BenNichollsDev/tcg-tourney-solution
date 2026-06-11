@@ -55,8 +55,17 @@ namespace TCG.Domain.Entities
         [Column("tournament_swiss_topcut_num")]
         public int TournamentSwissTopcutNum { get; set; }
 
-        [Column("tournament_in_progress")]
-        public bool TournamentInProgress { get; set; }
+        [Column("tournament_started")]
+        public bool TournamentStarted { get; set; }
+
+        [Column("tournament_round_in_progress")]
+        public bool TournamentRoundInProgress { get; set; }
+
+        [Column("tournament_finished")]
+        public bool TournamentFinished { get; set; }
+
+        [Column("tournament_cancelled")]
+        public bool TournamentCancelled { get; set; }
 
         public League League { get; set; } = null!;
 

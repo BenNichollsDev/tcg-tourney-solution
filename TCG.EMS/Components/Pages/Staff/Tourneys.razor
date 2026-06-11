@@ -40,7 +40,10 @@
                         <div class="container-fluid ms-4 me-4 mt-2 mb-2">
 
                             <div class="row mb-3 border-bottom border-2 border-light">
-                                <div class="col-3 border-end border-1 border-light">
+                                <div class="col-1 border-end border-1 border-light">
+                                    <span>Status</span>
+                                </div>
+                                <div class="col-2 border-end border-1 border-light">
                                     <span>League</span>
                                 </div>
                                 <div class="col-1 border-end border-1 border-light">
@@ -67,11 +70,38 @@
                             @foreach (var t in _tournaments!)
                             {
                                 <div class="row mb-1">
+                                    <div class="col-1 border-end border-1 border-light">
+                                        @if (_tournamentModel.TournamentCancelled)
+                                        {
+                                        <span class="text-bg-info">CANCELLED</span>
+                                        }
+                                        else if (_tournamentModel.TournamentDate.ToDateTime(_tournamentModel.TournamentTime)
+                                            <= DateTime.Now.AddMinutes(-15))
+                                        {
+                                            <span class="text-bg-danger">OVERDUE</span>
+                                        }
+                                        else if (!_tournamentModel.TournamentStarted)
+                                        {
+                                            <span class="text-bg-warning">Not Started Yet</span>
+                                        }
+                                        else if (_tournamentModel.TournamentRoundInProgress)
+                                        {
+                                            <span class="text-bg-info">Round In Progress</span>
+                                        }
+                                        else if (_tournamentModel.TournamentStarted)
+                                        {
+                                            <span class="text-bg-primary">Tournament In Progress</span>
+                                        }
+                                        else if (_tournamentModel.TournamentFinished)
+                                        {
+                                            <span class="text-bg-success">Finished</span>
+                                        }
+                                    </div>
                                     <div class="col-3 border-end border-1 border-light">
                                         <span>
                                             @(t.TournamentLeague.HasValue 
                                                 ? _leagueLookup.GetValueOrDefault(t.TournamentLeague.Value)?.LeagueName 
-                                                : "No League")
+                                                : "N/A")
                                         </span>
                                     </div>
                                     <div class="col-1 border-end border-1 border-light">
@@ -90,9 +120,24 @@
                                         <span>@t.TournamentTime</span>
                                     </div>
                                     <div class="col-1">
-                                        <NavLink href="@($"/tournaments/view/{t.TournamentId}")" class="btn btn-primary">
-                                            View
-                                        </NavLink>
+                                        @if (!_tournamentModel.TournamentStarted)
+                                        {
+                                            <NavLink href="@($"/tournaments/view/{t.TournamentId}")" class="btn btn-primary">
+                                                View Details
+                                            </NavLink>
+                                        }
+                                        else if (_tournamentModel.TournamentRoundInProgress)
+                                        {
+                                            <NavLink href="@($"/tournaments/inprogress/{t.TournamentId}")" class="btn btn-primary">
+                                                Resume Rounds
+                                            </NavLink>
+                                        }
+                                        else if (_tournamentModel.TournamentStarted)
+                                        {
+                                            <NavLink href="@($"/tournaments/results/{t.TournamentId}")" class="btn btn-primary">
+                                                View Results
+                                            </NavLink>
+                                        }
                                     </div>
                                     <div class="col-1">
                                         <NavLink href="@($"/tournaments/edit/{t.TournamentId}")" class="btn btn-secondary">

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TCG.Application.Dtos
 {
@@ -36,6 +37,12 @@ namespace TCG.Application.Dtos
 
         public decimal TournamentEntryFee { get; set; }
 
-        public bool TournamentInProgress { get; set; }
+        public bool TournamentStarted { get; set; }
+
+        public bool TournamentRoundInProgress { get; set; }
+
+        public bool TournamentFinished { get; set; }
+
+        public bool TournamentCancelled { get; set; }
     }
 }
