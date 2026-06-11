@@ -12,11 +12,22 @@ namespace TCG.Application.Services
         private readonly ITournamentPlayerService _tpService;
         private readonly IPairingService _pairingService;
 
+        private readonly Random _rnd;
+
         public TournamentScoringService(ITournamentPlayerService tpService, IPairingService pairingService)
         {
             _tpService = tpService;
             _pairingService = pairingService;
+            _rnd = new Random();
         }
+
+        /* Optional constructor for tests to inject a deterministic Random instance
+        public TournamentScoringService(ITournamentPlayerService tpService, IPairingService pairingService, Random rnd)
+            : this(tpService, pairingService)
+        {
+            _rnd = rnd ?? new Random();
+        }
+        */
 
         // This class stores computed stats for a player in a tournament
         public class PlayerComputedStats
@@ -27,7 +38,6 @@ namespace TCG.Application.Services
             public int Losses { get; set; }
             public int Points { get; set; } // wins = 3 + draws = 1
             public double OpWinPercent { get; set; } // Opponent Win Percentage
-            public double OpOpWinPercent { get; set; } // Opponent's Opponent Win Percentage
             public double GameWinPercent { get; set; }
             public double OpGameWinPercent { get; set; } // MTG only: Opponent's Game Win Percentage
             public int GamesWon { get; set; }
@@ -37,17 +47,10 @@ namespace TCG.Application.Services
             public bool IsDropped { get; set; }
         }
 
-        // Computes standings and stats and tiebreakers for all players in the tournament
-        public async Task<List<PlayerComputedStats>> ComputeAllAsync(int tournamentId)
+        // Helper: initialize stats dictionary, opponents map and byeRounds map
+        private (Dictionary<int, PlayerComputedStats> stats, Dictionary<int, List<int>> opponents, Dictionary<int, List<int>> byeRounds)
+            InitializeStatsAndTrackers(IEnumerable<TournamentPlayerDto> players)
         {
-            var players = (await _tpService.GetAllWhereAsync(tp => tp.TournamentId == tournamentId))
-                .ToList();
-
-            var pairings = (await _pairingService.GetAllWhereAsync(p => p.TournamentId == tournamentId))
-                .Where(p => p.PairingHasResult)
-                .ToList();
-
-            // Create initial stats for each player
             var stats = new Dictionary<int, PlayerComputedStats>();
             foreach (var player in players)
             {
@@ -61,97 +64,130 @@ namespace TCG.Application.Services
                 };
             }
 
-            // Track opponents per player and which rounds had byes
-            var opponents = players.ToDictionary(
-                p => p.TournamentPlayerId,
-                _ => new List<int>());
+            var opponents = players.ToDictionary(p => p.TournamentPlayerId, _ => new List<int>());
+            var byeRounds = players.ToDictionary(p => p.TournamentPlayerId, _ => new List<int>());
 
-            var byeRounds = players.ToDictionary(
-                p => p.TournamentPlayerId,
-                _ => new List<int>());
+            return (stats, opponents, byeRounds);
+        }
+
+        // Helper: whether a tournament player id is active (not disqualified/dropped)
+        private bool IsActive(Dictionary<int, PlayerComputedStats> stats, int id)
+            => stats.ContainsKey(id) && !stats[id].IsDisqualified && !stats[id].IsDropped;
+
+        // Helper: process a pairing and update stats, opponents and byeRounds
+        private void ProcessPairing(TCG.Application.Dtos.PairingDto pairing, Dictionary<int, PlayerComputedStats> stats,
+            Dictionary<int, List<int>> opponents, Dictionary<int, List<int>> byeRounds, int roundNumber)
+        {
+            var p1 = pairing.PairingTp1;
+            var p2 = pairing.PairingTp2;
+
+            // BYE case - player number 2 is null
+            if (p2 == null)
+            {
+                if (p1.HasValue && stats.ContainsKey(p1.Value))
+                {
+                    stats[p1.Value].Wins++;
+                    stats[p1.Value].Points += 3;
+                    byeRounds[p1.Value].Add(roundNumber);
+                }
+                return;
+            }
+
+            if (!pairing.PairingPlayer1Score.HasValue || !pairing.PairingPlayer2Score.HasValue)
+                return;
+
+            var s1 = pairing.PairingPlayer1Score.Value;
+            var s2 = pairing.PairingPlayer2Score.Value;
+
+            if (!p1.HasValue || !p2.HasValue || !stats.ContainsKey(p1.Value) || !stats.ContainsKey(p2.Value))
+                return;
+
+            // Only record opponent if neither player is disqualified or dropped
+            if (IsActive(stats, p1.Value) && IsActive(stats, p2.Value))
+            {
+                opponents[p1.Value].Add(p2.Value);
+                opponents[p2.Value].Add(p1.Value);
+            }
+
+            // Determine match winner and update stats
+            if (s1 > s2)
+            {
+                stats[p1.Value].Wins++;
+                stats[p1.Value].Points += 3;
+                stats[p2.Value].Losses++;
+            }
+            else if (s1 < s2)
+            {
+                stats[p2.Value].Wins++;
+                stats[p2.Value].Points += 3;
+                stats[p1.Value].Losses++;
+            }
+            else
+            {
+                stats[p1.Value].Draws++;
+                stats[p2.Value].Draws++;
+                stats[p1.Value].Points += 1;
+                stats[p2.Value].Points += 1;
+            }
+
+            // Record game statistics for the match
+            if (pairing.PairingPlayer1GameCount.HasValue && pairing.PairingPlayer2GameCount.HasValue)
+            {
+                int totalGamesInMatch = pairing.PairingPlayer1GameCount.Value + pairing.PairingPlayer2GameCount.Value;
+
+                stats[p1.Value].GamesPlayed += totalGamesInMatch;
+                stats[p2.Value].GamesPlayed += totalGamesInMatch;
+
+                stats[p1.Value].GamesWon += pairing.PairingPlayer1GameCount.Value;
+                stats[p2.Value].GamesWon += pairing.PairingPlayer2GameCount.Value;
+            }
+        }
+
+        // Helper: resolve two-way head-to-head ordering; returns ordered pair
+        private List<PlayerComputedStats> ResolveTwoWayHeadToHead(PlayerComputedStats a, PlayerComputedStats b, List<TCG.Application.Dtos.PairingDto> pairings)
+        {
+            var ph = pairings.FirstOrDefault(p => p.PairingHasResult
+                && ((p.PairingTp1 == a.TournamentPlayerId && p.PairingTp2 == b.TournamentPlayerId)
+                    || (p.PairingTp1 == b.TournamentPlayerId && p.PairingTp2 == a.TournamentPlayerId)));
+            if (ph != null && ph.PairingPlayer1Score.HasValue && ph.PairingPlayer2Score.HasValue)
+            {
+                if (ph.PairingPlayer1Score.Value > ph.PairingPlayer2Score.Value)
+                    return ph.PairingTp1 == a.TournamentPlayerId ? new List<PlayerComputedStats> { a, b } : new List<PlayerComputedStats> { b, a };
+                if (ph.PairingPlayer1Score.Value < ph.PairingPlayer2Score.Value)
+                    return ph.PairingTp1 == a.TournamentPlayerId ? new List<PlayerComputedStats> { b, a } : new List<PlayerComputedStats> { a, b };
+            }
+            // no decisive head-to-head or no match -> random coin flip
+            return new List<PlayerComputedStats> { a, b }.OrderBy(_ => _rnd.Next()).ToList();
+        }
+
+        // Computes standings and stats and tiebreakers for all players in the tournament
+        public async Task<List<PlayerComputedStats>> ComputeAllAsync(int tournamentId)
+        {
+            var players = (await _tpService.GetAllWhereAsync(tp => tp.TournamentId == tournamentId))
+                .ToList();
+
+            var pairings = (await _pairingService.GetAllWhereAsync(p => p.TournamentId == tournamentId))
+                .Where(p => p.PairingHasResult)
+                .ToList();
+
+            // Initialize stats, opponents and bye trackers
+            var (stats, opponents, byeRounds) = InitializeStatsAndTrackers(players);
 
             // Process all pairings to compute wins, losses, draws, and points
             int roundNumber = 0;
             foreach (var pairing in pairings)
             {
-                var p1 = pairing.PairingTp1;
-                var p2 = pairing.PairingTp2;
-
-                // BYE case - player number 2 is null
-                if (p2 == null)
-                {
-                    if (p1.HasValue && stats.ContainsKey(p1.Value))
-                    {
-                        stats[p1.Value].Wins++;
-                        stats[p1.Value].Points += 3;
-                        byeRounds[p1.Value].Add(roundNumber);
-                    }
-                    continue;
-                }
-
-                if (!pairing.PairingPlayer1Score.HasValue ||
-                    !pairing.PairingPlayer2Score.HasValue)
-                    continue;
-
-                var s1 = pairing.PairingPlayer1Score.Value;
-                var s2 = pairing.PairingPlayer2Score.Value;
-
-                if (p1.HasValue && p2.HasValue && stats.ContainsKey(p1.Value) && stats.ContainsKey(p2.Value))
-                {
-                    // Only record opponent if neither player is disqualified or dropped
-                    if (!stats[p1.Value].IsDisqualified && !stats[p1.Value].IsDropped &&
-                        !stats[p2.Value].IsDisqualified && !stats[p2.Value].IsDropped)
-                    {
-                        opponents[p1.Value].Add(p2.Value);
-                        opponents[p2.Value].Add(p1.Value);
-                    }
-
-                    // Determine match winner and update stats
-                    if (s1 > s2)
-                    {
-                        stats[p1.Value].Wins++;
-                        stats[p1.Value].Points += 3;
-                        stats[p2.Value].Losses++;
-                    }
-                    else if (s1 < s2)
-                    {
-                        stats[p2.Value].Wins++;
-                        stats[p2.Value].Points += 3;
-                        stats[p1.Value].Losses++;
-                    }
-                    else
-                    {
-                        stats[p1.Value].Draws++;
-                        stats[p2.Value].Draws++;
-                        stats[p1.Value].Points += 1;
-                        stats[p2.Value].Points += 1;
-                    }
-
-                    // Record game statistics for the match
-                    if (pairing.PairingPlayer1GameCount.HasValue &&
-                        pairing.PairingPlayer2GameCount.HasValue)
-                    {
-                        int totalGamesInMatch = pairing.PairingPlayer1GameCount.Value +
-                                              pairing.PairingPlayer2GameCount.Value;
-
-                        stats[p1.Value].GamesPlayed += totalGamesInMatch;
-                        stats[p2.Value].GamesPlayed += totalGamesInMatch;
-
-                        stats[p1.Value].GamesWon += pairing.PairingPlayer1GameCount.Value;
-                        stats[p2.Value].GamesWon += pairing.PairingPlayer2GameCount.Value;
-                    }
-                }
-
+                ProcessPairing(pairing, stats, opponents, byeRounds, roundNumber);
                 roundNumber++;
             }
 
-            // Compute opponent win percentage and opponent opponent win percentage
+            // Compute opponent win percentage
             ComputeTiebreakers(stats, opponents, byeRounds);
 
             return stats.Values.ToList();
         }
 
-        // Calculates opponent win percentage, opponent's opponent win percentage, and game stats
+        // Calculates opponent win percentage and game stats
         private void ComputeTiebreakers(
             Dictionary<int, PlayerComputedStats> stats,
             Dictionary<int, List<int>> opponents,
@@ -163,7 +199,6 @@ namespace TCG.Application.Services
                 if (s.IsDisqualified || s.IsDropped)
                 {
                     s.OpWinPercent = 0;
-                    s.OpOpWinPercent = 0;
                     s.GameWinPercent = 0;
                     s.OpGameWinPercent = 0;
                     continue;
@@ -226,37 +261,8 @@ namespace TCG.Application.Services
                     : (s.GamesWon / (double)s.GamesPlayed) * 100.0;
             }
 
-            // Second pass: compute Op Op Win%
-            foreach (var s in stats.Values)
-            {
-                if (s.IsDisqualified || s.IsDropped)
-                {
-                    s.OpOpWinPercent = 0;
-                    continue;
-                }
-
-                var opps = opponents[s.TournamentPlayerId];
-                var activeOpponents = opps
-                    .Where(id => stats.ContainsKey(id) && !stats[id].IsDisqualified && !stats[id].IsDropped)
-                    .ToList();
-
-                if (activeOpponents.Count > 0)
-                {
-                    double totalOpOpWinPercent = 0;
-                    foreach (var oppId in activeOpponents)
-                    {
-                        totalOpOpWinPercent += stats[oppId].OpWinPercent;
-                    }
-
-                    s.OpOpWinPercent = activeOpponents.Count > 0
-                        ? totalOpOpWinPercent / activeOpponents.Count
-                        : 0;
-                }
-                else
-                {
-                    s.OpOpWinPercent = 0;
-                }
-            }
+            // Second pass: (no additional tiebreakers required)
+            // foreach (var s in stats.Values) { /* no-op */ }
         }
 
         // Computes the final rankings for PKMN tournaments using PKMN-specific tiebreakers
@@ -277,11 +283,10 @@ namespace TCG.Application.Services
                 .OrderBy(s => s.TournamentPlayerId)
                 .ToList();
 
-            // Sort active players by PKMN tiebreaker rules
+            // Sort active players by PKMN tiebreaker rules: Points then Op Win%
             var sorted = activeStats
                 .OrderByDescending(x => x.Points)
                 .ThenByDescending(x => x.OpWinPercent)
-                .ThenByDescending(x => x.OpOpWinPercent)
                 .ToList();
 
             // Assign positions to active players
@@ -320,11 +325,11 @@ namespace TCG.Application.Services
 
             var stats = await ComputeAllAsync(tournamentId);
 
-            // group active players by points, opwin, opopwin
+            // group active players by points and opwin
             var active = stats.Where(s => !s.IsDisqualified && !s.IsDropped)
                 .ToList();
 
-            var groups = active.GroupBy(s => new { s.Points, Op = Math.Round(s.OpWinPercent, 4), OpOp = Math.Round(s.OpOpWinPercent, 4) })
+            var groups = active.GroupBy(s => new { s.Points, Op = Math.Round(s.OpWinPercent, 4) })
                 .Where(g => g.Count() > 1)
                 .ToList();
 
@@ -343,19 +348,18 @@ namespace TCG.Application.Services
 
             var active = stats.Where(s => !s.IsDisqualified && !s.IsDropped).ToList();
 
-            // find tie groups by Points, OpWin, OpOpWin
+            // find tie groups by Points and OpWin
             var tieGroups = active
-                .GroupBy(s => new { s.Points, Op = Math.Round(s.OpWinPercent, 4), OpOp = Math.Round(s.OpOpWinPercent, 4) })
+                .GroupBy(s => new { s.Points, Op = Math.Round(s.OpWinPercent, 4) })
                 .Where(g => g.Count() > 1)
                 .ToList();
 
-            // start with base sorted order
+            // start with base sorted order (Points then OpWin)
             var baseSorted = active.OrderByDescending(x => x.Points)
                 .ThenByDescending(x => x.OpWinPercent)
-                .ThenByDescending(x => x.OpOpWinPercent)
                 .ToList();
 
-            var rnd = new Random();
+            var rnd = _rnd;
 
             var finalList = new List<PlayerComputedStats>();
 
@@ -363,10 +367,9 @@ namespace TCG.Application.Services
             while (index < baseSorted.Count)
             {
                 var current = baseSorted[index];
-                // find group with same keys
+                // find group with same keys (points and opwin)
                 var group = tieGroups.FirstOrDefault(g => g.Key.Points == current.Points
-                    && g.Key.Op == Math.Round(current.OpWinPercent, 4)
-                    && g.Key.OpOp == Math.Round(current.OpOpWinPercent, 4));
+                    && g.Key.Op == Math.Round(current.OpWinPercent, 4));
 
                 if (group == null)
                 {
@@ -379,53 +382,12 @@ namespace TCG.Application.Services
 
                 if (members.Count == 2)
                 {
-                    var a = members[0];
-                    var b = members[1];
-
-                    // check head-to-head pairing result
-                    var ph = pairings.FirstOrDefault(p => p.PairingHasResult
-                        && ((p.PairingTp1 == a.TournamentPlayerId && p.PairingTp2 == b.TournamentPlayerId)
-                        || (p.PairingTp1 == b.TournamentPlayerId && p.PairingTp2 == a.TournamentPlayerId)));
-
-                    if (ph != null)
-                    {
-                        // determine winner
-                        int? winner = null;
-                        if (ph.PairingPlayer1Score.HasValue && ph.PairingPlayer2Score.HasValue)
-                        {
-                            if (ph.PairingPlayer1Score.Value > ph.PairingPlayer2Score.Value)
-                                winner = ph.PairingTp1;
-                            else if (ph.PairingPlayer1Score.Value < ph.PairingPlayer2Score.Value)
-                                winner = ph.PairingTp2;
-                        }
-
-                        if (winner == a.TournamentPlayerId)
-                        {
-                            finalList.Add(a);
-                            finalList.Add(b);
-                        }
-                        else if (winner == b.TournamentPlayerId)
-                        {
-                            finalList.Add(b);
-                            finalList.Add(a);
-                        }
-                        else
-                        {
-                            // no decisive head-to-head result, randomise
-                            var order = new List<PlayerComputedStats> { a, b }.OrderBy(_ => rnd.Next()).ToList();
-                            finalList.AddRange(order);
-                        }
-                    }
-                    else
-                    {
-                        // no head-to-head match, randomise
-                        var order = new List<PlayerComputedStats> { a, b }.OrderBy(_ => rnd.Next()).ToList();
-                        finalList.AddRange(order);
-                    }
+                    var ordered = ResolveTwoWayHeadToHead(members[0], members[1], pairings);
+                    finalList.AddRange(ordered);
                 }
                 else
                 {
-                    // group size > 2: randomise order among group
+                    // multi-way tie: randomise order as a fallback
                     var order = members.OrderBy(_ => rnd.Next()).ToList();
                     finalList.AddRange(order);
                 }
@@ -436,7 +398,7 @@ namespace TCG.Application.Services
                     baseSorted.RemoveAll(x => x.TournamentPlayerId == m.TournamentPlayerId);
                 }
 
-                // recompute index restart
+                // restart scanning from beginning
                 index = 0;
             }
 
@@ -491,7 +453,7 @@ namespace TCG.Application.Services
                 .ThenByDescending(x => x.OpGameWinPercent)
                 .ToList();
 
-            var rnd = new Random();
+            var rnd = _rnd;
             var finalList = new List<PlayerComputedStats>();
 
             int i = 0;
@@ -500,9 +462,9 @@ namespace TCG.Application.Services
                 var current = baseSorted[i];
                 // find any group tied on the same metrics
                 var group = baseSorted.Where(x => x.Points == current.Points
-                                                 && Math.Round(x.OpWinPercent, 4) == Math.Round(current.OpWinPercent, 4)
-                                                 && Math.Round(x.GameWinPercent, 4) == Math.Round(current.GameWinPercent, 4)
-                                                 && Math.Round(x.OpGameWinPercent, 4) == Math.Round(current.OpGameWinPercent, 4))
+                    && Math.Round(x.OpWinPercent, 4) == Math.Round(current.OpWinPercent, 4)
+                    && Math.Round(x.GameWinPercent, 4) == Math.Round(current.GameWinPercent, 4)
+                    && Math.Round(x.OpGameWinPercent, 4) == Math.Round(current.OpGameWinPercent, 4))
                     .ToList();
 
                 if (group.Count == 1)
