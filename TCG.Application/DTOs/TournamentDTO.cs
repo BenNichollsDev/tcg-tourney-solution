@@ -44,5 +44,7 @@ namespace TCG.Application.Dtos
         public bool TournamentFinished { get; set; }
 
         public bool TournamentCancelled { get; set; }
+
+        public string? TournamentType { get; set; }
     }
 }

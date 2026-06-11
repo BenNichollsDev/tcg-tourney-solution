@@ -44,5 +44,14 @@ namespace TCG.Application.Dtos
         public int? GamesWon { get; set; }
 
         public int? GamesPlayed { get; set; }
+
+        // Player status tracking
+        public bool TpDisqualified { get; set; }
+
+        public bool TpBye { get; set; }
+
+        public bool TpDropped { get; set; }
+
+        public int? TpPosition { get; set; }
     }
 }

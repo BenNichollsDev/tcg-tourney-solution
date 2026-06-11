@@ -1,9 +1,184 @@
-﻿@page "/tournaments/view/{tournamentId:int}"
+﻿@page "/tournaments/results/{tournamentId:int}"
+@using TCG.Application.Dtos
+@using TCG.Application.Services
 
 @rendermode InteractiveServer
 
-<h3>TourneyResults</h3>
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-8">
+            <div class="bg-container p-4">
+                @if (!_hasLoaded)
+                {
+                    <p>Loading...</p>
+                }
+                else if (_showNull)
+                {
+                    <h2>No tournament data found.</h2>
+                }
+                else
+                {
+                    <h1 class="mb-3 text-center">Final Results - @_tournamentModel.TournamentName</h1>
+
+                    <div class="mb-3">
+                        <strong>1st:</strong> @(_firstPlace ?? "N/A")<br />
+                        <strong>2nd:</strong> @(_secondPlace ?? "N/A")<br />
+                        @if (!string.IsNullOrEmpty(_thirdPlace))
+                        {
+                            <strong>3rd:</strong> @(_thirdPlace)
+                        }
+                    </div>
+
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Position</th>
+                                <th>Player</th>
+                                <th>Points</th>
+                                <th>Wins</th>
+                                <th>Draws</th>
+                                <th>Losses</th>
+                                <th>Op Win%</th>
+                                <th>Op Op Win%</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (_rankedStats != null)
+                            {
+                                var map = _participants.ToDictionary(x => x.TournamentPlayerId);
+
+                                // This time, active players also include those who were dropped
+                                var active = _rankedStats.Where(s => map.ContainsKey(s.TournamentPlayerId) && !map[s.TournamentPlayerId].TpDisqualified).OrderBy(s => s.Position);
+                                var disqualified = _participants.Where(p => p.TpDisqualified).OrderByDescending(p => p.PlayerName);
+
+                                foreach (var s in active)
+                                {
+                                    var p = map[s.TournamentPlayerId];
+                                    <tr>
+                                        <td>@s.Position</td>
+                                        <td>@p.PlayerName</td>
+                                        <td>@s.Points</td>
+                                        <td>@s.Wins</td>
+                                        <td>@s.Draws</td>
+                                        <td>@s.Losses</td>
+                                        <td>@s.OpWinPercent.ToString("0.00")</td>
+                                        <td>@s.OpOpWinPercent.ToString("0.00")</td>
+                                    </tr>
+                                }
+
+                                foreach (var p in disqualified)
+                                {
+                                    <tr class="text-danger">
+                                        <td>-</td>
+                                        <td>@p.PlayerName (Disqualified)</td>
+                                        <td>N/A</td>
+                                        <td>N/A</td>
+                                        <td>N/A</td>
+                                        <td>N/A</td>
+                                        <td>N/A</td>
+                                        <td>N/A</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+
+                    <div class="mt-3">
+                        <NavLink class="btn btn-outline-dark" href="/tournaments">Back</NavLink>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
 
 @code {
+    private bool _hasLoaded = false;
+    private bool _showNull = false;
 
+    private TournamentDto _tournamentModel = new();
+    private List<TournamentPlayerDto> _participants = new();
+
+    private List<TournamentScoringService.PlayerComputedStats> _rankedStats = new();
+
+    private string? _firstPlace;
+    private string? _secondPlace;
+    private string? _thirdPlace;
+
+    [Parameter]
+    public int? tournamentId { get; set; }
+
+    [Inject]
+    private ITournamentService TournamentService { get; set; } = default!;
+
+    [Inject]
+    private ITournamentPlayerService TournamentPlayerService { get; set; } = default!;
+
+    [Inject]
+    private TournamentScoringService ScoringService { get; set; } = default!;
+
+    // This initialises the page, computes rankings and saves positions to the database.
+    protected override async Task OnInitializedAsync()
+    {
+        _hasLoaded = false;
+
+        if (tournamentId == null)
+        {
+            _showNull = true;
+            _hasLoaded = true;
+            return;
+        }
+
+        _tournamentModel = await TournamentService.GetByIdAsync(tournamentId.Value);
+        if (_tournamentModel == null)
+        {
+            _showNull = true;
+            _hasLoaded = true;
+            return;
+        }
+
+        _participants = (await TournamentPlayerService.GetAllWhereAsync(tp => tp.TournamentId == tournamentId.Value)).ToList();
+
+        var computed = await ScoringService.ComputeAllAsync(tournamentId.Value);
+
+        // Decide which ranking method to use based on game
+        List<TournamentScoringService.PlayerComputedStats> ordered;
+        if (_tournamentModel.TournamentGame == "Pokémon")
+        {
+            // Use final tie-resolution when tournament rounds are complete
+            ordered = await ScoringService.ResolvePkmnFinalTiesAsync(computed, tournamentId.Value, _tournamentModel.TournamentRoundNum ?? 0, _tournamentModel.TournamentMaxRoundNum);
+        }
+        else
+        {
+            // Use MTG final resolution (head-to-head, coin-flip fallback)
+            ordered = await ScoringService.ResolveMtgFinalTiesAsync(computed, tournamentId.Value, _tournamentModel.TournamentRoundNum ?? 0, _tournamentModel.TournamentMaxRoundNum);
+        }
+
+        // Save positions back to tournament players
+        foreach (var s in ordered)
+        {
+            var tp = _participants.FirstOrDefault(x => x.TournamentPlayerId == s.TournamentPlayerId);
+            if (tp != null)
+            {
+                tp.TpPosition = s.Position;
+                await TournamentPlayerService.UpdateAsync(tp);
+            }
+        }
+
+        _rankedStats = ordered;
+
+        // Fill top three (skip disqualified and dropped)
+        var map = _participants.ToDictionary(x => x.TournamentPlayerId);
+        var podium = _rankedStats.Where(s => map.ContainsKey(s.TournamentPlayerId)
+            && !map[s.TournamentPlayerId].TpDisqualified &&
+            !map[s.TournamentPlayerId].TpDropped)
+            .OrderBy(s => s.Position)
+            .ToList();
+
+        if (podium.Count >= 1) _firstPlace = map[podium[0].TournamentPlayerId].PlayerName;
+        if (podium.Count >= 2) _secondPlace = map[podium[1].TournamentPlayerId].PlayerName;
+        if (podium.Count >= 3) _thirdPlace = map[podium[2].TournamentPlayerId].PlayerName;
+
+        _hasLoaded = true;
+    }
 }

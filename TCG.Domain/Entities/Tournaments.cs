@@ -67,6 +67,9 @@ namespace TCG.Domain.Entities
         [Column("tournament_cancelled")]
         public bool TournamentCancelled { get; set; }
 
+        [Column("tournament_type")]
+        public string? TournamentType { get; set; }
+
         public League League { get; set; } = null!;
 
         public ICollection<TournamentPlayer> TournamentPlayers { get; set; } = new List<TournamentPlayer>();

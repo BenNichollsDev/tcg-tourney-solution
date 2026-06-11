@@ -17,7 +17,7 @@
 
 <div class="container py-4">
     <div class="row justify-content-center">
-        <div class="col-12 col-md-8 col-lg-6">
+        <div class="col-12 col-md-8 col-lg-8">
             <div class="bg-container p-4">
                 
                 <h1 class="mb-3 text-center">Create a New Tournament</h1>
@@ -97,6 +97,7 @@
                                  class="form-control mb-3"
                                  @bind-Value="_tournamentModel.TournamentPairing"
                                  @bind:after="OnPairingChanged"
+                                 disabled="@IsDraft"
                                  required>
 
                         <option value="">-- Select Pairing --</option>
@@ -218,6 +219,8 @@
         _leagues = (await LeagueService.GetAllAsync()).ToList();
     }
 
+    private bool IsDraft => string.Equals(_tournamentModel.TournamentFormat, "Draft", StringComparison.OrdinalIgnoreCase);
+
     private void OnGameChanged(ChangeEventArgs e)
     {
         _tournamentModel.TournamentGame = e?.Value as string ?? string.Empty;
@@ -275,22 +278,31 @@
         StateHasChanged();
     }
 
+    // This runs when the format is changed. It sets the pairing automatically and locks it for Drafts.
     private void OnFormatChanged()
     {
         _tournamentModel.TournamentRequireDeck = false;
 
-        /*
         if (!string.IsNullOrEmpty(_tournamentModel.TournamentGame)
-        && !string.IsNullOrEmpty(_tournamentModel.TournamentFormat)
-        && formatsByGame.TryGetValue(_tournamentModel.TournamentGame, out var formats)
-        && formats.TryGetValue(_tournamentModel.TournamentFormat, out var meta))
+            && !string.IsNullOrEmpty(_tournamentModel.TournamentFormat)
+            && formatsByGame.TryGetValue(_tournamentModel.TournamentGame, out var formats)
+            && formats.TryGetValue(_tournamentModel.TournamentFormat, out var meta))
         {
             if (meta.TryGetValue("pairing", out var pairing))
             {
                 _tournamentModel.TournamentPairing = pairing;
-                }
             }
-        */
+        }
+
+        // If the chosen format is the Draft format then make sure pairing is Round-Robin.
+        // This prevents choosing another pairing for draft events.
+        if (_tournamentModel.TournamentFormat == "Draft")
+        {
+            _tournamentModel.TournamentPairing = SwissValue == "Round-Robin" ? "Round-Robin" : "Round-Robin";
+            _tournamentModel.TournamentPairing = RoundRobinValue;
+        }
+
+        StateHasChanged();
     }
 
     private string MinDateString =>

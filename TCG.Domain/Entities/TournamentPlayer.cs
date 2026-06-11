@@ -58,6 +58,18 @@ namespace TCG.Domain.Entities
         [Column("tp_games_played")]
         public int? GamesPlayed { get; set; }
 
+        [Column("tp_disqualified")]
+        public bool TpDisqualified { get; set; }
+
+        [Column("tp_bye")]
+        public bool TpBye { get; set; }
+
+        [Column("tp_dropped")]
+        public bool TpDropped { get; set; }
+
+        [Column("tp_position")]
+        public int? TpPosition { get; set; }
+
         public Tournament Tournament { get; set; } = null!;
         
         public ICollection<Pairing> PairingsAsPlayer1 { get; set; }
