@@ -21,15 +21,6 @@ namespace TCG.Application.Services
             _rnd = new Random();
         }
 
-        /* Optional constructor for tests to inject a deterministic Random instance
-        public TournamentScoringService(ITournamentPlayerService tpService, IPairingService pairingService, Random rnd)
-            : this(tpService, pairingService)
-        {
-            _rnd = rnd ?? new Random();
-        }
-        */
-
-        // This class stores computed stats for a player in a tournament
         public class PlayerComputedStats
         {
             public int TournamentPlayerId { get; set; }

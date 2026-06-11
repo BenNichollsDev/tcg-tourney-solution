@@ -4,9 +4,9 @@
 
 @rendermode InteractiveServer
 
-<div class="container py-4">
-    <div class="row justify-content-center">
-        <div class="col-12 col-md-8 col-lg-8">
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
             <div class="bg-container p-4">
                 @if (!_hasLoaded)
                 {
@@ -29,7 +29,7 @@
                         }
                     </div>
 
-                    <table class="table table-striped">
+                    <table class="table table-striped" style="table-layout: fixed; width: 100%;">
                         <thead>
                             <tr>
                                 <th>Position</th>
@@ -54,26 +54,26 @@
                                 {
                                     var p = map[s.TournamentPlayerId];
                                     <tr>
-                                        <td>@s.Position</td>
-                                        <td>@p.PlayerName</td>
-                                        <td>@s.Points</td>
-                                        <td>@s.Wins</td>
-                                        <td>@s.Draws</td>
-                                        <td>@s.Losses</td>
-                                        <td>@s.OpWinPercent.ToString("0.00")</td>
+                                        <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.Position</td>
+                                        <td style="word-wrap: break-word; overflow-wrap: break-word;">@p.PlayerName</td>
+                                        <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.Points</td>
+                                        <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.Wins</td>
+                                        <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.Draws</td>
+                                        <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.Losses</td>
+                                        <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.OpWinPercent.ToString("00.00")</td>
                                     </tr>
                                 }
 
                                 foreach (var p in disqualified)
                                 {
                                     <tr class="text-danger">
-                                        <td>-</td>
-                                        <td>@p.PlayerName (Disqualified)</td>
-                                        <td>N/A</td>
-                                        <td>N/A</td>
-                                        <td>N/A</td>
-                                        <td>N/A</td>
-                                        <td>N/A</td>
+                                        <td style="word-wrap: break-word; overflow-wrap: break-word;">-</td>
+                                        <td style="word-wrap: break-word; overflow-wrap: break-word;">@p.PlayerName (Disqualified)</td>
+                                        <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
+                                        <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
+                                        <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
+                                        <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
+                                        <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
                                     </tr>
                                 }
                             }

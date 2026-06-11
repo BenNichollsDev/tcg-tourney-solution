@@ -4,9 +4,9 @@
 
 @rendermode InteractiveServer
 
-<div class="container py-4">
-    <div class="row justify-content-center">
-        <div class="col-12 col-md-8 col-lg-6">
+<div class="container-fluid py-4" style="max-width: 50%">
+    <div class="row">
+        <div class="col-12">
             <div class="bg-container p-4">
                 @if (_notice != null)
                 {
@@ -79,7 +79,7 @@
 
                         <h2>Round Robin Standings</h2>
 
-                        <table class="table table-striped">
+                        <table class="table table-striped" style="table-layout: fixed; width: 100%;">
                             <thead>
                                 <tr>
                                     <th>Player</th>
@@ -94,32 +94,45 @@
                                         <tbody>
                                             @{ 
                                                 var map = _participants.ToDictionary(x => x.TournamentPlayerId);
-                                                var active = _computedStats.Where(s => map.ContainsKey(s.TournamentPlayerId) && !map[s.TournamentPlayerId].TpDisqualified);
+                                                var active = _computedStats.Where(s => map.ContainsKey(s.TournamentPlayerId) && !map[s.TournamentPlayerId].TpDisqualified && !map[s.TournamentPlayerId].TpDropped);
                                                 var disqualified = _participants.Where(p => p.TpDisqualified).OrderByDescending(p => p.PlayerName);
+                                                var dropped = _participants.Where(p => p.TpDisqualified).OrderByDescending(p => p.PlayerName);
                                             }
 
                                             @foreach (var s in active)
                                             {
                                                 var player = map[s.TournamentPlayerId];
                                                 <tr>
-                                                    <td>@(player?.PlayerName ?? "Unknown")</td>
-                                                    <td>@s.Wins</td>
-                                                    <td>@s.Draws</td>
-                                                    <td>@s.Losses</td>
-                                                    <td>@s.Points</td>
-                                                    <td>@s.OpWinPercent.ToString("0.00")</td>
+                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">@(player?.PlayerName)</td>
+                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.Wins</td>
+                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.Draws</td>
+                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.Losses</td>
+                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.Points</td>
+                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.OpWinPercent.ToString("0.00")</td>
+                                                </tr>
+                                            }
+
+                                            @foreach (var p in dropped)
+                                            {
+                                                <tr class="text-danger">
+                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">@p.PlayerName (Dropped)</td>
+                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
+                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
+                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
+                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
+                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
                                                 </tr>
                                             }
 
                                             @foreach (var p in disqualified)
                                             {
                                                 <tr class="text-danger">
-                                                    <td>@p.PlayerName (Disqualified)</td>
-                                                    <td>N/A</td>
-                                                    <td>N/A</td>
-                                                    <td>N/A</td>
-                                                    <td>N/A</td>
-                                                    <td>N/A</td>
+                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">@p.PlayerName (Disqualified)</td>
+                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
+                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
+                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
+                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
+                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
                                                 </tr>
                                             }
                                         </tbody>
@@ -388,7 +401,7 @@
         }
 
         // If tournament has finished, redirect to results page
-        if (_tournamentModel.TournamentRoundInProgress)
+        if (_tournamentModel.TournamentFinished)
         {
             NavManager.NavigateTo($"/tournaments/results/{TournamentId}");
             return;
@@ -513,6 +526,30 @@
         StateHasChanged();
     }
 
+    // Updates pairings when a player is disqualified or dropped
+    private void UpdatePairingsForRemovedPlayer(int playerId)
+    {
+        var playerIdStr = playerId.ToString();
+        var pairingsToRemove = new List<PairingSelection>();
+
+        foreach (var pairing in _pairings)
+        {
+            // Replace the removed player with BYE
+            if (pairing.Player1Id == playerIdStr)
+                pairing.Player1Id = BYE;
+            if (pairing.Player2Id == playerIdStr)
+                pairing.Player2Id = BYE;
+
+            // Mark pairings with two BYEs for removal
+            if (pairing.Player1Id == BYE && pairing.Player2Id == BYE)
+                pairingsToRemove.Add(pairing);
+        }
+
+        // Remove empty pairings (both BYE)
+        foreach (var pairing in pairingsToRemove)
+            _pairings.Remove(pairing);
+    }
+
     // This marks a selected player as disqualified and refreshes local data
     private async Task DisqualifyPlayerAsync()
     {
@@ -528,6 +565,9 @@
 
         tp.TpDisqualified = true;
         await TournamentPlayerService.UpdateAsync(tp);
+
+        // Update pairings immediately
+        UpdatePairingsForRemovedPlayer(playerId);
 
         // Refresh participants and stats
         _participants = (await TournamentPlayerService.GetAllWhereAsync(tp => tp.TournamentId == TournamentId)).ToList();
@@ -552,6 +592,9 @@
 
         tp.TpDropped = true;
         await TournamentPlayerService.UpdateAsync(tp);
+
+        // Update pairings immediately
+        UpdatePairingsForRemovedPlayer(playerId);
 
         // Refresh participants and stats
         _participants = (await TournamentPlayerService.GetAllWhereAsync(tp => tp.TournamentId == TournamentId)).ToList();
@@ -848,10 +891,7 @@
         {
             _tournamentModel.TournamentCancelled = true;
         }
-        else
-        {
-            _tournamentModel.TournamentFinished = true;
-        }
+        _tournamentModel.TournamentFinished = true;
 
         await TournamentService.UpdateAsync(_tournamentModel);
 
