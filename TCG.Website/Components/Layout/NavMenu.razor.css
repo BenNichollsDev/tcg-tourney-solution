@@ -1,3 +1,5 @@
+/*refstart*/
+
 .navbar-toggler {
     appearance: none;
     cursor: pointer;
@@ -9,7 +11,13 @@
     right: 1rem;
     border: 1px solid rgba(255, 255, 255, 0.1);
     background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.55%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") no-repeat center/1.75rem rgba(255, 255, 255, 0.1);
+    
+    /*refend*/
+
+    display: none;
 }
+
+/*refstart*/
 
 .navbar-toggler:checked {
     background-color: rgba(255, 255, 255, 0.5);
@@ -18,11 +26,24 @@
 .top-row {
     min-height: 3.5rem;
     background-color: rgba(0,0,0,0.4);
+
+    /*refend*/
+
+    display: flex;
+    align-items: center;
 }
+
+/*refstart*/
 
 .navbar-brand {
     font-size: 1.1rem;
+
+    /*refend*/
+
+    white-space: nowrap;
 }
+
+/*refstart*/
 
 .bi {
     display: inline-block;
@@ -48,28 +69,48 @@
 
 .nav-item {
     font-size: 0.9rem;
-    padding-bottom: 0.5rem;
+
+    /*refend*/
+
+    padding-bottom: 0;
+    display: inline-block;
 }
 
+/*refstart*/
+
     .nav-item:first-of-type {
-        padding-top: 1rem;
+    /*refend*/
+
+        padding-top: 0;
     }
+
+/*refstart*/
 
     .nav-item:last-of-type {
-        padding-bottom: 1rem;
+    /*refend*/
+
+        padding-bottom: 0;
     }
 
+
+/*refstart*/
     .nav-item ::deep .nav-link {
         color: #d7d7d7;
         background: none;
         border: none;
         border-radius: 4px;
-        height: 3rem;
-        display: flex;
+
+        /*refend*/
+
+        height: auto;
+        display: inline-flex;
         align-items: center;
-        line-height: 3rem;
-        width: 100%;
+        line-height: 1;
+        white-space: nowrap;
+        padding: 0.5rem 0.75rem;
     }
+
+/*refstart*/
 
 .nav-item ::deep a.active {
     background-color: rgba(255,255,255,0.37);
@@ -81,25 +122,57 @@
     color: white;
 }
 
-.nav-scrollable {
-    display: none;
+/*refend*/
+
+@media (max-width: 640px) {
+    .navbar-toggler {
+        display: block;
+    }
+
+    .navbar-brand {
+        margin-right: auto;
+    }
+
+    .top-row .nav {
+        display: none;
+    }
+
+    .navbar-toggler:checked ~ .nav {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 3.5rem;
+        left: 0;
+        right: 0;
+        background-color: rgba(0,0,0,0.4);
+        width: 100%;
+        z-index: 1000;
+    }
+
+    .navbar-toggler:checked ~ .nav .nav-item {
+        display: block;
+        width: 100%;
+    }
+
+    .navbar-toggler:checked ~ .nav .nav-item ::deep .nav-link {
+        display: flex;
+        padding: 1rem 1.5rem;
+        border-radius: 0;
+    }
 }
 
-.navbar-toggler:checked ~ .nav-scrollable {
-    display: block;
-}
-
+/*refstart*/
 @media (min-width: 641px) {
     .navbar-toggler {
         display: none;
     }
-
-    .nav-scrollable {
-        /* Never collapse the sidebar for wide screens */
-        display: block;
-
-        /* Allow sidebar to scroll for tall menus */
-        height: calc(100vh - 3.5rem);
-        overflow-y: auto;
+    /*refend*/
+    .top-row .nav {
+        display: flex;
+        margin-left: auto;
+    }
+}
+/*        height: calc(100vh - 3.5rem);
+        overflow-y: auto;*/
     }
 }

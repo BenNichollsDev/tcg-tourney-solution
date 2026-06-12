@@ -13,13 +13,22 @@
 		<BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
 	</PropertyGroup>
 
-	<!-- <-*****Microsoft (2026) [1] - END -->
-
 	<ItemGroup>
-		<Folder Include="Components\Pages\Controllers\" />
-		<Folder Include="Components\Pages\HeadManagement\" />
-		<Folder Include="Components\Pages\Management\" />
+	  <Compile Remove="Components\Pages\Controllers\**" />
+	  <Compile Remove="Components\Pages\HeadManagement\**" />
+	  <Compile Remove="Components\Pages\Management\**" />
+	  <Content Remove="Components\Pages\Controllers\**" />
+	  <Content Remove="Components\Pages\HeadManagement\**" />
+	  <Content Remove="Components\Pages\Management\**" />
+	  <EmbeddedResource Remove="Components\Pages\Controllers\**" />
+	  <EmbeddedResource Remove="Components\Pages\HeadManagement\**" />
+	  <EmbeddedResource Remove="Components\Pages\Management\**" />
+	  <None Remove="Components\Pages\Controllers\**" />
+	  <None Remove="Components\Pages\HeadManagement\**" />
+	  <None Remove="Components\Pages\Management\**" />
 	</ItemGroup>
+
+	<!-- <-*****Microsoft (2026) [1] - END -->
 
 	<ItemGroup>
 

@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 using Microsoft.AspNetCore.StaticAssets;
 using Microsoft.EntityFrameworkCore;
+using TCG.Application.Interfaces;
+using TCG.Application.Interfaces.Services;
 using TCG.Infrastructure;
+using TCG.Infrastructure.Repositories;
 using TCG.Website.Components;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +13,16 @@ builder.AddServiceDefaults();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile<AutoMapperProfile>());
+
+// Register application services
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IPairingService, PairingService>();
+builder.Services.AddScoped<IStaffService, StaffService>();
+builder.Services.AddScoped<ILeagueService, LeagueService>();
+builder.Services.AddScoped<ITournamentService, TournamentService>();
+builder.Services.AddScoped<ITournamentPlayerService, TournamentPlayerService>();
 
 if (builder.Environment.IsDevelopment())
 {
@@ -55,5 +68,7 @@ app.MapStaticAssets();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+//app.MapControllers();
 
 app.Run();

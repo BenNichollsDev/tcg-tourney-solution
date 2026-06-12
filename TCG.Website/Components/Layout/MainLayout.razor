@@ -1,23 +1,28 @@
-﻿@inherits LayoutComponentBase
+﻿@* /*refstart*/ *@
+
+@inherits LayoutComponentBase
 
 <div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+
+    @* /*refend*/ *@
+
+    <NavMenu />
 
     <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
 
-        <article class="content px-4">
+        <article class="content flex-grow-1 m-0 p-0">
             @Body
         </article>
+
     </main>
 </div>
+
+@* /*refstart*/ *@
 
 <div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred.
     <a href="." class="reload">Reload</a>
     <span class="dismiss">🗙</span>
 </div>
+
+@* /*refend*/ *@
