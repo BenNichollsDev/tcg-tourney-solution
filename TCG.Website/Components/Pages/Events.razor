@@ -1,0 +1,259 @@
+﻿@page "/events"
+@rendermode InteractiveServer
+
+<PageTitle>Angels of Cards | Events</PageTitle>
+
+<div class="ms-3 me-3">
+    <div class="ps-3 pe-3 pt-3 pb-3">
+
+        <h1>Events</h1>
+
+        @if (!_hasDataLoaded)
+        {
+            <p>Loading event data...</p>
+        }
+        else
+        {
+            @if (_loadedTournaments!.Any())
+            {
+                <div class="" style="width: 80%">
+
+                    <h2>Ongoing Tourneys</h2>
+
+                    @if (_activeTourneys!.Any())
+                    {
+                        @foreach (var tournament in _activeTourneys!)
+                        {
+                            <div class="ps-2 pe-2" style="background-color: gainsboro;">
+                                <h4>
+                                    @tournament.TournamentName
+                                </h4>
+
+                                @if (_leaguesOfTourneys.TryGetValue(tournament.TournamentId, out var leagueName))
+                                {
+                                    <h5>
+                                        @leagueName
+                                    </h5>
+                                }
+                                else
+                                {
+                                    <h5></h5>
+                                }
+
+                                @if (tournament.TournamentGame == "mtg")
+                                {
+                                    <span>
+                                        Magic the Gathering
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span>
+                                        Pokémon
+                                    </span>
+                                }
+
+                                <span>
+                                    Ongoing!
+                                </span>
+
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <span>
+                            No ongoing tourneys.
+                        </span>
+                    }
+
+                    @if (_tournamentsToDisplay!.Any())
+                    {
+                        <h2>Upcoming Events</h2>
+
+                        @foreach (var tournament in _tournamentsToDisplay!)
+                        {
+                            <div class="ps-2 pe-2" style="background-color: gainsboro;">
+                                <h4>
+                                    @tournament.TournamentName
+                                </h4>
+
+                                @if (_leaguesOfTourneys.TryGetValue(tournament.TournamentId, out var leagueName))
+                                {
+                                    <h5>
+                                        @leagueName
+                                    </h5>
+                                }
+                                else
+                                {
+                                    <h5></h5>
+                                }
+
+                                @if (tournament.TournamentGame == "mtg")
+                                {
+                                    <span>
+                                        Magic the Gathering
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span>
+                                        Pokémon
+                                    </span>
+                                }
+
+                                <span>
+                                    @tournament.TournamentDate.ToString("dd MMM yyyy") at @tournament.TournamentTime
+                                </span>
+
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <span>
+                            No upcoming tourneys.
+                        </span>
+                    }
+
+                    @if (_recentTourneys!.Any())
+                    {
+                        <h2>Recent Events</h2>
+
+                        @foreach (var tournament in _recentTourneys!)
+                        {
+                            <div class="ps-2 pe-2" style="background-color: gainsboro;">
+                                <h4>
+                                    @tournament.TournamentName
+                                </h4>
+
+                                @if (_leaguesOfTourneys.TryGetValue(tournament.TournamentId, out var leagueName))
+                                {
+                                    <h5>
+                                        @leagueName
+                                    </h5>
+                                }
+                                else
+                                {
+                                    <h5></h5>
+                                }
+
+                                @if (tournament.TournamentGame == "mtg")
+                                {
+                                    <span>
+                                        Magic the Gathering
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span>
+                                        Pokémon
+                                    </span>
+                                }
+
+                                <span>
+                                    @tournament.TournamentDate.ToString("dd MMM yyyy") at @tournament.TournamentTime
+                                </span>
+
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <span>
+                            No recent tourneys.
+                        </span>
+                    }
+                </div>
+            }
+            else
+            {
+                <p>No scheduled events. Check back later!</p>
+            }
+        }
+
+    </div>
+
+</div>
+
+@code {
+    [Inject]
+    private ITournamentService TournamentService { get; set; } = default!;
+
+    [Inject]
+    private ILeagueService LeagueService { get; set; } = default!;
+
+    private bool _hasDataLoaded = false;
+    private bool _isViewingTourneys = false;
+    private bool _isViewingLeagues = false;
+
+    private List<TournamentDto>? _loadedTournaments = new();
+    private List<TournamentDto>? _tournamentsToDisplay = new();
+
+    // Stores tournament id and league name
+    private Dictionary<int, string> _leaguesOfTourneys = new();
+
+    private List<LeagueDto>? _loadedLeagues = new();
+    private List<TournamentDto>? _leaguesToDisplay = new();
+
+    private List<TournamentDto>? _activeTourneys = new();
+    private List<TournamentDto>? _recentTourneys = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loadedTournaments = (List<TournamentDto>?)await TournamentService.GetAllAsync();
+
+        if (_loadedTournaments!.Any())
+        {
+            _tournamentsToDisplay = _loadedTournaments!
+                .Where
+                (
+                    t => !t.TournamentCancelled
+                    && !t.TournamentStarted
+                    && !t.TournamentFinished
+                )
+                .OrderByDescending(t => t.TournamentDate)
+                .ThenByDescending(t => t.TournamentTime)
+                .Take(5)
+                .ToList();
+                
+            _activeTourneys = _loadedTournaments!
+                .Where
+                (
+                    t => !t.TournamentCancelled
+                    && !t.TournamentStarted
+                    && !t.TournamentFinished
+                )
+                .OrderByDescending(t => t.TournamentDate)
+                .ThenByDescending(t => t.TournamentTime)
+                .Take(5)
+                .ToList();
+
+            DateOnly _cutoffDate = DateOnly.FromDateTime(DateTime.Today).AddDays(-14);
+
+            _recentTourneys = _loadedTournaments!
+                .Where(t =>
+                    !t.TournamentCancelled &&
+                    t.TournamentFinished &&
+                    t.TournamentDate >= _cutoffDate)
+                .OrderByDescending(t => t.TournamentDate)
+                .ThenByDescending(t => t.TournamentTime)
+                .Take(5)
+                .ToList();
+        }
+
+
+        _loadedLeagues = (List<LeagueDto>?)await LeagueService.GetAllAsync();
+
+        foreach (var tournament in _tournamentsToDisplay!)
+        {
+            if (tournament.TournamentLeague is not null)
+            {
+                _leaguesOfTourneys[tournament.TournamentId] =
+                    (await LeagueService.GetByIdAsync(tournament.TournamentLeague.Value)).LeagueName;
+            }
+        }
+
+        _hasDataLoaded = true;
+    }
+}
