@@ -26,7 +26,7 @@
                         {
                             <div class="ps-2 pe-2" style="background-color: gainsboro;">
                                 <h4>
-                                    @tournament.TournamentName
+                                    <NavLink href="@($"/viewevent/{tournament.TournamentId}")">@tournament.TournamentName</NavLink>
                                 </h4>
 
                                 @if (_leaguesOfTourneys.TryGetValue(tournament.TournamentId, out var leagueName))
@@ -75,7 +75,7 @@
                         {
                             <div class="ps-2 pe-2" style="background-color: gainsboro;">
                                 <h4>
-                                    @tournament.TournamentName
+                                    <NavLink href="@($"/viewevent/{tournament.TournamentId}")">@tournament.TournamentName</NavLink>
                                 </h4>
 
                                 @if (_leaguesOfTourneys.TryGetValue(tournament.TournamentId, out var leagueName))
@@ -124,7 +124,7 @@
                         {
                             <div class="ps-2 pe-2" style="background-color: gainsboro;">
                                 <h4>
-                                    @tournament.TournamentName
+                                    <NavLink href="@($"/viewevent/{tournament.TournamentId}")">@tournament.TournamentName</NavLink>
                                 </h4>
 
                                 @if (_leaguesOfTourneys.TryGetValue(tournament.TournamentId, out var leagueName))

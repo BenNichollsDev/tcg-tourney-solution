@@ -7,6 +7,7 @@ using TCG.Application.Services;
 using TCG.Infrastructure;
 using TCG.Infrastructure.Repositories;
 using TCG.Website.Components;
+using TCG.Website.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +25,8 @@ builder.Services.AddScoped<IStaffService, StaffService>();
 builder.Services.AddScoped<ILeagueService, LeagueService>();
 builder.Services.AddScoped<ITournamentService, TournamentService>();
 builder.Services.AddScoped<ITournamentPlayerService, TournamentPlayerService>();
+builder.Services.AddScoped<IPlayerService, PlayerService>();
+builder.Services.AddScoped<PlayerSessionService>();
 //builder.Services.AddScoped<ITournamentScoringService, TournamentScoringService>();
 
 if (builder.Environment.IsDevelopment())

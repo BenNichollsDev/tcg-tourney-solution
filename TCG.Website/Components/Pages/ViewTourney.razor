@@ -28,17 +28,37 @@
             <p>@_tournament!.TournamentDescription</p>
 
             <br />
-            
+
+            @if (_participantNames == null || !_participantNames.Any())
+            {
+                <p>No participants yet.</p>
+            }
+            else
+            {
+                <p>Participants: @_participantNames.Count / @_tournament!.TournamentMaxParticipants</p>
+            }
+
+            @if (!_tournament.TournamentStarted
+                && !_tournament.TournamentCancelled
+                && !_tournament.TournamentFinished
+                && (_participantNames is null || _participantNames.Count < _tournament.TournamentMaxParticipants))
+            {
+                <NavLink href="@($"/register/{_tournament.TournamentId}")" class="btn btn-primary">Sign up</NavLink>
+            }
+
             <h2>
                 Standings
             </h2>
-            <StandingsTable ComputedStats="" TournamentName="Summer Cup 2026" />
+            <StandingsTable TournamentId="@_tournament.TournamentId" RealTimeUpdate="@false" />
         }
     }
 
 </div>
 
 @code {
+    [Parameter]
+    public int tournamentId { get; set; }
+
     [Inject]
     private ITournamentService _TournamentService { get; set; } = null!;
 
@@ -55,6 +75,11 @@
     protected override async Task OnInitializedAsync()
     {
         _tournament = await _TournamentService.GetByIdAsync(tournamentId);
+
+        if (_tournament != null)
+        {
+            _participantNames = (await _TournamentPlayerService.GetAllWhereAsync(tp => tp.TournamentId == _tournament.TournamentId)).ToList();
+        }
 
         _hasDataLoaded = true;
     }

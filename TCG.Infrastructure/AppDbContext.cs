@@ -18,6 +18,8 @@ namespace TCG.Infrastructure
 
         public virtual DbSet<TournamentPlayer> TournamentPlayers { get; set; } = null!;
 
+        public virtual DbSet<Player> Player { get; set; } = null!;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
@@ -27,6 +29,7 @@ namespace TCG.Infrastructure
             modelBuilder.ApplyConfiguration(new PairingConfiguration());
             modelBuilder.ApplyConfiguration(new StaffConfiguration());
             modelBuilder.ApplyConfiguration(new LeagueConfiguration());
+            modelBuilder.ApplyConfiguration(new PlayerConfiguration());
 
             modelBuilder.Entity<Pairing>(entity =>
             {
