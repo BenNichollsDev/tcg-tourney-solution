@@ -11,6 +11,7 @@ namespace TCG.Application.Interfaces
         public class PlayerComputedStats
         {
             public int TournamentPlayerId { get; set; }
+            public string PlayerName { get; set; } = string.Empty;
             public int Wins { get; set; }
             public int Draws { get; set; }
             public int Losses { get; set; }
@@ -25,27 +26,34 @@ namespace TCG.Application.Interfaces
             public bool IsDropped { get; set; }
         }
 
+        // When the whole program is done, do the commented functions
+
         // Returns a dictionary consisting of player info and stats
-        public Dictionary<int, PlayerComputedStats> ComputeTournamentStandings(
+        // public Dictionary<int, PlayerComputedStats> ComputeTournamentStandings(
+        public void ComputeTournamentStandings(
             int tournamentId
         );
 
-
         // Organizes the computed stats for display for MTG tournaments
-        public Dictionary<int, PlayerComputedStats> OrganizeMtgStatsForDisplay(
+        // and does tiebreakers
+        // public Dictionary<int, PlayerComputedStats> OrganizeMtgStatsForDisplay(
+        public void OrganizeMtgStatsForDisplay(
             int tournamentId,
             Dictionary<int, PlayerComputedStats> standings
         );
 
         // Organizes the computed stats for display for PKMN tournaments
-        public Dictionary<int, PlayerComputedStats> OrganizePkmnStatsForDisplay(
+        // and does tiebreakers
+        // public Dictionary<int, PlayerComputedStats> OrganizePkmnStatsForDisplay(
+        public void OrganizePkmnStatsForDisplay(
             int tournamentId,
             Dictionary<int, PlayerComputedStats> standings
         );
 
 
         // Saves rankings
-        public bool SavePositions(
+        // public bool SavePositions(
+        public void SavePositions(
             Dictionary<int, PlayerComputedStats> players
         );
 

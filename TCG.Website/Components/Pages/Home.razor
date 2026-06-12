@@ -1,10 +1,10 @@
 ﻿@page "/"
 @rendermode InteractiveServer
 
-<div>
+<div class="ms-3 me-3">
     <PageTitle>Angels of Cards | Home</PageTitle>
 
-    <div class="ps-5 pe-5 pt-5 pb-5">
+    <div class="ps-3 pe-3 pt-3 pb-3">
 
         <h1>Welcome to Angels of Cards</h1>
 
@@ -14,8 +14,6 @@
         }
         else
         {
-
-
             @if (_loadedTournaments!.Any())
             {
                 <div class="" style="width: 80%">
@@ -255,9 +253,6 @@
                     (await LeagueService.GetByIdAsync(tournament.TournamentLeague.Value)).LeagueName;
             }
         }
-
-        // var leagues = await LeagueService.GetAllAsync();
-        // _leagueLookup = leagues.ToDictionary(league => league.LeagueId);
 
         _hasDataLoaded = true;
     }

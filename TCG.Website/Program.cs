@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.StaticAssets;
 using Microsoft.EntityFrameworkCore;
 using TCG.Application.Interfaces;
 using TCG.Application.Interfaces.Services;
+using TCG.Application.Services;
 using TCG.Infrastructure;
 using TCG.Infrastructure.Repositories;
 using TCG.Website.Components;
@@ -23,6 +24,7 @@ builder.Services.AddScoped<IStaffService, StaffService>();
 builder.Services.AddScoped<ILeagueService, LeagueService>();
 builder.Services.AddScoped<ITournamentService, TournamentService>();
 builder.Services.AddScoped<ITournamentPlayerService, TournamentPlayerService>();
+//builder.Services.AddScoped<ITournamentScoringService, TournamentScoringService>();
 
 if (builder.Environment.IsDevelopment())
 {

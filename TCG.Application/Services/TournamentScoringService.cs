@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TCG.Application.Dtos;
+using TCG.Application.Interfaces;
 using TCG.Application.Interfaces.Services;
 
 namespace TCG.Application.Services
 {
     public class TournamentScoringService
+         //: ITournamentScoringService
     {
         private readonly ITournamentPlayerService _tpService;
         private readonly IPairingService _pairingService;
@@ -24,6 +26,7 @@ namespace TCG.Application.Services
         public class PlayerComputedStats
         {
             public int TournamentPlayerId { get; set; }
+            public string PlayerName { get; set; } = string.Empty;
             public int Wins { get; set; }
             public int Draws { get; set; }
             public int Losses { get; set; }
@@ -37,6 +40,51 @@ namespace TCG.Application.Services
             public bool IsDisqualified { get; set; }
             public bool IsDropped { get; set; }
         }
+
+
+        // Returns a dictionary consisting of player info and stats
+        // public Dictionary<int, PlayerComputedStats> ComputeTournamentStandings(
+        public void ComputeTournamentStandings(
+            int tournamentId
+        )
+        {
+            return;
+        }
+
+        // Organizes the computed stats for display for MTG tournaments
+        // public Dictionary<int, PlayerComputedStats> OrganizeMtgStatsForDisplay(
+        public void OrganizeMtgStatsForDisplay(
+            int tournamentId,
+            Dictionary<int, PlayerComputedStats> standings
+        )
+        {
+            return;
+        }
+
+        // Organizes the computed stats for display for PKMN tournaments
+        // public Dictionary<int, PlayerComputedStats> OrganizePkmnStatsForDisplay(
+        public void OrganizePkmnStatsForDisplay(
+            int tournamentId,
+            Dictionary<int, PlayerComputedStats> standings
+        )
+        {
+            return;
+        }
+
+        // Saves rankings
+        public bool SavePositions(
+            Dictionary<int, PlayerComputedStats> players
+        )
+        {
+            return false;
+        }
+
+
+
+
+
+
+
 
         // Helper: initialize stats dictionary, opponents map and byeRounds map
         private (Dictionary<int, PlayerComputedStats> stats, Dictionary<int, List<int>> opponents, Dictionary<int, List<int>> byeRounds)

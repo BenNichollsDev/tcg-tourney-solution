@@ -1,0 +1,56 @@
+﻿@page "/viewevent/{tournamentId:int}"
+@using TCG.Website.Components.Elements
+@rendermode InteractiveServer
+
+<div class="ms-3 me-3">
+    <PageTitle>Angels of Cards | ifthereisnotourney then it says tourney not found, otherwise Tourney: @_tournament!.TournamentName</PageTitle>
+
+    @if (!_hasDataLoaded)
+    {
+        <p>Loading event data...</p>
+    }
+    else
+    {
+        if (_tournament! is null)
+        {
+            <h1>Event not found.</h1>
+        }
+        else
+        {
+            <h1>@_tournament!.TournamentName</h1>
+            <h3>@_tournament!.TournamentGame</h3>
+            <h3>@_tournament!.TournamentFormat</h3>
+            <h3>@_tournament.TournamentDate.ToString("dd MMM yyyy") at @_tournament.TournamentTime</h3>
+
+            <br />
+            
+            <h2>
+                Standings
+            </h2>
+            <StandingsTable ComputedStats="" TournamentName="Summer Cup 2026" />
+        }
+    }
+
+</div>
+
+@code {
+    [Inject]
+    private ITournamentService _TournamentService { get; set; } = null!;
+
+    [Inject]
+    private ITournamentPlayerService _TournamentPlayerService { get; set; } = null!;
+
+    private TournamentDto? _tournament = new();
+
+    private bool _loadingTournament = true;
+    private bool _hasDataLoaded = false;
+
+    private List<TournamentPlayerDto> _participantNames = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _tournament = await _TournamentService.GetByIdAsync(tournamentId);
+
+        _hasDataLoaded = true;
+    }
+}
