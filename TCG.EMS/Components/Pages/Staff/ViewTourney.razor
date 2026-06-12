@@ -418,8 +418,8 @@
 
         _computedStats = await ScoringService.ComputeAllAsync(TournamentId.Value);
 
-        // If this is a Pokémon tournament and all rounds are finished, check for pending PKMN tiebreaks
-        if (string.Equals(_tournamentModel.TournamentGame, "Pokémon", StringComparison.OrdinalIgnoreCase))
+        // If this is a PokÃ©mon tournament and all rounds are finished, check for pending PKMN tiebreaks
+        if (string.Equals(_tournamentModel.TournamentGame, "pkmn", StringComparison.OrdinalIgnoreCase))
         {
             bool pending = await ScoringService.HasPendingPkmnTiebreaksAsync(TournamentId.Value, _tournamentModel.TournamentRoundNum ?? 0, _tournamentModel.TournamentMaxRoundNum);
             if (pending)

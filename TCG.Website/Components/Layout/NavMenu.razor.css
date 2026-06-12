@@ -11,39 +11,20 @@
     right: 1rem;
     border: 1px solid rgba(255, 255, 255, 0.1);
     background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.55%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") no-repeat center/1.75rem rgba(255, 255, 255, 0.1);
-    
-    /*refend*/
-
-    display: none;
 }
 
-/*refstart*/
-
-.navbar-toggler:checked {
-    background-color: rgba(255, 255, 255, 0.5);
-}
+    .navbar-toggler:checked {
+        background-color: rgba(255, 255, 255, 0.5);
+    }
 
 .top-row {
     min-height: 3.5rem;
     background-color: rgba(0,0,0,0.4);
-
-    /*refend*/
-
-    display: flex;
-    align-items: center;
 }
-
-/*refstart*/
 
 .navbar-brand {
     font-size: 1.1rem;
-
-    /*refend*/
-
-    white-space: nowrap;
 }
-
-/*refstart*/
 
 .bi {
     display: inline-block;
@@ -69,110 +50,92 @@
 
 .nav-item {
     font-size: 0.9rem;
-
-    /*refend*/
-
-    padding-bottom: 0;
-    display: inline-block;
+    padding-bottom: 0.5rem;
 }
 
-/*refstart*/
-
     .nav-item:first-of-type {
-    /*refend*/
-
-        padding-top: 0;
+        padding-top: 1rem;
     }
-
-/*refstart*/
 
     .nav-item:last-of-type {
-    /*refend*/
-
-        padding-bottom: 0;
+        padding-bottom: 1rem;
     }
 
-
-/*refstart*/
     .nav-item ::deep .nav-link {
         color: #d7d7d7;
         background: none;
         border: none;
         border-radius: 4px;
-
-        /*refend*/
-
-        height: auto;
-        display: inline-flex;
+        height: 3rem;
+        display: flex;
         align-items: center;
-        line-height: 1;
-        white-space: nowrap;
-        padding: 0.5rem 0.75rem;
-    }
-
-/*refstart*/
-
-.nav-item ::deep a.active {
-    background-color: rgba(255,255,255,0.37);
-    color: white;
-}
-
-.nav-item ::deep .nav-link:hover {
-    background-color: rgba(255,255,255,0.1);
-    color: white;
-}
-
-/*refend*/
-
-@media (max-width: 640px) {
-    .navbar-toggler {
-        display: block;
-    }
-
-    .navbar-brand {
-        margin-right: auto;
-    }
-
-    .top-row .nav {
-        display: none;
-    }
-
-    .navbar-toggler:checked ~ .nav {
-        display: flex;
-        flex-direction: column;
-        position: absolute;
-        top: 3.5rem;
-        left: 0;
-        right: 0;
-        background-color: rgba(0,0,0,0.4);
-        width: 100%;
-        z-index: 1000;
-    }
-
-    .navbar-toggler:checked ~ .nav .nav-item {
-        display: block;
+        line-height: 3rem;
         width: 100%;
     }
 
-    .navbar-toggler:checked ~ .nav .nav-item ::deep .nav-link {
-        display: flex;
-        padding: 1rem 1.5rem;
-        border-radius: 0;
+    .nav-item ::deep a.active {
+        background-color: rgba(255,255,255,0.37);
+        color: white;
     }
+
+    .nav-item ::deep .nav-link:hover {
+        background-color: rgba(255,255,255,0.1);
+        color: white;
+    }
+
+.nav-scrollable {
+    display: none;
 }
 
-/*refstart*/
+.navbar-toggler:checked ~ .nav-scrollable {
+    display: block;
+}
+
 @media (min-width: 641px) {
     .navbar-toggler {
         display: none;
     }
-    /*refend*/
-    .top-row .nav {
-        display: flex;
-        margin-left: auto;
+
+    .nav-scrollable {
+        /* Never collapse the sidebar for wide screens */
+        display: block;
+        /* Allow sidebar to scroll for tall menus */
+        height: calc(100vh - 3.5rem);
+        overflow-y: auto;
     }
 }
-/*        height: calc(100vh - 3.5rem);
-        overflow-y: auto;*/
-    }
+
+/*refend*/
+
+/* Top navigation bar layout */
+.top-row .container-fluid {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.top-row .nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-left: auto;
+}
+
+.top-row .nav-item {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.top-row .nav-item:first-of-type {
+    padding-top: 0;
+}
+
+.top-row .nav-item:last-of-type {
+    padding-bottom: 0;
+}
+
+.top-row .nav-item ::deep .nav-link {
+    width: auto;
+    padding: 0 0.75rem;
 }

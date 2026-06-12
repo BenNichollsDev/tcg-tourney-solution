@@ -140,7 +140,7 @@
 
         // Decide which ranking method to use based on game
         List<TournamentScoringService.PlayerComputedStats> ordered;
-        if (_tournamentModel.TournamentGame == "Pokémon")
+        if (_tournamentModel.TournamentGame == "pkmn")
         {
             // Use final tie-resolution when tournament rounds are complete
             ordered = await ScoringService.ResolvePkmnFinalTiesAsync(computed, tournamentId.Value, _tournamentModel.TournamentRoundNum ?? 0, _tournamentModel.TournamentMaxRoundNum);

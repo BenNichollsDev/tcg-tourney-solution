@@ -56,8 +56,8 @@
                                  required>
 
                         <option value="">-- Select --</option>
-                        <option value="MtG">Magic the Gathering</option>
-                        <option value="Pokémon">Pokémon</option>
+                        <option value="mtg">Magic the Gathering</option>
+                        <option value="pkmn">Pokémon</option>
                     </InputSelect>
 
                     <label for="formats">Format:</label>
@@ -179,7 +179,7 @@
 
     private Dictionary<string, Dictionary<string, Dictionary<string, string>>> formatsByGame = new()
     {
-        ["MtG"] = new Dictionary<string, Dictionary<string, string>>
+        ["mtg"] = new Dictionary<string, Dictionary<string, string>>
         {
             ["Standard"] = new Dictionary<string, string>
             {
@@ -192,7 +192,7 @@
                 ["pairing"] = RoundRobinValue
             }
         },
-        ["Pokémon"] = new Dictionary<string, Dictionary<string, string>>
+        ["pkmn"] = new Dictionary<string, Dictionary<string, string>>
         {
             ["Standard"] = new Dictionary<string, string>
             {
