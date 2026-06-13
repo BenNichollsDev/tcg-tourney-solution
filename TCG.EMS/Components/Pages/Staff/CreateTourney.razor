@@ -321,9 +321,15 @@
     {
         //_tournamentModel.TournamentPairing = formatsByGame[_tournamentModel.TournamentGame][_tournamentModel.TournamentFormat]["pairing"];
         _tournamentModel.TournamentRoundNum = 1;
+        _tournamentModel.TournamentStarted = false;
         _tournamentModel.TournamentRoundInProgress = false;
         _tournamentModel.TournamentFinished = false;
         _tournamentModel.TournamentCancelled = false;
+
+        // Generate a random seed for the tournament for head-to-head resolutions
+        _tournamentModel.TournamentSeed = new Random().Next(1, int.MaxValue);
+
+
         await TournamentService.CreateAsync(_tournamentModel);
         NavService.GoTourney();
     }

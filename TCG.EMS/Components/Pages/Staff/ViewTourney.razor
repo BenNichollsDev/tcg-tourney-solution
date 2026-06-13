@@ -94,9 +94,9 @@
                                         <tbody>
                                             @{ 
                                                 var map = _participants.ToDictionary(x => x.TournamentPlayerId);
-                                                var active = _computedStats.Where(s => map.ContainsKey(s.TournamentPlayerId) && !map[s.TournamentPlayerId].TpDisqualified && !map[s.TournamentPlayerId].TpDropped);
+                                                var active = _computedStats.Values.Where(s => map.ContainsKey(s.TournamentPlayerId) && !map[s.TournamentPlayerId].TpDisqualified && !map[s.TournamentPlayerId].TpDropped);
                                                 var disqualified = _participants.Where(p => p.TpDisqualified).OrderByDescending(p => p.PlayerName);
-                                                var dropped = _participants.Where(p => p.TpDisqualified).OrderByDescending(p => p.PlayerName);
+                                                var dropped = _participants.Where(p => p.TpDropped).OrderByDescending(p => p.PlayerName);
                                             }
 
                                             @foreach (var s in active)
@@ -107,20 +107,8 @@
                                                     <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.Wins</td>
                                                     <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.Draws</td>
                                                     <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.Losses</td>
-                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.Points</td>
-                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.OpWinPercent.ToString("0.00")</td>
-                                                </tr>
-                                            }
-
-                                            @foreach (var p in dropped)
-                                            {
-                                                <tr class="text-danger">
-                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">@p.PlayerName (Dropped)</td>
-                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
-                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
-                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
-                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
-                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
+                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.MatchPoints</td>
+                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.OpMatchWinPercent.ToString("0.00")</td>
                                                 </tr>
                                             }
 
@@ -286,7 +274,7 @@
                             <tbody>
                                 @{ 
                                     var map = _participants.ToDictionary(x => x.TournamentPlayerId);
-                                    var active = _computedStats.Where(s => map.ContainsKey(s.TournamentPlayerId) && !map[s.TournamentPlayerId].TpDisqualified);
+                                    var active = _computedStats.Values.Where(s => map.ContainsKey(s.TournamentPlayerId) && !map[s.TournamentPlayerId].TpDisqualified);
                                     var disqualified = _participants.Where(p => p.TpDisqualified).OrderByDescending(p => p.PlayerName);
                                 }
 
@@ -295,12 +283,12 @@
                                     var player = map[s.TournamentPlayerId];
                                     <tr>
                                         <td>@(player?.PlayerName ?? "Unknown")</td>
-                                        <td>@s.Points</td>
+                                        <td>@s.MatchPoints</td>
                                         <td>@s.Wins</td>
                                         <td>@s.Draws</td>
                                         <td>@s.Losses</td>
                                         <td>@s.GameWinPercent.ToString("0.00")</td>
-                                        <td>@s.OpWinPercent.ToString("0.00")</td>
+                                        <td>@s.OpMatchWinPercent.ToString("0.00")</td>
                                     </tr>
                                 }
 
@@ -356,7 +344,7 @@
 
     private List<PairingSelection> _pairings = new();
     private List<TournamentPlayerDto> _participants = new();
-    private List<TournamentScoringService.PlayerComputedStats> _computedStats = new();
+    private Dictionary<int, ITournamentScoringService.PlayerComputedStats> _computedStats = new();
 
     [Parameter]
     public int? TournamentId { get; set; }
@@ -416,17 +404,9 @@
         int pairCount = _participants.Count / 2;
         for (int i = 0; i < pairCount; i++) _pairings.Add(new PairingSelection());
 
-        _computedStats = await ScoringService.ComputeAllAsync(TournamentId.Value);
-
-        // If this is a Pokémon tournament and all rounds are finished, check for pending PKMN tiebreaks
-        if (string.Equals(_tournamentModel.TournamentGame, "pkmn", StringComparison.OrdinalIgnoreCase))
-        {
-            bool pending = await ScoringService.HasPendingPkmnTiebreaksAsync(TournamentId.Value, _tournamentModel.TournamentRoundNum ?? 0, _tournamentModel.TournamentMaxRoundNum);
-            if (pending)
-            {
-                _notice = "This tournament has unresolved PKMN tiebreak groups that require resolution. Visit the results page to finalise standings.";
-            }
-        }
+        // Compute standings - the service returns a list of dictionaries
+        var standingsList = await ScoringService.ComputeTournamentStandings(TournamentId.Value);
+        _computedStats = standingsList.FirstOrDefault() ?? new Dictionary<int, ITournamentScoringService.PlayerComputedStats>();
 
         _hasLoaded = true;
 
@@ -574,7 +554,8 @@
 
         // Refresh participants and stats
         _participants = (await TournamentPlayerService.GetAllWhereAsync(tp => tp.TournamentId == TournamentId)).ToList();
-        _computedStats = await ScoringService.ComputeAllAsync(TournamentId!.Value);
+        var standingsList1 = await ScoringService.ComputeTournamentStandings(TournamentId!.Value);
+        _computedStats = standingsList1.FirstOrDefault() ?? new Dictionary<int, ITournamentScoringService.PlayerComputedStats>();
 
         _selectedToDisqualify = null;
         StateHasChanged();
@@ -601,7 +582,8 @@
 
         // Refresh participants and stats
         _participants = (await TournamentPlayerService.GetAllWhereAsync(tp => tp.TournamentId == TournamentId)).ToList();
-        _computedStats = await ScoringService.ComputeAllAsync(TournamentId!.Value);
+        var standingsList2 = await ScoringService.ComputeTournamentStandings(TournamentId!.Value);
+        _computedStats = standingsList2.FirstOrDefault() ?? new Dictionary<int, ITournamentScoringService.PlayerComputedStats>();
 
         _selectedToDrop = null;
         StateHasChanged();
@@ -658,12 +640,21 @@
         if (HasInsufficientParticipants)
             return;
 
-        var occurred = await GetExistingPairings();
+        // Determine bye limit based on game type (MTG: 3 byes, Pokémon: 1 bye)
+        int byeLimit = string.Equals(_tournamentModel?.TournamentGame, "mtg", StringComparison.OrdinalIgnoreCase) ? 3 : 1;
 
-        // Only consider active players (not disqualified or dropped)
+        // Check if any active player has already reached the bye limit
         var activePlayers = _participants
             .Where(p => !p.TpDisqualified && !p.TpDropped)
             .ToList();
+
+        if (activePlayers.Any(p => (p.PlayerBye ?? 0) >= byeLimit))
+        {
+            _notice = "At least one player already has " + (byeLimit == 1 ? "one" : "three") + " bye" + (byeLimit == 1 ? "" : "s") + ".";
+            return;
+        }
+
+        var occurred = await GetExistingPairings();
 
         var players = activePlayers.Select(p => p.TournamentPlayerId).ToList();
 
@@ -767,14 +758,23 @@
     {
         _notice = null;
 
-        var occurred = await GetExistingPairings();
+        // Determine bye limit based on game type (MTG: 3 byes, Pokémon: 1 bye)
+        int byeLimit = string.Equals(_tournamentModel?.TournamentGame, "mtg", StringComparison.OrdinalIgnoreCase) ? 3 : 1;
 
-        // Only consider active players (not disqualified or dropped)
+        // Check if any active player has already reached the bye limit
         var activePlayers = _participants
             .Where(p => !p.TpDisqualified && !p.TpDropped)
             .OrderByDescending(p => p.PlayerSwissPoints ?? 0)
             .ThenByDescending(p => p.PlayerSwissMatchPoints ?? 0)
             .ToList();
+
+        if (activePlayers.Any(p => (p.PlayerBye ?? 0) >= byeLimit))
+        {
+            _notice = "At least one player already has " + (byeLimit == 1 ? "one" : "three") + " bye" + (byeLimit == 1 ? "" : "s") + ".";
+            return;
+        }
+
+        var occurred = await GetExistingPairings();
 
         var players = activePlayers.Select(p => p.TournamentPlayerId).ToList();
 

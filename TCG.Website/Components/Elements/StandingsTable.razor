@@ -1,5 +1,5 @@
 ﻿@implements IDisposable
-@using static TCG.Application.Interfaces.ITournamentScoringService
+@using TCG.Application.Interfaces.Services
 
 <table class="tournament-standings table table-striped">
     <thead>
@@ -15,55 +15,55 @@
     </thead>
 
     <tbody>
+        @* Render all players (active and dropped) in ranking order, then disqualified players *@
 
-        @* Commented out until new tourney rankings function is made *@
-
-        @* @foreach (var player in _activePlayers)
+        @if (_computedStats != null && _computedStats.Count > 0)
         {
-            <tr>
-                <td>@(player?.PlayerName ?? "Unknown")</td>
-                <td>@player.Points</td>
-                <td>@player.Wins</td>
-                <td>@player.Draws</td>
-                <td>@player.Losses</td>
-                <td>@player.GameWinPercent.ToString("0.00")</td>
-                <td>@player.OpWinPercent.ToString("0.00")</td>
-            </tr>
+            var allActive = _computedStats
+                .Where(p => !p.Value.IsDisqualified)
+                .OrderBy(p => p.Value.Position)
+                .Select(p => p.Value);
+
+            foreach (var player in allActive)
+            {
+                var statusSuffix = player.IsDropped ? " (Dropped)" : "";
+                var rowClass = player.IsDropped ? "text-muted" : "";
+
+                <tr class="@rowClass">
+                    <td>@(player.PlayerName ?? "Unknown")@statusSuffix</td>
+                    <td>@player.MatchPoints</td>
+                    <td>@player.Wins</td>
+                    <td>@player.Draws</td>
+                    <td>@player.Losses</td>
+                    <td>@player.GameWinPercent.ToString("0.00")</td>
+                    <td>@player.OpMatchWinPercent.ToString("0.00")</td>
+                </tr>
+            }
+
+            var disqualified = _computedStats
+                .Where(p => p.Value.IsDisqualified)
+                .Select(p => p.Value);
+
+            foreach (var player in disqualified)
+            {
+                <tr class="text-danger">
+                    <td>@(player.PlayerName ?? "Unknown") (Disqualified)</td>
+                    <td>N/A</td>
+                    <td>N/A</td>
+                    <td>N/A</td>
+                    <td>N/A</td>
+                    <td>N/A</td>
+                    <td>N/A</td>
+                </tr>
+            }
         }
-
-        
-        @foreach (var player in _droppedPlayers)
-        {
-            <tr>
-                <td>@(player?.PlayerName ?? "Unknown")</td>
-                <td>@player.Points</td>
-                <td>@player.Wins</td>
-                <td>@player.Draws</td>
-                <td>@player.Losses</td>
-                <td>@player.GameWinPercent.ToString("0.00")</td>
-                <td>@player.OpWinPercent.ToString("0.00")</td>
-            </tr>
-        }
-
-        @foreach (var player in _disqualifiedPlayers)
-        {
-            <tr class="text-danger">
-                <td>@(player?.PlayerName ?? "Unknown") (Disqualified)</td>
-                <td>N/A</td>
-                <td>N/A</td>
-                <td>N/A</td>
-                <td>N/A</td>
-                <td>N/A</td>
-                <td>N/A</td>
-            </tr>
-        } *@
     </tbody>
 </table>
 
 @code {
-    // Scoring service to be used when the current scoring service is fixed
+    // Scoring service to compute current standings
     [Inject]
-    private Application.Interfaces.ITournamentScoringService ScoringService { get; set; } = null!;
+    private ITournamentScoringService ScoringService { get; set; } = null!;
 
     // Only pass in the tournament ID when
     // this component is used.
@@ -73,11 +73,7 @@
     [Parameter]
     public bool RealTimeUpdate { get; set; }
 
-    private Dictionary<int, PlayerComputedStats> _computedStats = new();
-
-    private Dictionary<int, PlayerComputedStats> _activePlayers = new();
-    private Dictionary<int, PlayerComputedStats> _droppedPlayers = new();
-    private Dictionary<int, PlayerComputedStats> _disqualifiedPlayers = new();
+    private Dictionary<int, ITournamentScoringService.PlayerComputedStats> _computedStats = new();
 
     private PeriodicTimer? _timer;
     private CancellationTokenSource? _cts;
@@ -93,9 +89,9 @@
         }
     }
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
-        RebuildPlayerLists();
+        await RebuildPlayerListsAsync();
     }
 
     private async Task PollForUpdatesAsync(CancellationToken token)
@@ -104,7 +100,9 @@
         {
             while (await _timer!.WaitForNextTickAsync(token))
             {
-                RebuildPlayerLists();
+                // Fetch computed standings from the scoring service
+                var standingsList = await ScoringService.ComputeTournamentStandings(TournamentId);
+                _computedStats = standingsList.FirstOrDefault() ?? new Dictionary<int, ITournamentScoringService.PlayerComputedStats>();
 
                 await InvokeAsync(StateHasChanged);
             }
@@ -112,21 +110,11 @@
         catch (OperationCanceledException) { }
     }
 
-    private void RebuildPlayerLists()
+    private async Task RebuildPlayerListsAsync()
     {
-        _computedStats = ScoringService.ComputeTournamentStandings(TournamentId);
-
-        _activePlayers = _computedStats
-            .Where(p => !p.Value.IsDisqualified && !p.Value.IsDropped)
-            .ToDictionary(p => p.Key, p => p.Value);
-
-        _droppedPlayers = _computedStats
-            .Where(p => !p.Value.IsDisqualified && p.Value.IsDropped)
-            .ToDictionary(p => p.Key, p => p.Value);
-
-        _disqualifiedPlayers = _computedStats
-            .Where(p => p.Value.IsDisqualified)
-            .ToDictionary(p => p.Key, p => p.Value);
+        // Fetch computed standings from the scoring service
+        var standingsList = await ScoringService.ComputeTournamentStandings(TournamentId);
+        _computedStats = standingsList.FirstOrDefault() ?? new Dictionary<int, ITournamentScoringService.PlayerComputedStats>();
     }
 
     public void Dispose()

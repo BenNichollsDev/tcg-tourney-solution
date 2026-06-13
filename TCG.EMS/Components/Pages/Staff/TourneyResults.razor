@@ -1,6 +1,7 @@
 ﻿@page "/tournaments/results/{tournamentId:int}"
 @using TCG.Application.Dtos
 @using TCG.Application.Services
+@using TCG.EMS.Components.Elements
 
 @rendermode InteractiveServer
 
@@ -46,21 +47,28 @@
                             {
                                 var map = _participants.ToDictionary(x => x.TournamentPlayerId);
 
-                                // This time, active players also include those who were dropped
-                                var active = _rankedStats.Where(s => map.ContainsKey(s.TournamentPlayerId) && !map[s.TournamentPlayerId].TpDisqualified).OrderBy(s => s.Position);
-                                var disqualified = _participants.Where(p => p.TpDisqualified).OrderByDescending(p => p.PlayerName);
+                                // Display all active and dropped players in ranking position order
+                                var allRanked = _rankedStats
+                                    .Where(s => map.ContainsKey(s.TournamentPlayerId) && !map[s.TournamentPlayerId].TpDisqualified)
+                                    .OrderBy(s => s.Position);
 
-                                foreach (var s in active)
+                                var disqualified = _participants
+                                    .Where(p => p.TpDisqualified)
+                                    .OrderByDescending(p => p.PlayerName);
+
+                                foreach (var s in allRanked)
                                 {
                                     var p = map[s.TournamentPlayerId];
-                                    <tr>
+                                    var statusSuffix = p.TpDropped ? " (Dropped)" : "";
+
+                                    <tr class="@(p.TpDropped ? "text-muted" : "")">
                                         <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.Position</td>
-                                        <td style="word-wrap: break-word; overflow-wrap: break-word;">@p.PlayerName</td>
-                                        <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.Points</td>
+                                        <td style="word-wrap: break-word; overflow-wrap: break-word;">@p.PlayerName@statusSuffix</td>
+                                        <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.MatchPoints</td>
                                         <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.Wins</td>
                                         <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.Draws</td>
                                         <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.Losses</td>
-                                        <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.OpWinPercent.ToString("00.00")</td>
+                                        <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.OpMatchWinPercent.ToString("00.00")</td>
                                     </tr>
                                 }
 
@@ -96,7 +104,7 @@
     private TournamentDto _tournamentModel = new();
     private List<TournamentPlayerDto> _participants = new();
 
-    private List<TournamentScoringService.PlayerComputedStats> _rankedStats = new();
+    private List<ITournamentScoringService.PlayerComputedStats> _rankedStats = new();
 
     private string? _firstPlace;
     private string? _secondPlace;
@@ -136,20 +144,12 @@
 
         _participants = (await TournamentPlayerService.GetAllWhereAsync(tp => tp.TournamentId == tournamentId.Value)).ToList();
 
-        var computed = await ScoringService.ComputeAllAsync(tournamentId.Value);
+        // Compute standings from the scoring service - it handles all tiebreaking logic
+        var standingsList = await ScoringService.ComputeTournamentStandings(tournamentId.Value);
+        var computed = standingsList.FirstOrDefault() ?? new Dictionary<int, ITournamentScoringService.PlayerComputedStats>();
 
-        // Decide which ranking method to use based on game
-        List<TournamentScoringService.PlayerComputedStats> ordered;
-        if (_tournamentModel.TournamentGame == "pkmn")
-        {
-            // Use final tie-resolution when tournament rounds are complete
-            ordered = await ScoringService.ResolvePkmnFinalTiesAsync(computed, tournamentId.Value, _tournamentModel.TournamentRoundNum ?? 0, _tournamentModel.TournamentMaxRoundNum);
-        }
-        else
-        {
-            // Use MTG final resolution (head-to-head, coin-flip fallback)
-            ordered = await ScoringService.ResolveMtgFinalTiesAsync(computed, tournamentId.Value, _tournamentModel.TournamentRoundNum ?? 0, _tournamentModel.TournamentMaxRoundNum);
-        }
+        // Get all players sorted by position (the scoring service already resolves ties)
+        var ordered = computed.Values.OrderBy(p => p.Position).ToList();
 
         // Save positions back to tournament players
         foreach (var s in ordered)
