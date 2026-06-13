@@ -41,7 +41,7 @@ namespace TCG.Application.Interfaces.Services
             public double OpGameWinPercent { get; set; } // opponent game win percentage
 
             // pkmn tiebreaker 2
-            public double OpOpGameWinPercent { get; set; } // opponent game win percentage
+            public double OpOpMatchWinPercent { get; set; } // opponent's opponent match win percentage
 
             // pkmn tiebreaker 3
             public int HeadToHeadId { get; set; } // random result

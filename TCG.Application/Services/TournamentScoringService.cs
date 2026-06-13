@@ -1,6 +1,9 @@
+using AutoMapper;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TCG.Application.Dtos;
 using TCG.Application.Interfaces;
@@ -49,35 +52,17 @@ namespace TCG.Application.Services
             foreach (var player in tournamentPlayers)
             {
                 // Initialise stats from DB: wins, draws, losses, opponents, etc.
-                var gamesPlayed = player.PlayerSwissWins ?? 0;
-                var matchesPlayed = player.PlayerSwissDraws ?? 0;
-                var gameWins = player.PlayerSwissWins ?? 0;
-                var gameDraws = player.PlayerSwissDraws ?? 0;
-                var gameLosses = player.PlayerSwissLosses ?? 0;
-                var matchPoints = player.PlayerSwissDraws ?? 0;
-                var byes = player.PlayerBye ?? 0;
+                int gamesPlayed,
+                    matchesPlayed,
+                    gameWins,
+                    gameDraws,
+                    gameLosses,
+                    matchPoints;
 
+                int byeCount = player.PlayerBye ?? 0;
 
-                // Get opponents
-                List<int> opponents = new List<int>();
-
-                foreach (var opponent in tournamentPlayers)
-                {
-                    List<PairingDto> relevantPairings = allPairings
-                        .Where(p => p.PlayerId == player.TournamentPlayerId
-                            && p.OpponentId == opponent.TournamentPlayerId)
-                        .ToList();
-
-                    if (opponent.TournamentPlayerId != player.TournamentPlayerId)
-                    {
-                        opponents.Add(opponent.TournamentPlayerId);
-                    }
-                }
-
-                double gameWinPercent = 0;
-                double opWinPercent = 0;
-                double opGameWinPercent = 0;
-                double opOpGameWinPercent = 0;
+                //byeCount = relevantPairings.Count(p => p.Player2Id == null
+                //    && p.Player1Id == player.TournamentPlayerId);
 
                 if (tournamentFormat == "RoundRobin")
                 {
@@ -88,28 +73,78 @@ namespace TCG.Application.Services
                     gameLosses = player.PlayerRoundRobinLosses ?? 0;
                     matchPoints = player.PlayerRoundRobinDraws ?? 0;
                 }
+                else
+                {
+                    gamesPlayed = player.PlayerSwissWins ?? 0;
+                    matchesPlayed = player.PlayerSwissDraws ?? 0;
+                    gameWins = player.PlayerSwissWins ?? 0;
+                    gameDraws = player.PlayerSwissDraws ?? 0;
+                    gameLosses = player.PlayerSwissLosses ?? 0;
+                    matchPoints = player.PlayerSwissDraws ?? 0;
+                }
+
+                //gamesPlayed -= byeCount;
+                //matchesPlayed -= byeCount * ;
+
+                // Stats
+                double matchWinPercent = 0;
+                double gameWinPercent = 0;
+                double opMatchWinPercent = 0;
+                double opGameWinPercent = 0;
+                double opOpMatchWinPercent = 0;
+
+
+                // Get opponents
+                List<int> opponents = new List<int>();
+                List<int> opponentsOpponents = new List<int>();
+
+                List<PairingDto> relevantPairings = allPairings
+                        .Where(p => (p.Player1Id == player.TournamentPlayerId)
+                            || (p.Player2Id == player.TournamentPlayerId))
+                        .ToList();
+
+                opponents = relevantPairings
+                    .Select(p => p.Player1Id == player.TournamentPlayerId ? p.Player2Id : p.Player1Id)
+                    .Where(id => id.HasValue)
+                    .Select(id => id!.Value)
+                    .ToList();
+
+                opponentsOpponents = allPairings
+                    .Where(p => (opponents.Contains(p.Player1Id)
+                            && p.Player2Id.HasValue)
+                        || opponents.Contains((int)p.Player2Id!)
+                    )
+                    .Select(p =>
+                        opponents.Contains(p.Player1Id) ? p.Player2Id : p.Player1Id)
+                    .Where(id => id.HasValue)
+                    .Select(id => id!.Value)
+                    .Where(id => id != player.TournamentPlayerId) // remove self
+                    .Where(id => !opponents.Contains(id))
+                    .Distinct()
+                    .ToList();
+
+                
 
                 if (player.GamesPlayed > 0 && matchesPlayed > 0)
                 {
-                    // pkmn
-                    if (tournamentGame == "pkmn")
-                    { 
-                        // Calculate game win percentage
-                        gameWinPercent = (double)((double)player.GamesWon / player.GamesPlayed);
+                    // For games, each bye counts as a win for the player, but does not count as a game played. So we add the byeCount to the gameWins, but not to gamesPlayed.
 
-                        // Calculate opponent win percentage
-                        if (player.OpponentGamesPlayed > 0)
-                        {
-                            opWinPercent = (double)((double)player.OpponentWins / player.OpponentGamesPlayed);
-                        }
 
-                    }
+                    // Calculate match win percentage
 
-                    // mtg
-                    else
-                    {
 
-                    }
+                    // Calculate game win percentage
+
+
+                    // Calculate opponent match win percentage
+
+
+                    // Calculate opponent game win percentage
+
+
+                    // Calculate opponent's opponent match win percentage
+
+
                 }
 
                 // Create initial standings dictionary for each player with values from database
@@ -120,42 +155,56 @@ namespace TCG.Application.Services
                     {
                         TournamentPlayerId = player.TournamentPlayerId,
                         PlayerName = player.PlayerName ?? string.Empty,
-                        Wins = wins,
-                        Draws = draws,
-                        Losses = losses,
-                        MatchPoints = (wins * 3) + draws,
-                        MatchWinPercent = 0,
-                        OpMatchWinPercent = 0,
+
+                        Wins = gameWins,
+                        Draws = gameDraws,
+                        Losses = gameLosses,
+                        MatchesPlayed = gameWins + gameDraws + gameLosses,
+                        GamesPlayed = gamesPlayed,
+
+                        MatchPoints = (gameWins * 3) + gameDraws,
+                        MatchWinPercent = matchWinPercent,
                         GameWinPercent = gameWinPercent,
+                        OpMatchWinPercent = opMatchWinPercent,
                         OpGameWinPercent = opGameWinPercent,
-                        OpOpGameWinPercent = opWinPercent,
+                        OpOpMatchWinPercent = opOpMatchWinPercent,
                         HeadToHeadId = _rnd.Next(),
-                        MatchesPlayed = wins + draws + losses,
-                        GamesPlayed = player.GamesPlayed ?? 0,
+
                         Position = 0,
+
                         IsDisqualified = player.TpDisqualified,
                         IsDropped = player.TpDropped,
-                        Byes = byes
+                        Byes = byeCount
                     }
                 });
             }
 
+            // For pkmn tourneys only
+            // Select the players where IsDisqualified or IsDropped is false
+            //  and MatchWinPercent OpMatchWinPercent and OpOpMatchWinPercent
+            // are all equal
+            // Follow the below head-to-head login
+            //            If exactly two competitors are tied in the final standings and those competitors played each other
+            //during the tournament, then the winner of that match is ranked higher than the loser.
+            //If exactly two competitors are tied in the final standings and those competitors did not play each
+            //other during the tournament, then the order in which they appear will be randomly determined.
+            //34
+            //If more than two competitors are tied in the final standings, then the order in which they appear
+            //will be randomly determined.
+            List<int> tiedPlayers = standings
+                .Where(s => s.Values.First().IsDisqualified || s.Values.First().IsDropped)
+                .Select(s => s.Key)
+                .ToList();
 
+            foreach (var kvp in standings)
+            {
+                // Process each player's stats for display
+            }
 
             return standings;
         }
 
-        public async Task<Dictionary<int, ITournamentScoringService.PlayerComputedStats>> OrganizeMtgStatsForDisplay(int tournamentId, Dictionary<int, ITournamentScoringService.PlayerComputedStats> standings)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<Dictionary<int, ITournamentScoringService.PlayerComputedStats>> OrganizePkmnStatsForDisplay(int tournamentId, Dictionary<int, ITournamentScoringService.PlayerComputedStats> standings)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<bool> SavePositions(Dictionary<int, ITournamentScoringService.PlayerComputedStats> players)
+        public async Task<bool> SavePositions(Dictionary<int, PlayerComputedStats> players)
         {
             throw new NotImplementedException();
         }
@@ -198,8 +247,8 @@ namespace TCG.Application.Services
         //private void ProcessPairing(TCG.Application.Dtos.PairingDto pairing, Dictionary<int, PlayerComputedStats> stats,
         //    Dictionary<int, List<int>> opponents, Dictionary<int, List<int>> byeRounds, int roundNumber)
         //{
-        //    var p1 = pairing.PairingTp1;
-        //    var p2 = pairing.PairingTp2;
+        //    var p1 = pairing.Player1Id;
+        //    var p2 = pairing.Player2Id;
 
         //    // BYE case - player number 2 is null
         //    if (p2 == null)
@@ -213,11 +262,11 @@ namespace TCG.Application.Services
         //        return;
         //    }
 
-        //    if (!pairing.PairingPlayer1Score.HasValue || !pairing.PairingPlayer2Score.HasValue)
+        //    if (!pairing.Player1Score.HasValue || !pairing.Player2Score.HasValue)
         //        return;
 
-        //    var s1 = pairing.PairingPlayer1Score.Value;
-        //    var s2 = pairing.PairingPlayer2Score.Value;
+        //    var s1 = pairing.Player1Score.Value;
+        //    var s2 = pairing.Player2Score.Value;
 
         //    if (!p1.HasValue || !p2.HasValue || !stats.ContainsKey(p1.Value) || !stats.ContainsKey(p2.Value))
         //        return;
@@ -251,30 +300,30 @@ namespace TCG.Application.Services
         //    }
 
         //    // Record game statistics for the match
-        //    if (pairing.PairingPlayer1GameCount.HasValue && pairing.PairingPlayer2GameCount.HasValue)
+        //    if (pairing.Player1GameCount.HasValue && pairing.Player2GameCount.HasValue)
         //    {
-        //        int totalGamesInMatch = pairing.PairingPlayer1GameCount.Value + pairing.PairingPlayer2GameCount.Value;
+        //        int totalGamesInMatch = pairing.Player1GameCount.Value + pairing.Player2GameCount.Value;
 
         //        stats[p1.Value].GamesPlayed += totalGamesInMatch;
         //        stats[p2.Value].GamesPlayed += totalGamesInMatch;
 
-        //        stats[p1.Value].GamesWon += pairing.PairingPlayer1GameCount.Value;
-        //        stats[p2.Value].GamesWon += pairing.PairingPlayer2GameCount.Value;
+        //        stats[p1.Value].GamesWon += pairing.Player1GameCount.Value;
+        //        stats[p2.Value].GamesWon += pairing.Player2GameCount.Value;
         //    }
         //}
 
         //// Helper: resolve two-way head-to-head ordering; returns ordered pair
         //private List<PlayerComputedStats> ResolveTwoWayHeadToHead(PlayerComputedStats a, PlayerComputedStats b, List<TCG.Application.Dtos.PairingDto> pairings)
         //{
-        //    var ph = pairings.FirstOrDefault(p => p.PairingHasResult
-        //        && ((p.PairingTp1 == a.TournamentPlayerId && p.PairingTp2 == b.TournamentPlayerId)
-        //            || (p.PairingTp1 == b.TournamentPlayerId && p.PairingTp2 == a.TournamentPlayerId)));
-        //    if (ph != null && ph.PairingPlayer1Score.HasValue && ph.PairingPlayer2Score.HasValue)
+        //    var ph = pairings.FirstOrDefault(p => p.HasResult
+        //        && ((p.Player1Id == a.TournamentPlayerId && p.Player2Id == b.TournamentPlayerId)
+        //            || (p.Player1Id == b.TournamentPlayerId && p.Player2Id == a.TournamentPlayerId)));
+        //    if (ph != null && ph.Player1Score.HasValue && ph.Player2Score.HasValue)
         //    {
-        //        if (ph.PairingPlayer1Score.Value > ph.PairingPlayer2Score.Value)
-        //            return ph.PairingTp1 == a.TournamentPlayerId ? new List<PlayerComputedStats> { a, b } : new List<PlayerComputedStats> { b, a };
-        //        if (ph.PairingPlayer1Score.Value < ph.PairingPlayer2Score.Value)
-        //            return ph.PairingTp1 == a.TournamentPlayerId ? new List<PlayerComputedStats> { b, a } : new List<PlayerComputedStats> { a, b };
+        //        if (ph.Player1Score.Value > ph.Player2Score.Value)
+        //            return ph.Player1Id == a.TournamentPlayerId ? new List<PlayerComputedStats> { a, b } : new List<PlayerComputedStats> { b, a };
+        //        if (ph.Player1Score.Value < ph.Player2Score.Value)
+        //            return ph.Player1Id == a.TournamentPlayerId ? new List<PlayerComputedStats> { b, a } : new List<PlayerComputedStats> { a, b };
         //    }
         //    // no decisive head-to-head or no match -> random coin flip
         //    return new List<PlayerComputedStats> { a, b }.OrderBy(_ => _rnd.Next()).ToList();
@@ -287,7 +336,7 @@ namespace TCG.Application.Services
         //        .ToList();
 
         //    var pairings = (await _pairingService.GetAllWhereAsync(p => p.TournamentId == tournamentId))
-        //        .Where(p => p.PairingHasResult)
+        //        .Where(p => p.HasResult)
         //        .ToList();
 
         //    // Initialize stats, opponents and bye trackers
@@ -599,17 +648,17 @@ namespace TCG.Application.Services
         //        {
         //            var a = group[0];
         //            var b = group[1];
-        //            var ph = pairings.FirstOrDefault(p => p.PairingHasResult
-        //                && ((p.PairingTp1 == a.TournamentPlayerId
-        //                        && p.PairingTp2 == b.TournamentPlayerId)
-        //                    || (p.PairingTp1 == b.TournamentPlayerId
-        //                        && p.PairingTp2 == a.TournamentPlayerId)));
+        //            var ph = pairings.FirstOrDefault(p => p.HasResult
+        //                && ((p.Player1Id == a.TournamentPlayerId
+        //                        && p.Player2Id == b.TournamentPlayerId)
+        //                    || (p.Player1Id == b.TournamentPlayerId
+        //                        && p.Player2Id == a.TournamentPlayerId)));
 
-        //            if (ph != null && ph.PairingPlayer1Score.HasValue && ph.PairingPlayer2Score.HasValue)
+        //            if (ph != null && ph.Player1Score.HasValue && ph.Player2Score.HasValue)
         //            {
-        //                if (ph.PairingPlayer1Score.Value > ph.PairingPlayer2Score.Value)
+        //                if (ph.Player1Score.Value > ph.Player2Score.Value)
         //                {
-        //                    if (ph.PairingTp1 == a.TournamentPlayerId)
+        //                    if (ph.Player1Id == a.TournamentPlayerId)
         //                    {
         //                        finalList.Add(a);
         //                        finalList.Add(b);
@@ -620,9 +669,9 @@ namespace TCG.Application.Services
         //                        finalList.Add(a);
         //                    }
         //                }
-        //                else if (ph.PairingPlayer1Score.Value < ph.PairingPlayer2Score.Value)
+        //                else if (ph.Player1Score.Value < ph.Player2Score.Value)
         //                {
-        //                    if (ph.PairingTp1 == a.TournamentPlayerId)
+        //                    if (ph.Player1Id == a.TournamentPlayerId)
         //                    {
         //                        finalList.Add(b);
         //                        finalList.Add(a);

@@ -68,17 +68,7 @@ namespace TCG.Infrastructure
                 .ForMember(d => d.TpDropped, o => o.MapFrom(s => s.TpDropped))
                 .ForMember(d => d.TpPosition, o => o.MapFrom(s => s.TpPosition));
 
-            CreateMap<Pairing, PairingDto>()
-                .ForMember(d => d.PairingTournamentId, o => o.MapFrom(s => s.TournamentId))
-                .ForMember(d => d.PairingTp1, o => o.MapFrom(s => s.Player1Id))
-                .ForMember(d => d.PairingTp2, o => o.MapFrom(s => s.Player2Id))
-                .ForMember(d => d.PairingPlayer1Score, o => o.MapFrom(s => s.Player1Score))
-                .ForMember(d => d.PairingPlayer2Score, o => o.MapFrom(s => s.Player2Score))
-                .ForMember(d => d.PairingPlayer1GameCount, o => o.MapFrom(s => s.Player1GameCount))
-                .ForMember(d => d.PairingPlayer2GameCount, o => o.MapFrom(s => s.Player2GameCount))
-                .ForMember(d => d.PairingHasResult, o => o.MapFrom(s => s.HasResult))
-                .ForMember(d => d.PairingDraw, o => o.MapFrom(s => s.PairingDraw))
-                .ForMember(d => d.RoundNumber, o => o.MapFrom(s => s.RoundNumber));
+            CreateMap<Pairing, PairingDto>();
 
             CreateMap<Staff, StaffDto>()
                 .ForMember(d => d.StaffId, o => o.MapFrom(s => s.StaffId))
@@ -145,17 +135,7 @@ namespace TCG.Infrastructure
                 .ForMember(d => d.TpDropped, o => o.MapFrom(s => s.TpDropped))
                 .ForMember(d => d.TpPosition, o => o.MapFrom(s => s.TpPosition));
 
-            CreateMap<PairingDto, Pairing>()
-                .ForMember(d => d.TournamentId, o => o.MapFrom(s => s.PairingTournamentId))
-                .ForMember(d => d.Player1Id, o => o.MapFrom(s => s.PairingTp1))
-                .ForMember(d => d.Player2Id, o => o.MapFrom(s => s.PairingTp2))
-                .ForMember(d => d.Player1Score, o => o.MapFrom(s => s.PairingPlayer1Score))
-                .ForMember(d => d.Player2Score, o => o.MapFrom(s => s.PairingPlayer2Score))
-                .ForMember(d => d.Player1GameCount, o => o.MapFrom(s => s.PairingPlayer1GameCount))
-                .ForMember(d => d.Player2GameCount, o => o.MapFrom(s => s.PairingPlayer2GameCount))
-                .ForMember(d => d.HasResult, o => o.MapFrom(s => s.PairingHasResult))
-                .ForMember(d => d.PairingDraw, o => o.MapFrom(s => s.PairingDraw))
-                .ForMember(d => d.RoundNumber, o => o.MapFrom(s => s.RoundNumber));
+            CreateMap<PairingDto, Pairing>();
 
             CreateMap<StaffDto, Staff>()
                 .ForMember(d => d.StaffId, o => o.MapFrom(s => s.StaffId))

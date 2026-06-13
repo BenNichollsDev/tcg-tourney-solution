@@ -465,11 +465,14 @@
             if (int.TryParse(p1, out var id1)) tp1 = id1;
             if (int.TryParse(p2, out var id2)) tp2 = id2;
 
+            if (!tp1.HasValue)
+                continue;
+
             result.Add(new PairingDto
             {
-                PairingTournamentId = TournamentId,
-                PairingTp1 = tp1,
-                PairingTp2 = tp2
+                TournamentId = TournamentId!.Value,
+                Player1Id = tp1.Value,
+                Player2Id = tp2
             });
         }
 
@@ -637,11 +640,11 @@
             x => x.TournamentId == TournamentId);
 
         return existing
-            .Where(x => x.PairingTp1.HasValue && x.PairingTp2.HasValue)
+            .Where(x => x.Player2Id.HasValue)
             .Select(x =>
             (
-                Math.Min(x.PairingTp1!.Value, x.PairingTp2!.Value),
-                Math.Max(x.PairingTp1!.Value, x.PairingTp2!.Value)
+                Math.Min(x.Player1Id, x.Player2Id!.Value),
+                Math.Max(x.Player1Id, x.Player2Id!.Value)
             ))
             .ToHashSet();
     }

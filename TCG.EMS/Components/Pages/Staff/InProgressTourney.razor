@@ -156,24 +156,24 @@
                 var p1Name = "BYE";
                 var p2Name = "BYE";
 
-                if (pairing.PairingTp1.HasValue && allPlayers.TryGetValue(pairing.PairingTp1.Value, out var player1))
+                if (allPlayers.TryGetValue(pairing.Player1Id, out var player1))
                 {
                     p1Name = player1.PlayerName ?? "Unknown";
                 }
 
-                if (pairing.PairingTp2.HasValue && allPlayers.TryGetValue(pairing.PairingTp2.Value, out var player2))
+                if (pairing.Player2Id.HasValue && allPlayers.TryGetValue(pairing.Player2Id.Value, out var player2))
                 {
                     p2Name = player2.PlayerName ?? "Unknown";
                 }
 
                 pairings.Add(new PairingSelection
                 {
-                    Player1Id = pairing.PairingTp1,
-                    Player2Id = pairing.PairingTp2,
+                    Player1Id = pairing.Player1Id,
+                    Player2Id = pairing.Player2Id,
                     Player1Name = p1Name,
                     Player2Name = p2Name,
-                    Player1Score = pairing.PairingPlayer1Score ?? 0,
-                    Player2Score = pairing.PairingPlayer2Score ?? 0
+                    Player1Score = pairing.Player1Score ?? 0,
+                    Player2Score = pairing.Player2Score ?? 0
                 });
             }
         }
@@ -226,17 +226,17 @@
             int? p2 = uiPairing.Player2Id;
 
             var dbPairing = dbPairings.FirstOrDefault(x =>
-                x.PairingTp1 == p1 &&
-                x.PairingTp2 == p2);
+                x.Player1Id == p1 &&
+                x.Player2Id == p2);
 
             if (dbPairing == null)
                 continue;
 
             // Save results
-            dbPairing.PairingPlayer1Score = uiPairing.Player1Score;
-            dbPairing.PairingPlayer2Score = uiPairing.Player2Score;
+            dbPairing.Player1Score = uiPairing.Player1Score;
+            dbPairing.Player2Score = uiPairing.Player2Score;
 
-            dbPairing.PairingHasResult = true;
+            dbPairing.HasResult = true;
 
             // mark draw if both players have equal scores (e.g., 1-1)
             dbPairing.PairingDraw = uiPairing.Player1Score == uiPairing.Player2Score;
@@ -295,8 +295,8 @@
 
         foreach (var pairing in dbPairings)
         {
-            if (pairing.PairingId.HasValue)
-                await PairingService.DeleteAsync(pairing.PairingId.Value);
+            if (pairing.PairingId > 0)
+                await PairingService.DeleteAsync(pairing.PairingId);
         }
 
         // Round is no longer in progress
