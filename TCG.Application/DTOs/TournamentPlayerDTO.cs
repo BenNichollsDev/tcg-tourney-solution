@@ -39,8 +39,6 @@ namespace TCG.Application.Dtos
         public int? PlayerSwissPoints { get; set; }
 
         // Tracking for byes and games
-        public bool HasReceivedBye { get; set; }
-
         public int? PlayerBye { get; set; }
 
         public int? GamesPlayed { get; set; }

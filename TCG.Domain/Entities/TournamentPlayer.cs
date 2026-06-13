@@ -49,9 +49,6 @@ namespace TCG.Domain.Entities
         [Column("tp_player_swiss_points")]
         public int? PlayerSwissPoints { get; set; }
 
-        [Column("tp_has_received_bye")]
-        public bool HasReceivedBye { get; set; }
-
         [Column("tp_byes")]
         public int? PlayerBye { get; set; }
 

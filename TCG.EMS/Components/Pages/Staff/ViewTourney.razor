@@ -595,7 +595,6 @@
 
             // Mark the candidate as having a bye now
             candidate.TpBye = true;
-            candidate.HasReceivedBye = true;
             await TournamentPlayerService.UpdateAsync(candidate);
 
             // remove the candidate from the players list for pairing
@@ -705,7 +704,6 @@
 
             // Mark candidate as having a bye
             candidate.TpBye = true;
-            candidate.HasReceivedBye = true;
             await TournamentPlayerService.UpdateAsync(candidate);
 
             // remove candidate for pairing

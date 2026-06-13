@@ -3,6 +3,7 @@ using System;
 using System.Numerics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TCG.Infrastructure;
@@ -12,9 +13,11 @@ using TCG.Infrastructure;
 namespace TCG.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260613221405_RemoveTournamentTypeColumn")]
+    partial class RemoveTournamentTypeColumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -321,6 +324,10 @@ namespace TCG.Infrastructure.Migrations
                     b.Property<int?>("GamesPlayed")
                         .HasColumnType("integer")
                         .HasColumnName("games_played");
+
+                    b.Property<bool>("HasReceivedBye")
+                        .HasColumnType("boolean")
+                        .HasColumnName("has_received_bye");
 
                     b.Property<int?>("MatchesPlayed")
                         .HasColumnType("integer")

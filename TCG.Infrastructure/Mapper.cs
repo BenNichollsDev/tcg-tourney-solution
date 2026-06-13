@@ -39,8 +39,7 @@ namespace TCG.Infrastructure
                 .ForMember(d => d.TournamentStarted, o => o.MapFrom(s => s.TournamentStarted))
                 .ForMember(d => d.TournamentRoundInProgress, o => o.MapFrom(s => s.TournamentRoundInProgress))
                 .ForMember(d => d.TournamentFinished, o => o.MapFrom(s => s.TournamentFinished))
-                .ForMember(d => d.TournamentCancelled, o => o.MapFrom(s => s.TournamentCancelled))
-                .ForMember(d => d.TournamentType, o => o.MapFrom(s => s.TournamentType));
+                .ForMember(d => d.TournamentCancelled, o => o.MapFrom(s => s.TournamentCancelled));
 
             CreateMap<TournamentPlayer, TournamentPlayerDto>()
                 .ForMember(d => d.TournamentPlayerId, o => o.MapFrom(s => s.TournamentPlayerId))
@@ -59,7 +58,6 @@ namespace TCG.Infrastructure
                 .ForMember(d => d.PlayerSwissScore, o => o.MapFrom(s => s.PlayerSwissScore))
                 .ForMember(d => d.PlayerSwissMatchPoints, o => o.MapFrom(s => s.PlayerSwissMatchPoints))
                 .ForMember(d => d.PlayerSwissPoints, o => o.MapFrom(s => s.PlayerSwissPoints))
-                .ForMember(d => d.HasReceivedBye, o => o.MapFrom(s => s.HasReceivedBye))
                 .ForMember(d => d.PlayerBye, o => o.MapFrom(s => s.PlayerBye))
                 .ForMember(d => d.GamesPlayed, o => o.MapFrom(s => s.GamesPlayed))
                 .ForMember(d => d.TpDisqualified, o => o.MapFrom(s => s.TpDisqualified))
@@ -104,8 +102,7 @@ namespace TCG.Infrastructure
                 .ForMember(d => d.TournamentStarted, o => o.MapFrom(s => s.TournamentStarted))
                 .ForMember(d => d.TournamentRoundInProgress, o => o.MapFrom(s => s.TournamentRoundInProgress))
                 .ForMember(d => d.TournamentFinished, o => o.MapFrom(s => s.TournamentFinished))
-                .ForMember(d => d.TournamentCancelled, o => o.MapFrom(s => s.TournamentCancelled))
-                .ForMember(d => d.TournamentType, o => o.MapFrom(s => s.TournamentType));
+                .ForMember(d => d.TournamentCancelled, o => o.MapFrom(s => s.TournamentCancelled));
 
             CreateMap<TournamentPlayerDto, TournamentPlayer>()
                 .ForMember(d => d.TournamentPlayerId, o => o.MapFrom(s => s.TournamentPlayerId))
@@ -123,7 +120,6 @@ namespace TCG.Infrastructure
                 .ForMember(d => d.PlayerSwissScore, o => o.MapFrom(s => s.PlayerSwissScore))
                 .ForMember(d => d.PlayerSwissMatchPoints, o => o.MapFrom(s => s.PlayerSwissMatchPoints))
                 .ForMember(d => d.PlayerSwissPoints, o => o.MapFrom(s => s.PlayerSwissPoints))
-                .ForMember(d => d.HasReceivedBye, o => o.MapFrom(s => s.HasReceivedBye))
                 .ForMember(d => d.PlayerBye, o => o.MapFrom(s => s.PlayerBye))
                 .ForMember(d => d.GamesPlayed, o => o.MapFrom(s => s.GamesPlayed))
                 .ForMember(d => d.TpDisqualified, o => o.MapFrom(s => s.TpDisqualified))
