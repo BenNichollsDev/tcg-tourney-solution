@@ -1,7 +1,7 @@
-﻿@implements IDisposable
+@implements IDisposable
 @using TCG.Application.Interfaces.Services
 
-<table class="tournament-standings table table-striped">
+<table class="table table-striped" style="table-layout: fixed; width: 100%;">
     <thead>
         <tr>
             <th>Player</th>
@@ -15,31 +15,36 @@
     </thead>
 
     <tbody>
-        @* Render all players (active and dropped) in ranking order, then disqualified players *@
+        @* Render all active players sorted by position, then disqualified players *@
 
         @if (_computedStats != null && _computedStats.Count > 0)
         {
+            @* Get all players who are not disqualified, sorted by their ranking position *@
             var allActive = _computedStats
                 .Where(p => !p.Value.IsDisqualified)
                 .OrderBy(p => p.Value.Position)
                 .Select(p => p.Value);
 
+            @* Display each active player with their stats *@
             foreach (var player in allActive)
             {
+                @* Show "(Dropped)" label for players who dropped out *@
                 var statusSuffix = player.IsDropped ? " (Dropped)" : "";
+                @* Apply muted styling to dropped players *@
                 var rowClass = player.IsDropped ? "text-muted" : "";
 
                 <tr class="@rowClass">
-                    <td>@(player.PlayerName ?? "Unknown")@statusSuffix</td>
-                    <td>@player.MatchPoints</td>
-                    <td>@player.Wins</td>
-                    <td>@player.Draws</td>
-                    <td>@player.Losses</td>
-                    <td>@player.GameWinPercent.ToString("0.00")</td>
-                    <td>@player.OpMatchWinPercent.ToString("0.00")</td>
+                    <td style="word-wrap: break-word; overflow-wrap: break-word;">@(player.PlayerName ?? "Unknown")@statusSuffix</td>
+                    <td style="word-wrap: break-word; overflow-wrap: break-word;">@player.MatchPoints</td>
+                    <td style="word-wrap: break-word; overflow-wrap: break-word;">@player.Wins</td>
+                    <td style="word-wrap: break-word; overflow-wrap: break-word;">@player.Draws</td>
+                    <td style="word-wrap: break-word; overflow-wrap: break-word;">@player.Losses</td>
+                    <td style="word-wrap: break-word; overflow-wrap: break-word;">@player.GameWinPercent.ToString("0.00")</td>
+                    <td style="word-wrap: break-word; overflow-wrap: break-word;">@player.OpMatchWinPercent.ToString("0.00")</td>
                 </tr>
             }
 
+            @* Get all disqualified players and display them separately in red *@
             var disqualified = _computedStats
                 .Where(p => p.Value.IsDisqualified)
                 .Select(p => p.Value);
@@ -47,13 +52,13 @@
             foreach (var player in disqualified)
             {
                 <tr class="text-danger">
-                    <td>@(player.PlayerName ?? "Unknown") (Disqualified)</td>
-                    <td>N/A</td>
-                    <td>N/A</td>
-                    <td>N/A</td>
-                    <td>N/A</td>
-                    <td>N/A</td>
-                    <td>N/A</td>
+                    <td style="word-wrap: break-word; overflow-wrap: break-word;">@(player.PlayerName ?? "Unknown") (Disqualified)</td>
+                    <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
+                    <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
+                    <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
+                    <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
+                    <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
+                    <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
                 </tr>
             }
         }
@@ -61,46 +66,50 @@
 </table>
 
 @code {
-    // Scoring service to compute current standings
     [Inject]
     private ITournamentScoringService ScoringService { get; set; } = null!;
 
-    // Only pass in the tournament ID when
-    // this component is used.
     [Parameter]
     public int TournamentId { get; set; } = new();
 
+    // If true, the component will automatically poll for updates every 30 seconds
+    // Set to true only for real-time tournament viewing pages (e.g., spectator view)
     [Parameter]
     public bool RealTimeUpdate { get; set; }
 
+    // Stores the computed player stats
     private Dictionary<int, ITournamentScoringService.PlayerComputedStats> _computedStats = new();
 
     private PeriodicTimer? _timer;
+
     private CancellationTokenSource? _cts;
 
     protected override async Task OnInitializedAsync()
     {
         if (RealTimeUpdate)
         {
+            // Set up a background task to poll for updates every 30 seconds
             _cts = new CancellationTokenSource();
             _timer = new PeriodicTimer(TimeSpan.FromSeconds(30));
 
+            // Start the polling loop
             await PollForUpdatesAsync(_cts.Token);
         }
     }
 
     protected override async Task OnParametersSetAsync()
     {
+        // Reload standing data
         await RebuildPlayerListsAsync();
     }
 
+    // Updates display every 30 secs
     private async Task PollForUpdatesAsync(CancellationToken token)
     {
         try
         {
             while (await _timer!.WaitForNextTickAsync(token))
             {
-                // Fetch computed standings from the scoring service
                 var standingsList = await ScoringService.ComputeTournamentStandings(TournamentId);
                 _computedStats = standingsList ?? new Dictionary<int, ITournamentScoringService.PlayerComputedStats>();
 
@@ -112,11 +121,11 @@
 
     private async Task RebuildPlayerListsAsync()
     {
-        // Fetch computed standings from the scoring service
         var standingsList = await ScoringService.ComputeTournamentStandings(TournamentId);
         _computedStats = standingsList ?? new Dictionary<int, ITournamentScoringService.PlayerComputedStats>();
     }
 
+    // Clean up resources when the component is done
     public void Dispose()
     {
         _cts?.Cancel();

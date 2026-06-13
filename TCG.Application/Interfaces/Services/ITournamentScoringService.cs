@@ -56,24 +56,9 @@ namespace TCG.Application.Interfaces.Services
         }
 
         // Returns a dictionary consisting of player info and stats
-        public Task<List<Dictionary<int, PlayerComputedStats>>> ComputeTournamentStandings(
+        public Task<Dictionary<int, PlayerComputedStats>> ComputeTournamentStandings(
             int tournamentId
         );
-
-        //// Organizes the computed stats for display for MTG tournaments
-        //// and does tiebreakers
-        //public Task<Dictionary<int, PlayerComputedStats>> OrganizeMtgStatsForDisplay(
-        //    int tournamentId,
-        //    Dictionary<int, PlayerComputedStats> standings
-        //);
-
-        //// Organizes the computed stats for display for PKMN tournaments
-        //// and does tiebreakers
-        //public Task<Dictionary<int, PlayerComputedStats>> OrganizePkmnStatsForDisplay(
-        //    int tournamentId,
-        //    Dictionary<int, PlayerComputedStats> standings
-        //);
-
 
         // Saves rankings
         public Task<bool> SavePositions(

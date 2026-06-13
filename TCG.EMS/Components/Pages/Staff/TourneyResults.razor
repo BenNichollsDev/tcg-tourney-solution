@@ -30,63 +30,8 @@
                         }
                     </div>
 
-                    <table class="table table-striped" style="table-layout: fixed; width: 100%;">
-                        <thead>
-                            <tr>
-                                <th>Position</th>
-                                <th>Player</th>
-                                <th>Points</th>
-                                <th>Wins</th>
-                                <th>Draws</th>
-                                <th>Losses</th>
-                                <th>Op Win%</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (_rankedStats != null)
-                            {
-                                var map = _participants.ToDictionary(x => x.TournamentPlayerId);
-
-                                // Display all active and dropped players in ranking position order
-                                var allRanked = _rankedStats
-                                    .Where(s => map.ContainsKey(s.TournamentPlayerId) && !map[s.TournamentPlayerId].TpDisqualified)
-                                    .OrderBy(s => s.Position);
-
-                                var disqualified = _participants
-                                    .Where(p => p.TpDisqualified)
-                                    .OrderByDescending(p => p.PlayerName);
-
-                                foreach (var s in allRanked)
-                                {
-                                    var p = map[s.TournamentPlayerId];
-                                    var statusSuffix = p.TpDropped ? " (Dropped)" : "";
-
-                                    <tr class="@(p.TpDropped ? "text-muted" : "")">
-                                        <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.Position</td>
-                                        <td style="word-wrap: break-word; overflow-wrap: break-word;">@p.PlayerName@statusSuffix</td>
-                                        <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.MatchPoints</td>
-                                        <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.Wins</td>
-                                        <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.Draws</td>
-                                        <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.Losses</td>
-                                        <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.OpMatchWinPercent.ToString("00.00")</td>
-                                    </tr>
-                                }
-
-                                foreach (var p in disqualified)
-                                {
-                                    <tr class="text-danger">
-                                        <td style="word-wrap: break-word; overflow-wrap: break-word;">-</td>
-                                        <td style="word-wrap: break-word; overflow-wrap: break-word;">@p.PlayerName (Disqualified)</td>
-                                        <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
-                                        <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
-                                        <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
-                                        <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
-                                        <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
-                                    </tr>
-                                }
-                            }
-                        </tbody>
-                    </table>
+                    @* Use the shared StandingsTable component to display final tournament standings *@
+                    <StandingsTable TournamentId="@tournamentId!.Value" RealTimeUpdate="@false" />
 
                     <div class="mt-3">
                         <NavLink class="btn btn-outline-dark" href="/tournaments">Back</NavLink>
@@ -146,7 +91,7 @@
 
         // Compute standings from the scoring service - it handles all tiebreaking logic
         var standingsList = await ScoringService.ComputeTournamentStandings(tournamentId.Value);
-        var computed = standingsList.FirstOrDefault() ?? new Dictionary<int, ITournamentScoringService.PlayerComputedStats>();
+        var computed = standingsList ?? new Dictionary<int, ITournamentScoringService.PlayerComputedStats>();
 
         // Get all players sorted by position (the scoring service already resolves ties)
         var ordered = computed.Values.OrderBy(p => p.Position).ToList();

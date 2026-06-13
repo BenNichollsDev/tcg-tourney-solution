@@ -1,6 +1,7 @@
 @page "/tournaments/view/{tournamentId:int}"
 @using TCG.Application.Dtos
 @using TCG.Application.Services
+@using TCG.EMS.Components.Elements
 
 @rendermode InteractiveServer
 
@@ -79,52 +80,8 @@
 
                         <h2>Round Robin Standings</h2>
 
-                        <table class="table table-striped" style="table-layout: fixed; width: 100%;">
-                            <thead>
-                                <tr>
-                                    <th>Player</th>
-                                    <th>Wins</th>
-                                    <th>Draws</th>
-                                    <th>Losses</th>
-                                    <th>Points</th>
-                                        <th>Op Win%</th>
-                                            </tr>
-                                        </thead>
-
-                                        <tbody>
-                                            @{ 
-                                                var map = _participants.ToDictionary(x => x.TournamentPlayerId);
-                                                var active = _computedStats.Values.Where(s => map.ContainsKey(s.TournamentPlayerId) && !map[s.TournamentPlayerId].TpDisqualified && !map[s.TournamentPlayerId].TpDropped);
-                                                var disqualified = _participants.Where(p => p.TpDisqualified).OrderByDescending(p => p.PlayerName);
-                                                var dropped = _participants.Where(p => p.TpDropped).OrderByDescending(p => p.PlayerName);
-                                            }
-
-                                            @foreach (var s in active)
-                                            {
-                                                var player = map[s.TournamentPlayerId];
-                                                <tr>
-                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">@(player?.PlayerName)</td>
-                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.Wins</td>
-                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.Draws</td>
-                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.Losses</td>
-                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.MatchPoints</td>
-                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">@s.OpMatchWinPercent.ToString("0.00")</td>
-                                                </tr>
-                                            }
-
-                                            @foreach (var p in disqualified)
-                                            {
-                                                <tr class="text-danger">
-                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">@p.PlayerName (Disqualified)</td>
-                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
-                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
-                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
-                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
-                                                    <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
-                                                </tr>
-                                            }
-                                        </tbody>
-                                    </table>
+                        @* Use the shared StandingsTable component to display round-robin standings *@
+                        <StandingsTable TournamentId="@TournamentId!.Value" RealTimeUpdate="@false" />
                                         <button class="btn btn-primary"
                                                 @onclick="StartRoundAsync"
                                                 disabled="@(!CanStartMatch() || HasInsufficientParticipants)">
@@ -237,7 +194,7 @@
                                 <button class="btn btn-warning ms-2" @onclick="DropPlayerAsync" disabled="@string.IsNullOrEmpty(_selectedToDrop)">Drop</button>
                             </div>
 
-                            @if (_tournamentModel.TournamentRoundNum <= 1)
+                            @if (_tournamentModel!.TournamentRoundNum <= 1)
                             {
                                 <button class="btn btn-secondary"
                                         @onclick="EndTournamentAsync">
@@ -258,54 +215,8 @@
 
                         <h2 class="mt-4">Swiss Standings</h2>
 
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Player</th>
-                                    <th>Points</th>
-                                    <th>Wins</th>
-                                    <th>Draws</th>
-                                    <th>Losses</th>
-                                    <th>Game Win %</th>
-                                    <th>Op Win%</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                @{ 
-                                    var map = _participants.ToDictionary(x => x.TournamentPlayerId);
-                                    var active = _computedStats.Values.Where(s => map.ContainsKey(s.TournamentPlayerId) && !map[s.TournamentPlayerId].TpDisqualified);
-                                    var disqualified = _participants.Where(p => p.TpDisqualified).OrderByDescending(p => p.PlayerName);
-                                }
-
-                                @foreach (var s in active)
-                                {
-                                    var player = map[s.TournamentPlayerId];
-                                    <tr>
-                                        <td>@(player?.PlayerName ?? "Unknown")</td>
-                                        <td>@s.MatchPoints</td>
-                                        <td>@s.Wins</td>
-                                        <td>@s.Draws</td>
-                                        <td>@s.Losses</td>
-                                        <td>@s.GameWinPercent.ToString("0.00")</td>
-                                        <td>@s.OpMatchWinPercent.ToString("0.00")</td>
-                                    </tr>
-                                }
-
-                                @foreach (var p in disqualified)
-                                {
-                                    <tr class="text-danger">
-                                        <td>@p.PlayerName (Disqualified)</td>
-                                        <td>N/A</td>
-                                        <td>N/A</td>
-                                        <td>N/A</td>
-                                        <td>N/A</td>
-                                        <td>N/A</td>
-                                        <td>N/A</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+                        @* Use the shared StandingsTable component to display Swiss standings *@
+                        <StandingsTable TournamentId="@TournamentId.Value" RealTimeUpdate="@false" />
                     }
                 }
 
@@ -404,9 +315,9 @@
         int pairCount = _participants.Count / 2;
         for (int i = 0; i < pairCount; i++) _pairings.Add(new PairingSelection());
 
-        // Compute standings - the service returns a list of dictionaries
+        // Compute standings - the service returns a dictionary
         var standingsList = await ScoringService.ComputeTournamentStandings(TournamentId.Value);
-        _computedStats = standingsList.FirstOrDefault() ?? new Dictionary<int, ITournamentScoringService.PlayerComputedStats>();
+        _computedStats = standingsList ?? new Dictionary<int, ITournamentScoringService.PlayerComputedStats>();
 
         _hasLoaded = true;
 
@@ -417,7 +328,7 @@
 
     }
 
-    // Normalize pairings so Player1 is always the actual player and Player2 is BYE if applicable
+    // Normalise pairings so Player1 is always the actual player and Player2 is BYE if applicable
     private List<PairingDto> NormalizePairingsForPersist()
     {
         var result = new List<PairingDto>();
@@ -464,7 +375,7 @@
         var normalized = NormalizePairingsForPersist();
         foreach (var dto in normalized)
         {
-            dto.RoundNumber = _tournamentModel.TournamentRoundNum;
+            dto.RoundNumber = _tournamentModel!.TournamentRoundNum;
             await PairingService.CreateAsync(dto);
         }
     }
@@ -475,7 +386,7 @@
         await NormalizeAndSavePairingsAsync();
 
         // Match now in progress
-        _tournamentModel.TournamentRoundInProgress = true;
+        _tournamentModel!.TournamentRoundInProgress = true;
         await TournamentService.UpdateAsync(_tournamentModel);
 
         // navigate to in-progress page or refresh
@@ -555,7 +466,7 @@
         // Refresh participants and stats
         _participants = (await TournamentPlayerService.GetAllWhereAsync(tp => tp.TournamentId == TournamentId)).ToList();
         var standingsList1 = await ScoringService.ComputeTournamentStandings(TournamentId!.Value);
-        _computedStats = standingsList1.FirstOrDefault() ?? new Dictionary<int, ITournamentScoringService.PlayerComputedStats>();
+        _computedStats = standingsList1 ?? new Dictionary<int, ITournamentScoringService.PlayerComputedStats>();
 
         _selectedToDisqualify = null;
         StateHasChanged();
@@ -583,7 +494,7 @@
         // Refresh participants and stats
         _participants = (await TournamentPlayerService.GetAllWhereAsync(tp => tp.TournamentId == TournamentId)).ToList();
         var standingsList2 = await ScoringService.ComputeTournamentStandings(TournamentId!.Value);
-        _computedStats = standingsList2.FirstOrDefault() ?? new Dictionary<int, ITournamentScoringService.PlayerComputedStats>();
+        _computedStats = standingsList2 ?? new Dictionary<int, ITournamentScoringService.PlayerComputedStats>();
 
         _selectedToDrop = null;
         StateHasChanged();
@@ -632,7 +543,7 @@
     }
 
     // This generates round-robin pairings and assigns a bye to the lowest-scoring player
-    // who has not yet received a bye. If all players already had a bye then it aborts.
+    // who has not yet received a bye. If all players already had a bye then it aborts
     private async Task GenerateRoundRobinPairings()
     {
         _notice = null;
@@ -671,21 +582,14 @@
             }
         }
 
-        // If odd number, choose bye candidate: lowest round-robin points who hasn't received a bye
+        // If odd number, choose bye candidate: lowest round-robin points who haven't received a bye
         int? byeCandidateId = null;
         if (players.Count % 2 == 1)
         {
             var candidate = activePlayers
-                .Where(p => !p.HasReceivedBye)
                 .OrderBy(p => p.PlayerRoundRobinPoints ?? 0)
                 .ThenBy(p => p.TournamentPlayerId)
                 .FirstOrDefault();
-
-            if (candidate == null)
-            {
-                _notice = "All players have already received a bye. Cannot generate new pairings.";
-                return;
-            }
 
             byeCandidateId = candidate.TournamentPlayerId;
 
@@ -786,7 +690,6 @@
         if (players.Count % 2 == 1)
         {
             var candidate = activePlayers
-                .Where(p => !p.HasReceivedBye)
                 .OrderBy(p => p.PlayerSwissPoints ?? 0)
                 .ThenBy(p => p.PlayerSwissMatchPoints ?? 0)
                 .ThenBy(p => p.TournamentPlayerId)
@@ -888,7 +791,7 @@
     private async Task EndTournamentAsync()
     {
         // End tournament
-        _tournamentModel.TournamentStarted = false;
+        _tournamentModel!.TournamentStarted = false;
 
         if (_tournamentModel.TournamentRoundNum <= 1)
         {

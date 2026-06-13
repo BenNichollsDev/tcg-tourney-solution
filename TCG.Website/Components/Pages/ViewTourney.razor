@@ -48,7 +48,8 @@
             <h2>
                 Standings
             </h2>
-            <StandingsTable TournamentId="@_tournament.TournamentId" RealTimeUpdate="@false" />
+            @* Use real-time updates so spectators see live standings changes *@
+            <StandingsTable TournamentId="@_tournament.TournamentId" RealTimeUpdate="@true" />
         }
     }
 
