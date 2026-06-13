@@ -44,7 +44,7 @@ namespace TCG.Application.Interfaces.Services
             public double OpOpMatchWinPercent { get; set; } // opponent's opponent match win percentage
 
             // pkmn tiebreaker 3
-            public int HeadToHeadId { get; set; } // random result
+            public int HeadToHeadPosition { get; set; }
 
             public int Position { get; set; } // Position ranking which is updated per round
 
@@ -60,27 +60,24 @@ namespace TCG.Application.Interfaces.Services
             int tournamentId
         );
 
-        // Organizes the computed stats for display for MTG tournaments
-        // and does tiebreakers
-        public Task<Dictionary<int, PlayerComputedStats>> OrganizeMtgStatsForDisplay(
-            int tournamentId,
-            Dictionary<int, PlayerComputedStats> standings
-        );
+        //// Organizes the computed stats for display for MTG tournaments
+        //// and does tiebreakers
+        //public Task<Dictionary<int, PlayerComputedStats>> OrganizeMtgStatsForDisplay(
+        //    int tournamentId,
+        //    Dictionary<int, PlayerComputedStats> standings
+        //);
 
-        // Organizes the computed stats for display for PKMN tournaments
-        // and does tiebreakers
-        public Task<Dictionary<int, PlayerComputedStats>> OrganizePkmnStatsForDisplay(
-            int tournamentId,
-            Dictionary<int, PlayerComputedStats> standings
-        );
+        //// Organizes the computed stats for display for PKMN tournaments
+        //// and does tiebreakers
+        //public Task<Dictionary<int, PlayerComputedStats>> OrganizePkmnStatsForDisplay(
+        //    int tournamentId,
+        //    Dictionary<int, PlayerComputedStats> standings
+        //);
 
 
         // Saves rankings
         public Task<bool> SavePositions(
             Dictionary<int, PlayerComputedStats> players
         );
-
-
-        // Will probably need seperate mtg and pkmn tiebreakers
     }
 }

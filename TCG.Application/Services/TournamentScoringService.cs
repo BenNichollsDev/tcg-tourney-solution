@@ -83,9 +83,6 @@ namespace TCG.Application.Services
                     matchPoints = player.PlayerSwissDraws ?? 0;
                 }
 
-                //gamesPlayed -= byeCount;
-                //matchesPlayed -= byeCount * ;
-
                 // Stats
                 double matchWinPercent = 0;
                 double gameWinPercent = 0;
@@ -124,25 +121,28 @@ namespace TCG.Application.Services
                     .ToList();
 
                 
-
+                
                 if (player.GamesPlayed > 0 && matchesPlayed > 0)
                 {
-                    // For games, each bye counts as a win for the player, but does not count as a game played. So we add the byeCount to the gameWins, but not to gamesPlayed.
-
+                    // Disqualified players dont count towards any calculation.
 
                     // Calculate match win percentage
 
 
                     // Calculate game win percentage
+                    // bye wins do not count
 
 
                     // Calculate opponent match win percentage
+                    // bye wins do not count
 
 
                     // Calculate opponent game win percentage
+                    // bye wins do not count
 
 
                     // Calculate opponent's opponent match win percentage
+                    // bye wins do not count
 
 
                 }
@@ -168,7 +168,6 @@ namespace TCG.Application.Services
                         OpMatchWinPercent = opMatchWinPercent,
                         OpGameWinPercent = opGameWinPercent,
                         OpOpMatchWinPercent = opOpMatchWinPercent,
-                        HeadToHeadId = _rnd.Next(),
 
                         Position = 0,
 
@@ -179,32 +178,53 @@ namespace TCG.Application.Services
                 });
             }
 
-            // For pkmn tourneys only
+            // {
+
+            // pkmn and mtg tourneys, disqualified players do not count towards any tie breaks and they
+            // are not set any rankings. dropped players are treated the same as non-dropped non-disqualified players
+            // For pkmn tourneys only {
             // Select the players where IsDisqualified or IsDropped is false
             //  and MatchWinPercent OpMatchWinPercent and OpOpMatchWinPercent
             // are all equal
             // Follow the below head-to-head login
             //            If exactly two competitors are tied in the final standings and those competitors played each other
-            //during the tournament, then the winner of that match is ranked higher than the loser.
-            //If exactly two competitors are tied in the final standings and those competitors did not play each
-            //other during the tournament, then the order in which they appear will be randomly determined.
-            //34
-            //If more than two competitors are tied in the final standings, then the order in which they appear
-            //will be randomly determined.
+            // during the tournament, then the winner of that match is ranked higher than the loser.
+            // If exactly two competitors are tied in the final standings and those competitors did not play each
+            // other during the tournament, then the order in which they appear will be randomly determined.
+            //
+            // If more than two competitors are tied in the final standings, then the order in which they appear
+            // will be randomly determined.
+            // To store the head-to-head tie results, use HeadToHeadPosition for each standing dictionary.
+            // the person that comes 1st will be 1, 2nd will be 2, 3rd will be 3, etc. Head-to-head random decisions will be done ONLY when the tournament is marked as finished in the database, and random calculations are done using the tournament's saved seed. In the meantime, players who are tied to the point of needing head-to-head to be resolved are not resolved and are just given the same position.
+            // }
+            // 
+
+            // And then, positions will be set for both mtg and pkmn tourney.
+
+            // For mtg, it will be in descending order depending on the stats from Match points, then
+            // Opponents’ match - win percentage, then Game - win percentage,
+            // then Opponents’ game - win percentage. if there is a tie, then both players will have the
+            // same position.
+
+            // For pkmn, it will be in descending order depending on the stats from OpMatchWinPercent,
+            // then OpOpMatchWinPercent, then HeadToHeadPosition.
+
+            // for both pkmn and mtg tourneys, if when comparing one stat from one player turns out to be higher
+            // than the other player's stat, subsequent comparisons to determine positions will
+            // not be done, and positions will be determined from the stats were actually compared.
+            // }
+
+
             List<int> tiedPlayers = standings
                 .Where(s => s.Values.First().IsDisqualified || s.Values.First().IsDropped)
                 .Select(s => s.Key)
                 .ToList();
 
-            foreach (var kvp in standings)
-            {
-                // Process each player's stats for display
-            }
-
             return standings;
         }
 
-        public async Task<bool> SavePositions(Dictionary<int, PlayerComputedStats> players)
+        // Saves each tournamentplayer's position from their own PlayerComputedStats
+        public async Task<bool> SavePositions(Dictionary<int, ITournamentScoringService.PlayerComputedStats> players)
         {
             throw new NotImplementedException();
         }

@@ -1,11 +1,14 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Numerics;
 
 namespace TCG.Application.Dtos
 {
     public class TournamentDto
     {
         public int TournamentId { get; set; }
+
+        public BigInteger TournamentSeed { get; set; } 
 
         public int? TournamentLeague { get; set; }
 

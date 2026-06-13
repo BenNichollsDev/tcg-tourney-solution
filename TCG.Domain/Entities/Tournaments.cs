@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Numerics;
 
 namespace TCG.Domain.Entities
 {
@@ -8,6 +9,9 @@ namespace TCG.Domain.Entities
     {
         [Column("tournament_id")]
         public int TournamentId { get; set; }
+
+        [Column("tournament_seed")]
+        public BigInteger TournamentSeed { get; set; }
 
         [Column("tournament_league")]
         public int? LeagueId { get; set; }

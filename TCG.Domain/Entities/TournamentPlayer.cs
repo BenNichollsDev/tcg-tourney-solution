@@ -55,11 +55,11 @@ namespace TCG.Domain.Entities
         [Column("tp_byes")]
         public int? PlayerBye { get; set; }
 
-        [Column("tp_games_won")]
-        public int? GamesWon { get; set; }
-
         [Column("tp_games_played")]
         public int? GamesPlayed { get; set; }
+
+        [Column("tp_matches_played")]
+        public int? MatchesPlayed { get; set; }
 
         [Column("tp_disqualified")]
         public bool TpDisqualified { get; set; }

@@ -247,10 +247,10 @@
         // Increment round
         _tournamentModel.TournamentRoundNum += 1;
 
-        // Keep tournament NOT in progress (you return to view screen)
-        _tournamentModel.TournamentRoundInProgress = false;
-
         await TournamentService.UpdateAsync(_tournamentModel);
+
+        // Keep tournament NOT in progress (return to view screen)
+        _tournamentModel.TournamentRoundInProgress = false;
 
         NavManager.NavigateTo($"/tournaments/view/{TournamentId}");
     }
@@ -269,17 +269,30 @@
         {
             p1.PlayerSwissWins = (p1.PlayerSwissWins ?? 0) + 1;
             p2.PlayerSwissLosses = (p2.PlayerSwissLosses ?? 0) + 1;
+
+            p1.MatchesPlayed += (p1.PlayerSwissWins + p2.PlayerSwissLosses);
+            p2.MatchesPlayed += (p1.PlayerSwissWins + p2.PlayerSwissLosses);
+
         }
         else if (uiPairing.Player2Score > uiPairing.Player1Score)
         {
-            p2.PlayerSwissWins = (p2.PlayerSwissWins ?? 0) + 1;
             p1.PlayerSwissLosses = (p1.PlayerSwissLosses ?? 0) + 1;
+            p2.PlayerSwissWins = (p2.PlayerSwissWins ?? 0) + 1;
+
+            p1.MatchesPlayed += (p2.PlayerSwissWins + p1.PlayerSwissLosses);
+            p2.MatchesPlayed += (p2.PlayerSwissWins + p1.PlayerSwissLosses);
         }
         else
         {
             p1.PlayerSwissDraws = (p1.PlayerSwissDraws ?? 0) + 1;
             p2.PlayerSwissDraws = (p2.PlayerSwissDraws ?? 0) + 1;
+
+            p1.MatchesPlayed += (p1.PlayerSwissDraws + p2.PlayerSwissDraws);
+            p2.MatchesPlayed += (p1.PlayerSwissDraws + p2.PlayerSwissDraws);
         }
+
+        p1.GamesPlayed = (p1.GamesPlayed ?? 0) + 1;
+        p2.GamesPlayed = (p2.GamesPlayed ?? 0) + 1;
 
         await TournamentPlayerService.UpdateAsync(p1);
         await TournamentPlayerService.UpdateAsync(p2);
