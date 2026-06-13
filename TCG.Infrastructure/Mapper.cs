@@ -60,6 +60,7 @@ namespace TCG.Infrastructure
                 .ForMember(d => d.PlayerSwissMatchPoints, o => o.MapFrom(s => s.PlayerSwissMatchPoints))
                 .ForMember(d => d.PlayerSwissPoints, o => o.MapFrom(s => s.PlayerSwissPoints))
                 .ForMember(d => d.HasReceivedBye, o => o.MapFrom(s => s.HasReceivedBye))
+                .ForMember(d => d.PlayerBye, o => o.MapFrom(s => s.PlayerBye))
                 .ForMember(d => d.GamesWon, o => o.MapFrom(s => s.GamesWon))
                 .ForMember(d => d.GamesPlayed, o => o.MapFrom(s => s.GamesPlayed))
                 .ForMember(d => d.TpDisqualified, o => o.MapFrom(s => s.TpDisqualified))
@@ -76,6 +77,7 @@ namespace TCG.Infrastructure
                 .ForMember(d => d.PairingPlayer1GameCount, o => o.MapFrom(s => s.Player1GameCount))
                 .ForMember(d => d.PairingPlayer2GameCount, o => o.MapFrom(s => s.Player2GameCount))
                 .ForMember(d => d.PairingHasResult, o => o.MapFrom(s => s.HasResult))
+                .ForMember(d => d.PairingDraw, o => o.MapFrom(s => s.PairingDraw))
                 .ForMember(d => d.RoundNumber, o => o.MapFrom(s => s.RoundNumber));
 
             CreateMap<Staff, StaffDto>()
@@ -135,6 +137,7 @@ namespace TCG.Infrastructure
                 .ForMember(d => d.PlayerSwissMatchPoints, o => o.MapFrom(s => s.PlayerSwissMatchPoints))
                 .ForMember(d => d.PlayerSwissPoints, o => o.MapFrom(s => s.PlayerSwissPoints))
                 .ForMember(d => d.HasReceivedBye, o => o.MapFrom(s => s.HasReceivedBye))
+                .ForMember(d => d.PlayerBye, o => o.MapFrom(s => s.PlayerBye))
                 .ForMember(d => d.GamesWon, o => o.MapFrom(s => s.GamesWon))
                 .ForMember(d => d.GamesPlayed, o => o.MapFrom(s => s.GamesPlayed))
                 .ForMember(d => d.TpDisqualified, o => o.MapFrom(s => s.TpDisqualified))
@@ -151,6 +154,7 @@ namespace TCG.Infrastructure
                 .ForMember(d => d.Player1GameCount, o => o.MapFrom(s => s.PairingPlayer1GameCount))
                 .ForMember(d => d.Player2GameCount, o => o.MapFrom(s => s.PairingPlayer2GameCount))
                 .ForMember(d => d.HasResult, o => o.MapFrom(s => s.PairingHasResult))
+                .ForMember(d => d.PairingDraw, o => o.MapFrom(s => s.PairingDraw))
                 .ForMember(d => d.RoundNumber, o => o.MapFrom(s => s.RoundNumber));
 
             CreateMap<StaffDto, Staff>()
@@ -169,7 +173,7 @@ namespace TCG.Infrastructure
                 .ForMember(d => d.PlayerLastName, o => o.MapFrom(s => s.PlayerLastName))
                 .ForMember(d => d.PlayerEmail, o => o.MapFrom(s => s.PlayerEmail))
                 .ForMember(d => d.PlayerPhone, o => o.MapFrom(s => s.PlayerPhone))
-                .ForMember(d => d.PlayerAge, o => o.MapFrom(s => s.PlayerAge))
+                .ForMember(d => d.PlayerDOB, o => o.MapFrom(s => s.PlayerDOB))
                 .ForMember(d => d.PlayerGender, o => o.MapFrom(s => s.PlayerGender));
 
             CreateMap<PlayerDto, Player>()
@@ -178,7 +182,7 @@ namespace TCG.Infrastructure
                 .ForMember(d => d.PlayerLastName, o => o.MapFrom(s => s.PlayerLastName))
                 .ForMember(d => d.PlayerEmail, o => o.MapFrom(s => s.PlayerEmail))
                 .ForMember(d => d.PlayerPhone, o => o.MapFrom(s => s.PlayerPhone))
-                .ForMember(d => d.PlayerAge, o => o.MapFrom(s => s.PlayerAge))
+                .ForMember(d => d.PlayerDOB, o => o.MapFrom(s => s.PlayerDOB))
                 .ForMember(d => d.PlayerGender, o => o.MapFrom(s => s.PlayerGender));
         }
     }

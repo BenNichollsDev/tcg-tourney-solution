@@ -1,3 +1,5 @@
+using System;
+
 namespace TCG.Application.Dtos
 {
     public class PlayerDto
@@ -12,7 +14,7 @@ namespace TCG.Application.Dtos
 
         public string PlayerPhone { get; set; } = string.Empty;
 
-        public int PlayerAge { get; set; }
+        public DateOnly PlayerDOB { get; set; }
 
         public string PlayerGender { get; set; } = string.Empty;
     }

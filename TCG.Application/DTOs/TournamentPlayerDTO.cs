@@ -41,6 +41,8 @@ namespace TCG.Application.Dtos
         // Tracking for byes and games
         public bool HasReceivedBye { get; set; }
 
+        public int? PlayerBye { get; set; }
+
         public int? GamesWon { get; set; }
 
         public int? GamesPlayed { get; set; }

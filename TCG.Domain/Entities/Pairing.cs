@@ -37,6 +37,9 @@ namespace TCG.Domain.Entities
         [Column("pairing_has_result")]
         public bool HasResult { get; set; }
 
+        [Column("pairing_draw")]
+        public bool PairingDraw { get; set; }
+
         public Tournament Tournament { get; set; } = null!;
 
         public TournamentPlayer Player1 { get; set; } = null!;

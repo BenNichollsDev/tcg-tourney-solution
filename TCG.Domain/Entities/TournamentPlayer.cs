@@ -52,6 +52,9 @@ namespace TCG.Domain.Entities
         [Column("tp_has_received_bye")]
         public bool HasReceivedBye { get; set; }
 
+        [Column("tp_byes")]
+        public int? PlayerBye { get; set; }
+
         [Column("tp_games_won")]
         public int? GamesWon { get; set; }
 

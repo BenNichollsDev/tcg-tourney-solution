@@ -122,8 +122,8 @@ namespace TCG.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PlayerId"));
 
-                    b.Property<int>("PlayerAge")
-                        .HasColumnType("integer")
+                    b.Property<DateOnly>("PlayerDOB")
+                        .HasColumnType("date")
                         .HasColumnName("player_age");
 
                     b.Property<string>("PlayerEmail")

@@ -62,12 +62,8 @@
 
 @code {
     // Scoring service to be used when the current scoring service is fixed
-    // [Inject]
-    // private Application.Interfaces.ITournamentScoringService ScoringService { get; set; } = null!;
-
-    // Temp scoring service
     [Inject]
-    private TournamentScoringService ScoringService { get; set; } = default!;
+    private Application.Interfaces.ITournamentScoringService ScoringService { get; set; } = null!;
 
     // Only pass in the tournament ID when
     // this component is used.
@@ -118,28 +114,19 @@
 
     private void RebuildPlayerLists()
     {
-        // For the time being use the soon to be removed scoring service
-        // Will get an error when uncommenting due to how it was temporarily put as void
-        // _computedStats = ScoringService.ComputeTournamentStandings(TournamentId);
+        _computedStats = ScoringService.ComputeTournamentStandings(TournamentId);
 
+        _activePlayers = _computedStats
+            .Where(p => !p.Value.IsDisqualified && !p.Value.IsDropped)
+            .ToDictionary(p => p.Key, p => p.Value);
 
+        _droppedPlayers = _computedStats
+            .Where(p => !p.Value.IsDisqualified && p.Value.IsDropped)
+            .ToDictionary(p => p.Key, p => p.Value);
 
-        // v OLD
-        // _computedStats = ScoringService.ComputeAllAsync(TournamentId);
-
-
-
-        // _activePlayers = _computedStats
-        //     .Where(p => !p.Value.IsDisqualified && !p.Value.IsDropped)
-        //     .ToDictionary(p => p.Key, p => p.Value);
-
-        // _droppedPlayers = _computedStats
-        //     .Where(p => !p.Value.IsDisqualified && p.Value.IsDropped)
-        //     .ToDictionary(p => p.Key, p => p.Value);
-
-        // _disqualifiedPlayers = _computedStats
-        //     .Where(p => p.Value.IsDisqualified)
-        //     .ToDictionary(p => p.Key, p => p.Value);
+        _disqualifiedPlayers = _computedStats
+            .Where(p => p.Value.IsDisqualified)
+            .ToDictionary(p => p.Key, p => p.Value);
     }
 
     public void Dispose()

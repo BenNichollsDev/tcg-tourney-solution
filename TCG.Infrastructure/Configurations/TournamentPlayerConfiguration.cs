@@ -64,6 +64,9 @@ namespace TCG.Infrastructure.Configurations
             builder.Property(tp => tp.HasReceivedBye)
                 .HasColumnName("has_received_bye");
 
+            builder.Property(tp => tp.PlayerBye)
+                .HasColumnName("tp_byes");
+
             builder.Property(tp => tp.GamesWon)
                 .HasColumnName("games_won");
 

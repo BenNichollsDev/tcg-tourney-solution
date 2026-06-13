@@ -19,8 +19,8 @@ namespace TCG.Domain.Entities
         [Column("player_phone")]
         public string PlayerPhone { get; set; } = string.Empty;
 
-        [Column("player_age")]
-        public int PlayerAge { get; set; }
+        [Column("player_dob")]
+        public DateOnly PlayerDOB { get; set; }
 
         [Column("player_gender")]
         public string PlayerGender { get; set; } = string.Empty;

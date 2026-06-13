@@ -17,7 +17,7 @@ namespace TCG.Infrastructure.Configurations
             builder.Property(p => p.PlayerLastName).HasColumnName("player_last_name");
             builder.Property(p => p.PlayerEmail).HasColumnName("player_email");
             builder.Property(p => p.PlayerPhone).HasColumnName("player_phone");
-            builder.Property(p => p.PlayerAge).HasColumnName("player_age");
+            builder.Property(p => p.PlayerDOB).HasColumnName("player_age");
             builder.Property(p => p.PlayerGender).HasColumnName("player_gender");
         }
     }

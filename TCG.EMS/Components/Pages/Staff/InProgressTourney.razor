@@ -238,6 +238,9 @@
 
             dbPairing.PairingHasResult = true;
 
+            // mark draw if both players have equal scores (e.g., 1-1)
+            dbPairing.PairingDraw = uiPairing.Player1Score == uiPairing.Player2Score;
+
             await ApplyPlayerResults(uiPairing, dbPairing);
         }
 

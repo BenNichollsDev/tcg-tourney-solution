@@ -27,7 +27,7 @@ builder.Services.AddScoped<ITournamentService, TournamentService>();
 builder.Services.AddScoped<ITournamentPlayerService, TournamentPlayerService>();
 builder.Services.AddScoped<IPlayerService, PlayerService>();
 builder.Services.AddScoped<PlayerSessionService>();
-//builder.Services.AddScoped<ITournamentScoringService, TournamentScoringService>();
+builder.Services.AddScoped<ITournamentScoringService, TournamentScoringService>();
 
 if (builder.Environment.IsDevelopment())
 {

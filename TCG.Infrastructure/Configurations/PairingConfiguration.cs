@@ -31,6 +31,9 @@ namespace TCG.Infrastructure.Configurations
             builder.Property(p => p.WinnerId)
                 .HasColumnName("pairing_winner");
 
+            builder.Property(p => p.PairingDraw)
+                .HasColumnName("pairing_draw");
+
             builder.HasOne(p => p.Player1)
                 .WithMany(tp => tp.PairingsAsPlayer1)
                 .HasForeignKey(p => p.Player1Id)
