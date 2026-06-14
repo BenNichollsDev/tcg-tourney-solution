@@ -4,19 +4,18 @@
 
 <PageTitle>Angels of Cards | Home</PageTitle>
 
-<div class="ms-3 me-3">
+<div class="ms-3 me-3 mt-5">
     <div class="ps-3 pe-3 pt-3 pb-3">
 
-        <!-- First content section (right-aligned with left image space) -->
         <div class="content-section-right">
             <div class="content-image">
                 <!-- Image placeholder on the left -->
             </div>
-            <div class="content-text">
+            <div class="content-text text-center">
                 <h1>Angels of Cards</h1>
-                <h2>A Heaven Tabletop and Trading Card Game fans, based in Northampton.</h2>
+                <h2 class="mt-5">A Heaven for tabletop and trading card game fans, based in Northampton.</h2>
 
-                <p>
+                <p class="mt-5">
                     We are located just behind the Northampton Bus Station. We provide a space for 
                     all of your nerdy needs, from tabletop games to trading card games. 
                     We host tournaments and leagues for a variety of games, and we have a friendly
@@ -25,9 +24,8 @@
             </div>
         </div>
 
-        <!-- Second content section (left-aligned with right image space) -->
-        <div class="content-section-left">
-            <div class="content-text">
+        <div class="content-section-left mt-5">
+            <div class="content-text text-center">
                 <p>
                     We also sell a variety of games and accessories, such as wargames, TCGs, and
                     more! So if you're looking for a new game to play or a new deck to build,
@@ -43,15 +41,16 @@
 </div>
 
 <div class="events-preview">
-    <h2>Events</h2>
-    <div class="events-grid">
+    <div class="ps-3 pe-3 pt-3 pb-3 text-center">
+        <h2>Events</h2>
+        <div class="events-grid">
         <div class="ongoing-section">
             <h3>Ongoing</h3>
             @if (_activeTourneys!.Any())
             {
                 @foreach(var t in _activeTourneys!)
                 {
-                    <NavLink class="event ongoing" href="@($"/viewevent/{t.TournamentId}")">
+                    <NavLink class="event ongoing text-center" href="@($"/viewevent/{t.TournamentId}")">
                         <div>@t.TournamentName</div>
                         <div>@(t.TournamentGame=="mtg"?"Magic the Gathering":"Pokémon")</div>
                     </NavLink>
@@ -70,7 +69,7 @@
                 <div class="col-grid">
                     @foreach(var t in _tournamentsToDisplay!)
                     {
-                        <NavLink class="event card" href="@($"/viewevent/{t.TournamentId}")">
+                        <NavLink class="event card text-center" href="@($"/viewevent/{t.TournamentId}")">
                             <div>@t.TournamentName</div>
                             <div>@t.TournamentDate.ToString("dd MMM")</div>
                         </NavLink>
@@ -104,6 +103,7 @@
         </div>
     </div>
 </div>
+    </div>
 
 @code {
     [Inject]

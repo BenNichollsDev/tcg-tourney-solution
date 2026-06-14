@@ -101,135 +101,58 @@ main {
 
 /*refend*/
 
-/* Verbose new CSS styling for sticky navigation bar and responsive layout */
+:root {
+    --primary-light-purple: #e6ddff;
+    --primary-dark-purple: #3a0647;
+    --page-bg: #9a9a9a;
+}
 
-/* Navigation bar styling - horizontal sticky bar at top of page */
+body {
+    background-color: var(--page-bg);
+    margin: 0;
+}
+
+/* Navbar button styles */
+.top-row ::deep .nav-link {
+    background-color: var(--primary-dark-purple);
+    color: white !important;
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.top-row ::deep .nav-link:hover {
+    background-color: white !important;
+    color: black !important;
+}
+
+/* Brand styling */
+.top-row ::deep .navbar-brand {
+    color: var(--primary-dark-purple);
+    font-weight: 600;
+}
+
+/* Top navigation and footer background colour */
 .top-row {
+    background-color: var(--primary-light-purple) !important;
+}
+
+footer {
+    background-color: var(--primary-light-purple);
+    padding: 0.6rem 0;
     position: fixed;
-    top: 0;
     left: 0;
     right: 0;
-    width: 100%;
-    z-index: 998;
-    background-color: #f7f7f7;
-    border-bottom: 1px solid #d6d5d5;
-    height: 3.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding-right: 1.5rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    bottom: 0;
+    z-index: 999;
+    text-align: center;
 }
 
-/* Main content area offset to prevent overlap with fixed navigation bar */
+/* Prevent content overlap with fixed navbar/footer */
 main {
-    margin-top: 3.5rem;
-    width: 100%;
+    margin-top: 3.5rem; /* navbar height */
+    padding-bottom: 3.2rem; /* footer height */
+    margin-left: 8rem;
+    margin-right: 8rem;
 }
 
-/* Article content area with proper spacing */
-article {
-    width: 100%;
-    padding: 2rem 1.5rem;
-}
-
-/* Responsive adjustments for mobile screens */
-@media (max-width: 640.98px) {
-    .top-row {
-        position: fixed;
-        width: 100%;
-        padding-left: 0.5rem;
-        padding-right: 0.5rem;
-    }
-
-    main {
-        margin-top: 3.5rem;
-    }
-
-    article {
-        padding: 1rem;
-    }
-}
-
-/* Large screen optimizations */
-@media (min-width: 641px) {
-    .top-row {
-        position: fixed;
-        padding-left: 2rem;
-        padding-right: 2rem;
-    }
-
-    article {
-        padding: 2rem 2rem;
-    }
-}
-
-/* Alternating paragraph layout for homepage - right-aligned content section */
-.content-section-right {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    gap: 2rem;
-    margin-bottom: 3rem;
-    width: 100%;
-}
-
-.content-section-right .content-text {
-    flex: 1;
-    text-align: right;
-    padding-right: 2rem;
-}
-
-.content-section-right .content-image {
-    flex: 1;
-    text-align: left;
-}
-
-/* Alternating paragraph layout for homepage - left-aligned content section */
-.content-section-left {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    gap: 2rem;
-    margin-bottom: 3rem;
-    width: 100%;
-}
-
-.content-section-left .content-image {
-    flex: 1;
-    text-align: right;
-}
-
-.content-section-left .content-text {
-    flex: 1;
-    text-align: left;
-    padding-left: 2rem;
-}
-
-/* Mobile responsive - stack content vertically */
-@media (max-width: 768px) {
-    .content-section-right,
-    .content-section-left {
-        flex-direction: column;
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
-
-    .content-section-right .content-text {
-        text-align: left;
-        padding-right: 0;
-        padding-left: 0;
-    }
-
-    .content-section-left .content-text {
-        text-align: left;
-        padding-left: 0;
-    }
-
-    .content-section-right .content-image,
-    .content-section-left .content-image {
-        text-align: center;
-    }
-}
