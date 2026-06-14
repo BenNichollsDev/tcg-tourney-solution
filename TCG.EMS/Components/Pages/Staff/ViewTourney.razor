@@ -542,8 +542,8 @@
             .ToHashSet();
     }
 
-    // This generates round-robin pairings and assigns a bye to the lowest-scoring player
-    // who has not yet received a bye. If all players already had a bye then it aborts
+    // This generates round-robin pairings and assigns a bye from the lowest bracket
+    // within players who have the fewest byes already. Basic, bracket-aware selection.
     private async Task GenerateRoundRobinPairings()
     {
         _notice = null;
@@ -551,10 +551,8 @@
         if (HasInsufficientParticipants)
             return;
 
-        // Determine bye limit based on game type (MTG: 3 byes, Pokémon: 1 bye)
         int byeLimit = string.Equals(_tournamentModel?.TournamentGame, "mtg", StringComparison.OrdinalIgnoreCase) ? 3 : 1;
 
-        // Check if any active player has already reached the bye limit
         var activePlayers = _participants
             .Where(p => !p.TpDisqualified && !p.TpDropped)
             .ToList();
@@ -572,9 +570,7 @@
         // Check if any player has faced everyone else
         foreach (var player in players)
         {
-            var opponentCount = occurred.Count(p =>
-                p.Item1 == player || p.Item2 == player);
-
+            var opponentCount = occurred.Count(p => p.Item1 == player || p.Item2 == player);
             if (opponentCount >= players.Count - 1)
             {
                 _notice = "Cannot generate a unique pairing.";
@@ -582,42 +578,45 @@
             }
         }
 
-        // If odd number, choose bye candidate: lowest round-robin points who haven't received a bye
+        // If odd, pick bye candidate from lowest round-robin bracket and with fewest byes
         int? byeCandidateId = null;
         if (players.Count % 2 == 1)
         {
-            var candidate = activePlayers
-                .OrderBy(p => p.PlayerRoundRobinPoints ?? 0)
+            var minPoints = activePlayers.Min(p => p.PlayerRoundRobinPoints ?? 0);
+            var lowestBracket = activePlayers.Where(p => (p.PlayerRoundRobinPoints ?? 0) == minPoints).ToList();
+
+            var candidate = lowestBracket
+                .OrderBy(p => p.PlayerBye ?? 0)
                 .ThenBy(p => p.TournamentPlayerId)
                 .FirstOrDefault();
 
-            byeCandidateId = candidate.TournamentPlayerId;
+            if (candidate == null)
+            {
+                _notice = "All players have already received a bye. Cannot generate new pairings.";
+                return;
+            }
 
-            // Mark the candidate as having a bye now
-            candidate.TpBye = true;
+            byeCandidateId = candidate.TournamentPlayerId;
+            // Mark the candidate as having a bye now (increment bye count)
+            candidate.PlayerBye = (candidate.PlayerBye ?? 0) + 1;
             await TournamentPlayerService.UpdateAsync(candidate);
 
             // remove the candidate from the players list for pairing
             players.Remove(byeCandidateId.Value);
         }
 
+        // Simple pairing: try shuffled attempts avoiding repeats
         var rnd = new Random();
         const int maxAttempts = 1000;
 
         for (int attempt = 0; attempt < maxAttempts; attempt++)
         {
-            var shuffled = players
-                .OrderBy(_ => rnd.Next())
-                .ToList();
-
+            var shuffled = players.OrderBy(_ => rnd.Next()).ToList();
             bool valid = true;
 
             for (int i = 0; i + 1 < shuffled.Count; i += 2)
             {
-                var pair = (
-                    Math.Min(shuffled[i], shuffled[i + 1]),
-                    Math.Max(shuffled[i], shuffled[i + 1]));
-
+                var pair = (Math.Min(shuffled[i], shuffled[i + 1]), Math.Max(shuffled[i], shuffled[i + 1]));
                 if (occurred.Contains(pair))
                 {
                     valid = false;
@@ -629,24 +628,14 @@
                 continue;
 
             _pairings.Clear();
-
             for (int i = 0; i < shuffled.Count; i += 2)
             {
-                _pairings.Add(new PairingSelection
-                {
-                    Player1Id = shuffled[i].ToString(),
-                    Player2Id = shuffled[i + 1].ToString()
-                });
+                _pairings.Add(new PairingSelection { Player1Id = shuffled[i].ToString(), Player2Id = shuffled[i + 1].ToString() });
             }
 
-            // If there was a bye candidate, append them with a BYE pairing
             if (byeCandidateId.HasValue)
             {
-                _pairings.Add(new PairingSelection
-                {
-                    Player1Id = byeCandidateId.Value.ToString(),
-                    Player2Id = BYE
-                });
+                _pairings.Add(new PairingSelection { Player1Id = byeCandidateId.Value.ToString(), Player2Id = BYE });
             }
 
             return;
@@ -655,8 +644,9 @@
         _notice = "Cannot generate a unique pairing.";
     }
 
-    // This generates swiss pairings but assigns a bye to the lowest-scoring player
-    // who has not yet received a bye. If everyone already has a bye then it aborts.
+    // This generates swiss pairings by grouping players into match-point brackets
+    // and pairing within brackets while avoiding repeats. Byes are assigned from the
+    // lowest bracket among players who have the fewest byes.
     private async Task GenerateSwissPairings()
     {
         _notice = null;
@@ -679,35 +669,41 @@
 
         var occurred = await GetExistingPairings();
 
-        var players = activePlayers.Select(p => p.TournamentPlayerId).ToList();
-
         if (HasInsufficientParticipants)
             return;
 
-        // If odd number, choose bye candidate: lowest swiss points who haven't received a bye
-        int? byeCandidateId = null;
-        if (players.Count % 2 == 1)
+        // Build brackets by swiss points
+        var brackets = activePlayers.GroupBy(p => p.PlayerSwissPoints ?? 0)
+            .OrderByDescending(g => g.Key)
+            .Select(g => g.ToList())
+            .ToList();
+
+        var playersForPairing = new List<int>();
+
+        // Attempt to fill pairing pool starting from top brackets down
+        foreach (var bracket in brackets)
         {
-            var candidate = activePlayers
-                .OrderBy(p => p.PlayerSwissPoints ?? 0)
-                .ThenBy(p => p.PlayerSwissMatchPoints ?? 0)
+            playersForPairing.AddRange(bracket.Select(p => p.TournamentPlayerId));
+        }
+
+        // If odd, choose bye from lowest bracket(s) and least byes
+        int? byeCandidateId = null;
+        if (playersForPairing.Count % 2 == 1)
+        {
+            var lowestBracketPoints = brackets.Min(b => b.First().PlayerSwissPoints ?? 0);
+            var lowestBrackets = brackets.Where(b => (b.First().PlayerSwissPoints ?? 0) == lowestBracketPoints).SelectMany(b => b).ToList();
+
+            var candidate = lowestBrackets
+                .OrderBy(p => p.PlayerBye ?? 0)
                 .ThenBy(p => p.TournamentPlayerId)
                 .FirstOrDefault();
 
-            if (candidate == null)
-            {
-                _notice = "All players have already received a bye. Cannot generate new pairings.";
-                return;
-            }
-
             byeCandidateId = candidate.TournamentPlayerId;
-
-            // Mark candidate as having a bye
-            candidate.TpBye = true;
+            // Mark candidate as having a bye (increment bye count)
+            candidate.PlayerBye = (candidate.PlayerBye ?? 0) + 1;
             await TournamentPlayerService.UpdateAsync(candidate);
 
-            // remove candidate for pairing
-            players.Remove(byeCandidateId.Value);
+            playersForPairing.Remove(byeCandidateId.Value);
         }
 
         var rnd = new Random();
@@ -715,61 +711,38 @@
 
         for (int attempt = 0; attempt < maxAttempts; attempt++)
         {
-            var shuffled = players
-                .OrderBy(x => rnd.Next())
-                .ToList();
-
+            var shuffled = playersForPairing.OrderBy(_ => rnd.Next()).ToList();
             bool valid = true;
 
-            var pairs = new List<(int, int?)>();
+            var pairs = new List<(int, int)>();
 
-            for (int i = 0; i < shuffled.Count; i += 2)
+            for (int i = 0; i + 1 < shuffled.Count; i += 2)
             {
-                var p1 = shuffled[i];
-                var p2 = i + 1 < shuffled.Count ? shuffled[i + 1] : (int?)null;
+                var a = shuffled[i];
+                var b = shuffled[i + 1];
+                var pair = (Math.Min(a, b), Math.Max(a, b));
 
-                if (p2 != null)
+                if (occurred.Contains(pair))
                 {
-                    var pair = (
-                        Math.Min(p1, p2.Value),
-                        Math.Max(p1, p2.Value));
-
-                    if (occurred.Contains(pair))
-                    {
-                        valid = false;
-                        break;
-                    }
-
-                    pairs.Add((p1, p2));
+                    valid = false;
+                    break;
                 }
-                else
-                {
-                    pairs.Add((p1, null)); // BYE
-                }
+
+                pairs.Add(pair);
             }
 
             if (!valid)
                 continue;
 
             _pairings.Clear();
-
             foreach (var (p1, p2) in pairs)
             {
-                _pairings.Add(new PairingSelection
-                {
-                    Player1Id = p1.ToString(),
-                    Player2Id = p2?.ToString() ?? BYE
-                });
+                _pairings.Add(new PairingSelection { Player1Id = p1.ToString(), Player2Id = p2.ToString() });
             }
 
-            // append bye pairing if assigned
             if (byeCandidateId.HasValue)
             {
-                _pairings.Add(new PairingSelection
-                {
-                    Player1Id = byeCandidateId.Value.ToString(),
-                    Player2Id = BYE
-                });
+                _pairings.Add(new PairingSelection { Player1Id = byeCandidateId.Value.ToString(), Player2Id = BYE });
             }
 
             return;

@@ -61,7 +61,6 @@ namespace TCG.Infrastructure
                 .ForMember(d => d.PlayerBye, o => o.MapFrom(s => s.PlayerBye))
                 .ForMember(d => d.GamesPlayed, o => o.MapFrom(s => s.GamesPlayed))
                 .ForMember(d => d.TpDisqualified, o => o.MapFrom(s => s.TpDisqualified))
-                .ForMember(d => d.TpBye, o => o.MapFrom(s => s.TpBye))
                 .ForMember(d => d.TpDropped, o => o.MapFrom(s => s.TpDropped))
                 .ForMember(d => d.TpPosition, o => o.MapFrom(s => s.TpPosition));
 
@@ -123,7 +122,6 @@ namespace TCG.Infrastructure
                 .ForMember(d => d.PlayerBye, o => o.MapFrom(s => s.PlayerBye))
                 .ForMember(d => d.GamesPlayed, o => o.MapFrom(s => s.GamesPlayed))
                 .ForMember(d => d.TpDisqualified, o => o.MapFrom(s => s.TpDisqualified))
-                .ForMember(d => d.TpBye, o => o.MapFrom(s => s.TpBye))
                 .ForMember(d => d.TpDropped, o => o.MapFrom(s => s.TpDropped))
                 .ForMember(d => d.TpPosition, o => o.MapFrom(s => s.TpPosition));
 

@@ -61,9 +61,6 @@ namespace TCG.Domain.Entities
         [Column("tp_disqualified")]
         public bool TpDisqualified { get; set; }
 
-        [Column("tp_bye")]
-        public bool TpBye { get; set; }
-
         [Column("tp_dropped")]
         public bool TpDropped { get; set; }
 
