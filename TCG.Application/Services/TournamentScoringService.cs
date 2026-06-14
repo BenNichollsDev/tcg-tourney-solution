@@ -1,3 +1,17 @@
+﻿/*
+Program: Local Games Store Management System
+Filename: TournamentScoringService.cs
+Author: Benjamin Nicholls
+Course: BSc Software Engineering (Hons)
+Module: CSY4022 - Computing Project Dissertation
+Module Leader: Amir Minai
+Supervisor: Mark Johnson
+
+Date: 14/06/2026
+
+Disclaimer: The following source code is the sole work of the author unless otherwise stated.
+Copyright (C) Benjamin Nicholls. All Rights Reserved.
+*/
 using AutoMapper;
 using System;
 using System.Collections.Generic;
@@ -133,7 +147,7 @@ namespace TCG.Application.Services
                     if (!player.TpDisqualified)
                     {
                         // Calculate match win percentage
-                        // For Pok�mon tournaments when finished, use special formula
+                        // For Pokémon tournaments when finished, use special formula
                         if (tournamentGame == "pkmn" && tournamentIsFinished)
                         {
                             // If tournament is finished and player did not drop: wins / total rounds in tournament
@@ -474,3 +488,4 @@ namespace TCG.Application.Services
         }
     }
 }
+

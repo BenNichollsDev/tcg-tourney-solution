@@ -180,8 +180,6 @@ CREATE TABLE public.staff (
     staff_surname text,
     staff_email text,
     staff_mobile text,
-    staff_role_management boolean,
-    staff_role_head boolean,
     staff_password text
 );
 
@@ -376,10 +374,10 @@ COPY public.players (player_id, player_first_name, player_surname, player_dob, p
 -- Data for Name: staff; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.staff (staff_id, staff_first_name, staff_surname, staff_email, staff_mobile, staff_role_management, staff_role_head, staff_password) FROM stdin;
-1	Gordon	Freeman	17cities@mail.com	08537285555	f	t	123
-2	Eli	Vance	blackmesa@mail.com	07798227364	t	f	456
-3	Alyx	Vance	ravenholm@mail.com	07738229100	f	f	789
+COPY public.staff (staff_id, staff_first_name, staff_surname, staff_email, staff_mobile, staff_password) FROM stdin;
+1	Gordon	Freeman	17cities@mail.com	08537285555	AQAAAAEAACcQAAAAEECk3eMEMhyOoOR13OZvMv5UCnLnlJHlFWwhKkg3JeW7NtfnBubG2W0KnR8G6Pet+Q==
+2	Eli	Vance	blackmesa@mail.com	07798227364	AQAAAAEAACcQAAAAEERjBKbS4s7AvTASsMBzXFnl6VEL8nyuRummQBeSjZYIFAFcHQJAazJ3tVMcdy368g==
+3	Alyx	Vance	ravenholm@mail.com	07738229100	AQAAAAEAACcQAAAAEKPOaqF4xhl3qcLhdiX1ON5XHMtaKl9awzm5uv4QiM/SVxDL66wVpvVIekk1adAm1Q==
 \.
 
 

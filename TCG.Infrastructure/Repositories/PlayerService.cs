@@ -1,8 +1,23 @@
+﻿/*
+Program: Local Games Store Management System
+Filename: PlayerService.cs
+Author: Benjamin Nicholls
+Course: BSc Software Engineering (Hons)
+Module: CSY4022 - Computing Project Dissertation
+Module Leader: Amir Minai
+Supervisor: Mark Johnson
+
+Date: 14/06/2026
+
+Disclaimer: The following source code is the sole work of the author unless otherwise stated.
+Copyright (C) Benjamin Nicholls. All Rights Reserved.
+*/
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using TCG.Application.Dtos;
 using TCG.Application.Interfaces;
 using TCG.Application.Interfaces.Services;
@@ -15,12 +30,14 @@ public class PlayerService : IPlayerService
     private readonly AppDbContext _context;
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _u;
+    private readonly IPasswordHasher<Player> _passwordHasher;
 
-    public PlayerService(AppDbContext context, IMapper mapper, IUnitOfWork u)
+    public PlayerService(AppDbContext context, IMapper mapper, IUnitOfWork u, IPasswordHasher<Player> passwordHasher)
     {
         _context = context;
         _mapper = mapper;
         _u = u;
+        _passwordHasher = passwordHasher;
     }
 
     public async Task<PlayerDto?> GetByIdAsync(int playerId)
@@ -118,4 +135,34 @@ public class PlayerService : IPlayerService
         if (exists)
             throw new ValidationException("Phone number already exists.");
     }
+
+    public async Task<bool> VerifyPasswordAsync(int playerId, string password)
+    {
+        var player = await _context.Set<Player>()
+            .FirstOrDefaultAsync(p => p.PlayerId == playerId);
+
+        if (player == null || string.IsNullOrWhiteSpace(player.PlayerPassword))
+            return false;
+
+        var result = _passwordHasher.VerifyHashedPassword(player, player.PlayerPassword, password);
+        return result == PasswordVerificationResult.Success || result == PasswordVerificationResult.SuccessRehashNeeded;
+    }
+
+    public async Task<PlayerDto> CreateWithDefaultPasswordAsync(PlayerDto playerDto)
+    {
+        await EmailIsUniqueAsync(playerDto.PlayerEmail);
+        await PhoneIsUniqueAsync(playerDto.PlayerPhone);
+
+        var player = _mapper.Map<Player>(playerDto);
+
+        // Hash the default password "123"
+        const string defaultPassword = "123";
+        player.PlayerPassword = _passwordHasher.HashPassword(player, defaultPassword);
+
+        await _context.Set<Player>().AddAsync(player);
+        await _u.SaveChangesAsync();
+
+        return _mapper.Map<PlayerDto>(player);
+    }
 }
+

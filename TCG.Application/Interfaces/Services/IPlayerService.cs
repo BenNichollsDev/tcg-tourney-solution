@@ -1,3 +1,17 @@
+﻿/*
+Program: Local Games Store Management System
+Filename: IPlayerService.cs
+Author: Benjamin Nicholls
+Course: BSc Software Engineering (Hons)
+Module: CSY4022 - Computing Project Dissertation
+Module Leader: Amir Minai
+Supervisor: Mark Johnson
+
+Date: 14/06/2026
+
+Disclaimer: The following source code is the sole work of the author unless otherwise stated.
+Copyright (C) Benjamin Nicholls. All Rights Reserved.
+*/
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -24,5 +38,10 @@ namespace TCG.Application.Interfaces.Services
         Task EmailIsUniqueAsync(string email, int? currentPlayerId = null);
 
         Task PhoneIsUniqueAsync(string phone, int? currentPlayerId = null);
+
+        Task<bool> VerifyPasswordAsync(int playerId, string password);
+
+        Task<PlayerDto> CreateWithDefaultPasswordAsync(PlayerDto playerDto);
     }
 }
+

@@ -1,10 +1,25 @@
-﻿@page "/personal"
+﻿/*
+Program: Local Games Store Management System
+Filename: EditOwnAccount.razor
+Author: Benjamin Nicholls
+Course: BSc Software Engineering (Hons)
+Module: CSY4022 - Computing Project Dissertation
+Module Leader: Amir Minai
+Supervisor: Mark Johnson
+
+Date: 14/06/2026
+
+Disclaimer: The following source code is the sole work of the author unless otherwise stated.
+Copyright (C) Benjamin Nicholls. All Rights Reserved.
+*/
+@page "/personal"
 
 @using TCG.Application.Dtos
 @using TCG.Application.Interfaces.Services
 
 @inject INavigationService NavService
 @inject NavigationManager NavManager
+@inject StaffSessionService StaffSession
 
 @rendermode InteractiveServer
 
@@ -96,9 +111,7 @@
     [Inject]
     private IStaffService StaffService { get; set; } = default!;
 
-    [Inject]
-    private IUserFromCookies CookiesService { get; set; } = default!;
-    
+
     protected override void OnInitialized()
     {
         _newPassword = string.Empty;
@@ -109,7 +122,7 @@
     
     protected override async Task OnInitializedAsync()
     {
-        var userId = await CookiesService.GetUserIdAsync();
+        var userId = StaffSession.StaffId;
 
         if (userId == null)
         {
@@ -125,15 +138,17 @@
     
     private async Task OnFormSubmit()
     {
-        if (_currentPassword == _staffModel.StaffPassword)
-        {
-            if (string.IsNullOrEmpty(_newPassword))
-                _staffModel.StaffPassword = _currentPassword;
-            else
-                _staffModel.StaffPassword = _newPassword;
-            
-            await StaffService.UpdateAsync(_staffModel);
-            NavService.GoHome();
-        }
+       if (!await StaffService.VerifyPasswordAsync(_staffModel.StaffId, _currentPassword ?? string.Empty))
+       {
+            _showNull = false;
+
+            throw new Exception("Current password is incorrect.");
+       }
+
+        if (!string.IsNullOrEmpty(_newPassword))
+            _staffModel.StaffPassword = _newPassword;
+
+        await StaffService.UpdateAsync(_staffModel);
+        NavService.GoHome();
     }
 }

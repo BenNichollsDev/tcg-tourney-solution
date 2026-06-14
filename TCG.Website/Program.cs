@@ -1,9 +1,25 @@
+﻿/*
+Program: Local Games Store Management System
+Filename: Program.cs
+Author: Benjamin Nicholls
+Course: BSc Software Engineering (Hons)
+Module: CSY4022 - Computing Project Dissertation
+Module Leader: Amir Minai
+Supervisor: Mark Johnson
+
+Date: 14/06/2026
+
+Disclaimer: The following source code is the sole work of the author unless otherwise stated.
+Copyright (C) Benjamin Nicholls. All Rights Reserved.
+*/
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 using Microsoft.AspNetCore.StaticAssets;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using TCG.Application.Interfaces;
 using TCG.Application.Interfaces.Services;
 using TCG.Application.Services;
+using TCG.Domain.Entities;
 using TCG.Infrastructure;
 using TCG.Infrastructure.Repositories;
 using TCG.Website.Components;
@@ -28,6 +44,8 @@ builder.Services.AddScoped<ITournamentPlayerService, TournamentPlayerService>();
 builder.Services.AddScoped<IPlayerService, PlayerService>();
 builder.Services.AddScoped<PlayerSessionService>();
 builder.Services.AddScoped<ITournamentScoringService, TournamentScoringService>();
+builder.Services.AddScoped<IPasswordHasher<Player>, PasswordHasher<Player>>();
+builder.Services.AddScoped<IPasswordHasher<Staff>, PasswordHasher<Staff>>();
 
 if (builder.Environment.IsDevelopment())
 {

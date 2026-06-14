@@ -1,4 +1,18 @@
-﻿@page "/accounts/new"
+﻿/*
+Program: Local Games Store Management System
+Filename: CreateAccount.razor
+Author: Benjamin Nicholls
+Course: BSc Software Engineering (Hons)
+Module: CSY4022 - Computing Project Dissertation
+Module Leader: Amir Minai
+Supervisor: Mark Johnson
+
+Date: 14/06/2026
+
+Disclaimer: The following source code is the sole work of the author unless otherwise stated.
+Copyright (C) Benjamin Nicholls. All Rights Reserved.
+*/
+@page "/accounts/new"
 
 @using System.ComponentModel.DataAnnotations
 @using TCG.Application.Dtos
@@ -42,23 +56,7 @@
                                class="form-control mb-3"
                                @bind-Value="_staffModel.StaffMobile"/>
                     
-                    <label class="form-label">Staff Role</label>
-
-                    @* <InputRadioGroup @bind-Value="_staffModel.StaffRoleManagement">
-                        <div class="form-check">
-                            <InputRadio class="form-check-input" Value="false" id="standardStaff" />
-                            <label class="form-check-label" for="standardStaff">
-                                Standard Staff
-                            </label>
-                        </div>
-
-                        <div class="form-check">
-                            <InputRadio class="form-check-input" Value="true" id="managementStaff" />
-                            <label class="form-check-label" for="managementStaff">
-                                Management Staff
-                            </label>
-                        </div>
-                    </InputRadioGroup> *@
+                    @* role selection removed: roles are no longer used *@
                     
                     <div>
                         <button type="submit" class="btn btn-primary">
@@ -99,10 +97,13 @@
     {
         try
         {
-            await StaffService.UpdateAsync(_staffModel);
+            // Ensure password is set and will be hashed by StaffService.CreateAsync
+            if (string.IsNullOrWhiteSpace(_staffModel.StaffPassword))
+            {
+                _staffModel.StaffPassword = "ChangeMe123!"; // default temporary password; StaffService will hash it
+            }
 
-            // (for testing purposes)
-            _staffModel.StaffPassword = "123";
+            await StaffService.CreateAsync(_staffModel);
 
             NavService.GoHome();
         }

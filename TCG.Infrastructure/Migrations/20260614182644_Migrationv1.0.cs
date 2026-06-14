@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -7,7 +8,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace TCG.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialEntity : Migration
+    public partial class Migrationv10 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -28,6 +29,25 @@ namespace TCG.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "players",
+                columns: table => new
+                {
+                    player_id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    player_first_name = table.Column<string>(type: "text", nullable: false),
+                    player_last_name = table.Column<string>(type: "text", nullable: false),
+                    player_email = table.Column<string>(type: "text", nullable: false),
+                    player_phone = table.Column<string>(type: "text", nullable: false),
+                    player_age = table.Column<DateOnly>(type: "date", nullable: false),
+                    player_gender = table.Column<string>(type: "text", nullable: false),
+                    player_password = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_players", x => x.player_id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "staff",
                 columns: table => new
                 {
@@ -37,9 +57,7 @@ namespace TCG.Infrastructure.Migrations
                     staff_surname = table.Column<string>(type: "text", nullable: false),
                     staff_email = table.Column<string>(type: "text", nullable: false),
                     staff_password = table.Column<string>(type: "text", nullable: false),
-                    staff_mobile = table.Column<string>(type: "text", nullable: false),
-                    staff_role_management = table.Column<bool>(type: "boolean", nullable: false),
-                    staff_role_head = table.Column<bool>(type: "boolean", nullable: false)
+                    staff_mobile = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -52,6 +70,7 @@ namespace TCG.Infrastructure.Migrations
                 {
                     tournament_id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    tournament_seed = table.Column<BigInteger>(type: "numeric", nullable: false),
                     tournament_league = table.Column<int>(type: "integer", nullable: true),
                     tournament_name = table.Column<string>(type: "text", nullable: false),
                     tournament_game = table.Column<string>(type: "text", nullable: false),
@@ -66,7 +85,11 @@ namespace TCG.Infrastructure.Migrations
                     tournament_entry_fee = table.Column<decimal>(type: "numeric(10,2)", nullable: false),
                     tournament_max_participants = table.Column<int>(type: "integer", nullable: false),
                     tournament_swiss_topcut = table.Column<bool>(type: "boolean", nullable: false),
-                    tournament_swiss_topcut_num = table.Column<int>(type: "integer", nullable: false)
+                    tournament_swiss_topcut_num = table.Column<int>(type: "integer", nullable: false),
+                    tournament_started = table.Column<bool>(type: "boolean", nullable: false),
+                    tournament_round_in_progress = table.Column<bool>(type: "boolean", nullable: false),
+                    tournament_finished = table.Column<bool>(type: "boolean", nullable: false),
+                    tournament_cancelled = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -87,18 +110,34 @@ namespace TCG.Infrastructure.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     tp_tournament = table.Column<int>(type: "integer", nullable: false),
                     tp_player_name = table.Column<string>(type: "text", nullable: true),
-                    tp_player_round_robin_wins = table.Column<int>(type: "integer", nullable: true),
-                    tp_player_round_robin_score = table.Column<int>(type: "integer", nullable: true),
-                    tp_player_round_robin_match_points = table.Column<float>(type: "real", nullable: true),
-                    tp_player_round_robin_points = table.Column<float>(type: "real", nullable: true),
-                    tp_player_swiss_wins = table.Column<int>(type: "integer", nullable: true),
-                    tp_player_swiss_score = table.Column<int>(type: "integer", nullable: true),
-                    tp_player_swiss_match_points = table.Column<float>(type: "real", nullable: true),
-                    tp_player_swiss_points = table.Column<float>(type: "real", nullable: true)
+                    player_rr_wins = table.Column<int>(type: "integer", nullable: true),
+                    player_rr_draws = table.Column<int>(type: "integer", nullable: true),
+                    player_rr_losses = table.Column<int>(type: "integer", nullable: true),
+                    player_rr_score = table.Column<int>(type: "integer", nullable: true),
+                    player_rr_match_points = table.Column<int>(type: "integer", nullable: true),
+                    player_rr_points = table.Column<int>(type: "integer", nullable: true),
+                    player_sw_wins = table.Column<int>(type: "integer", nullable: true),
+                    player_sw_draws = table.Column<int>(type: "integer", nullable: true),
+                    player_sw_losses = table.Column<int>(type: "integer", nullable: true),
+                    player_sw_score = table.Column<int>(type: "integer", nullable: true),
+                    player_sw_match_points = table.Column<int>(type: "integer", nullable: true),
+                    player_sw_points = table.Column<int>(type: "integer", nullable: true),
+                    tp_byes = table.Column<int>(type: "integer", nullable: true),
+                    games_played = table.Column<int>(type: "integer", nullable: true),
+                    tp_matches_played = table.Column<int>(type: "integer", nullable: true),
+                    tp_disqualified = table.Column<bool>(type: "boolean", nullable: false),
+                    tp_dropped = table.Column<bool>(type: "boolean", nullable: false),
+                    tp_position = table.Column<int>(type: "integer", nullable: true),
+                    PlayerId = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_tournament_players", x => x.tp_id);
+                    table.ForeignKey(
+                        name: "FK_tournament_players_players_PlayerId",
+                        column: x => x.PlayerId,
+                        principalTable: "players",
+                        principalColumn: "player_id");
                     table.ForeignKey(
                         name: "FK_tournament_players_tournaments_tp_tournament",
                         column: x => x.tp_tournament,
@@ -114,12 +153,16 @@ namespace TCG.Infrastructure.Migrations
                     pairing_id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     pairing_tournament_id = table.Column<int>(type: "integer", nullable: false),
-                    pairing_round_num = table.Column<int>(type: "integer", nullable: false),
+                    pairing_round_number = table.Column<int>(type: "integer", nullable: true),
                     pairing_tp_1 = table.Column<int>(type: "integer", nullable: false),
                     pairing_tp_2 = table.Column<int>(type: "integer", nullable: true),
                     pairing_tp_1_score = table.Column<int>(type: "integer", nullable: true),
                     pairing_tp_2_score = table.Column<int>(type: "integer", nullable: true),
-                    pairing_winner = table.Column<int>(type: "integer", nullable: true)
+                    pairing_winner = table.Column<int>(type: "integer", nullable: true),
+                    pairing_player_1_game_count = table.Column<int>(type: "integer", nullable: true),
+                    pairing_player_2_game_count = table.Column<int>(type: "integer", nullable: true),
+                    pairing_has_result = table.Column<bool>(type: "boolean", nullable: false),
+                    pairing_draw = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -171,6 +214,11 @@ namespace TCG.Infrastructure.Migrations
                 column: "pairing_winner");
 
             migrationBuilder.CreateIndex(
+                name: "IX_tournament_players_PlayerId",
+                table: "tournament_players",
+                column: "PlayerId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_tournament_players_tp_tournament",
                 table: "tournament_players",
                 column: "tp_tournament");
@@ -192,6 +240,9 @@ namespace TCG.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "tournament_players");
+
+            migrationBuilder.DropTable(
+                name: "players");
 
             migrationBuilder.DropTable(
                 name: "tournaments");

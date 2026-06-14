@@ -1,45 +1,77 @@
-﻿@page "/"
+﻿/*
+Program: Local Games Store Management System
+Filename: Login.razor
+Author: Benjamin Nicholls
+Course: BSc Software Engineering (Hons)
+Module: CSY4022 - Computing Project Dissertation
+Module Leader: Amir Minai
+Supervisor: Mark Johnson
+
+Date: 14/06/2026
+
+Disclaimer: The following source code is the sole work of the author unless otherwise stated.
+Copyright (C) Benjamin Nicholls. All Rights Reserved.
+*/
+@page "/"
 @page "/login"
 @rendermode InteractiveServer
+@layout EmptyLayout
+@inject NavigationManager NavManager
+@using System.Net.Http
+@using System.Net.Http.Headers
+@using System.Threading.Tasks
 
 <div class="d-flex flex-column justify-content-center align-items-center min-vh-100">
     <div class="bg-container p-5">
 
         <h1 class="mb-3">TCGTourneys</h1>
 
-        <form method="post" action="/auth/login">
+        <EditForm Model="loginModel" OnValidSubmit="HandleLogin">
+            <DataAnnotationsValidator />
+
             <label>Email:</label>
-            <input name="Email"
-                   class="form-control mb-3"
-                   required />
+            <InputText id="email" class="form-control mb-3" @bind-Value="loginModel.Email" />
 
             <label>Password:</label>
-            <input name="Password"
-                   type="password"
-                   class="form-control mb-3"
-                   required />
+            <InputText id="password" type="password" class="form-control mb-3" @bind-Value="loginModel.Password" />
 
-            <button type="submit" class="btn btn-primary">
-                Login
-            </button>
-        </form>
+            <button type="submit" class="btn btn-primary">Login</button>
+        </EditForm>
 
         @if (!string.IsNullOrWhiteSpace(loginError))
         {
             <div class="text-danger mt-2">@loginError</div>
         }
+
     </div>
 </div>
 
 @code {
-    [SupplyParameterFromQuery]
-    public string? error { get; set; }
-
     private string? loginError;
+    private LoginModel loginModel = new();
 
-    protected override void OnParametersSet()
+    private class LoginModel
     {
-        if (error == "invalid")
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+    }
+
+    private async Task HandleLogin()
+    {
+        using var http = new HttpClient();
+        var form = new MultipartFormDataContent();
+        form.Add(new StringContent(loginModel.Email), "Email");
+        form.Add(new StringContent(loginModel.Password), "Password");
+
+        var resp = await http.PostAsync("/auth/login", form);
+        if (resp.IsSuccessStatusCode)
+        {
+            NavManager.NavigateTo("/home");
+        }
+        else
+        {
             loginError = "Invalid email or password.";
+        }
     }
 }
+

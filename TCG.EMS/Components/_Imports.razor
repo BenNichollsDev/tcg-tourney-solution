@@ -1,10 +1,25 @@
-﻿@* References:
-[1]: Microsoft (2026) aspnetcore(Version 10.0.2). [Source Code] Available from: https://github.com/dotnet/aspnetcore [Accessed 30/01/2026]. *@
+﻿/*
+Program: Local Games Store Management System
+Filename: _Imports.razor
+Author: Benjamin Nicholls
+Course: BSc Software Engineering (Hons)
+Module: CSY4022 - Computing Project Dissertation
+Module Leader: Amir Minai
+Supervisor: Mark Johnson
 
-@* //<-***** Microsoft (2026) [1] - START *@
+Date: 14/06/2026
+
+Disclaimer: The following source code is the sole work of the author unless otherwise stated.
+Copyright (C) Benjamin Nicholls. All Rights Reserved.
+*/
+@* References:
+[1]: Microsoft (2026) aspnetcore(Version 10.0.2). [Source Code] Available from: https://github.com/dotnet/aspnetcore [Accessed 30/01/2026]. *@
 
 @using System.Net.Http
 @using System.Net.Http.Json
+
+@* //<-***** Microsoft (2026) [1] - START *@
+
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Routing
 @using Microsoft.AspNetCore.Components.Web
@@ -16,10 +31,9 @@
 
 @using TCG.EMS.Components
 @using TCG.EMS.Components.Layout
-@using TCG.Application.Enums
+@using TCG.EMS.Services
 @using TCG.Application.Interfaces.Services
 @using TCG.Application.Services
 @using TCG.EMS.Interfaces
 @inject NavigationManager NavManager
 @inject INavigationService NavService
-@inject IUserFromCookies UserFromCookies

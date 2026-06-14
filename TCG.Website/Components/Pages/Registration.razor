@@ -1,3 +1,17 @@
+﻿/*
+Program: Local Games Store Management System
+Filename: Registration.razor
+Author: Benjamin Nicholls
+Course: BSc Software Engineering (Hons)
+Module: CSY4022 - Computing Project Dissertation
+Module Leader: Amir Minai
+Supervisor: Mark Johnson
+
+Date: 14/06/2026
+
+Disclaimer: The following source code is the sole work of the author unless otherwise stated.
+Copyright (C) Benjamin Nicholls. All Rights Reserved.
+*/
 @page "/register/{tournamentId:int}"
 @using System.ComponentModel.DataAnnotations
 @using TCG.Application.Dtos
@@ -5,8 +19,8 @@
 @inject IPlayerService PlayerService
 @inject ITournamentService TournamentService
 @inject ITournamentPlayerService TournamentPlayerService
-@inject TCG.Website.Services.PlayerSessionService PlayerSession
 @inject NavigationManager NavManager
+@inject PlayerSessionService PlayerSession
 @rendermode InteractiveServer
 
 <PageTitle>Angels of Cards | Register for Tournament</PageTitle>
@@ -16,6 +30,13 @@
         @if (!_hasLoaded)
         {
             <p>Loading...</p>
+        }
+        else if (!PlayerSession.IsLoggedIn)
+        {
+            <div class="alert alert-info">
+                <p>You need to be logged in to register for tournaments.</p>
+                <NavLink href="login-signup" class="btn btn-primary">Go to Login/Sign Up</NavLink>
+            </div>
         }
         else if (_tournament is null)
         {
@@ -35,49 +56,9 @@
         }
         else
         {
-            @if (PlayerSession.IsLoggedIn)
-            {
-                <h3>Welcome back, @PlayerSession.PlayerName</h3>
-                <p>Click to join the tournament:</p>
-                <button class="btn btn-primary" @onclick="JoinAsLoggedIn">Join Tournament</button>
-            }
-            else
-            {
-                <h3>Create Account and Join</h3>
-                <EditForm Model="_newPlayer" OnValidSubmit="CreateAndJoin">
-                    <DataAnnotationsValidator />
-
-                    <label>First name</label>
-                    <InputText class="form-control mb-2" @bind-Value="_newPlayer.PlayerFirstName" />
-                    <ValidationMessage For="() => _newPlayer.PlayerFirstName" />
-
-                    <label>Last name</label>
-                    <InputText class="form-control mb-2" @bind-Value="_newPlayer.PlayerLastName" />
-                    <ValidationMessage For="() => _newPlayer.PlayerLastName" />
-
-                    <label>Email</label>
-                    <InputText class="form-control mb-2" @bind-Value="_newPlayer.PlayerEmail" />
-                    <ValidationMessage For="() => _newPlayer.PlayerEmail" />
-
-                    <label>Phone</label>
-                    <InputText class="form-control mb-2" @bind-Value="_newPlayer.PlayerPhone" />
-                    <ValidationMessage For="() => _newPlayer.PlayerPhone" />
-
-                    <label>Date of Birth</label>
-                    <InputDate class="form-control mb-2" @bind-Value="_newPlayer.PlayerDOB" />
-                    <ValidationMessage For="() => _newPlayer.PlayerDOB" />
-
-                    <label>Gender</label>
-                    <InputText class="form-control mb-2" @bind-Value="_newPlayer.PlayerGender" />
-
-                    @if (!string.IsNullOrEmpty(_error))
-                    {
-                        <div class="text-danger">@_error</div>
-                    }
-
-                    <button type="submit" class="btn btn-primary">Create Account and Join</button>
-                </EditForm>
-            }
+            <h3>Welcome back, @PlayerSession.PlayerName</h3>
+            <p>Click to join the tournament:</p>
+            <button class="btn btn-primary" @onclick="JoinAsLoggedIn">Join Tournament</button>
         }
 
         <div class="mt-3">
@@ -92,7 +73,6 @@
     public int tournamentId { get; set; }
 
     private TournamentDto? _tournament = new();
-    private PlayerDto? _newPlayer = new();
 
     private bool _hasLoaded = false;
     private bool _alreadyParticipant = false;
@@ -118,7 +98,6 @@
     {
         try
         {
-            // final re-check
             var freshTournament = await TournamentService.GetByIdAsync(tournamentId);
             var freshCount = (await TournamentPlayerService.GetAllWhereAsync(tp => tp.TournamentId == tournamentId)).Count();
 
@@ -144,45 +123,5 @@
             _error = ex.Message;
         }
     }
-
-    private async Task CreateAndJoin()
-    {
-        try
-        {
-            // validate unique
-            await PlayerService.EmailIsUniqueAsync(_newPlayer!.PlayerEmail);
-            await PlayerService.PhoneIsUniqueAsync(_newPlayer!.PlayerPhone);
-
-            var newPlayer = await PlayerService.CreateAsync(_newPlayer);
-
-            // sign in to session
-            PlayerSession.PlayerId = newPlayer.PlayerId;
-            PlayerSession.PlayerName = $"{newPlayer.PlayerFirstName} {newPlayer.PlayerLastName}";
-
-            // final re-check and join
-            var freshTournament = await TournamentService.GetByIdAsync(tournamentId);
-            var freshCount = (await TournamentPlayerService.GetAllWhereAsync(tp => tp.TournamentId == tournamentId)).Count();
-
-            if (freshTournament == null || freshTournament.TournamentStarted || freshTournament.TournamentCancelled || freshTournament.TournamentFinished)
-                throw new Exception("Tournament cannot be joined.");
-
-            if (freshCount >= freshTournament.TournamentMaxParticipants)
-                throw new Exception("Tournament is full.");
-
-            var newTp = new TournamentPlayerDto
-            {
-                TournamentId = tournamentId,
-                PlayerId = newPlayer.PlayerId,
-                PlayerName = $"{newPlayer.PlayerFirstName} {newPlayer.PlayerLastName}"
-            };
-
-            await TournamentPlayerService.CreateAsync(newTp);
-
-            NavManager.NavigateTo($"/viewevent/{tournamentId}");
-        }
-        catch (Exception ex)
-        {
-            _error = ex.Message;
-        }
-    }
 }
+

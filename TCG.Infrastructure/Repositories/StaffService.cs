@@ -1,3 +1,17 @@
+﻿/*
+Program: Local Games Store Management System
+Filename: StaffService.cs
+Author: Benjamin Nicholls
+Course: BSc Software Engineering (Hons)
+Module: CSY4022 - Computing Project Dissertation
+Module Leader: Amir Minai
+Supervisor: Mark Johnson
+
+Date: 14/06/2026
+
+Disclaimer: The following source code is the sole work of the author unless otherwise stated.
+Copyright (C) Benjamin Nicholls. All Rights Reserved.
+*/
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using AutoMapper;
@@ -14,7 +28,8 @@ public class StaffService
 (
     AppDbContext context,
     IMapper mapper,
-    IUnitOfWork u
+    IUnitOfWork u,
+    Microsoft.AspNetCore.Identity.IPasswordHasher<TCG.Domain.Entities.Staff> hasher
 )
 : IStaffService
 {
@@ -48,13 +63,28 @@ public class StaffService
         return staff ?? null;
     }
 
+    public async Task<bool> VerifyPasswordAsync(int staffId, string password)
+    {
+        var staff = await context.Staff.FirstOrDefaultAsync(s => s.StaffId == staffId);
+        if (staff == null || string.IsNullOrWhiteSpace(staff.StaffPassword))
+            return false;
+
+        var result = hasher.VerifyHashedPassword(staff, staff.StaffPassword, password);
+        return result == Microsoft.AspNetCore.Identity.PasswordVerificationResult.Success || result == Microsoft.AspNetCore.Identity.PasswordVerificationResult.SuccessRehashNeeded;
+    }
+
     public async Task<StaffDto> CreateAsync(StaffDto staffDto)
     {
-        
         await EmailIsUniqueAsync(staffDto.StaffEmail);
         await PhoneIsUniqueAsync(staffDto.StaffMobile);
-        
-        var staff = mapper.Map<Staff>(staffDto);
+
+var staff = mapper.Map<Staff>(staffDto);
+
+        // Hash password before saving
+        if (!string.IsNullOrEmpty(staffDto.StaffPassword))
+        {
+            staff.StaffPassword = hasher.HashPassword(staff, staffDto.StaffPassword);
+        }
 
         await context.Staff.AddAsync(staff);
         await u.SaveChangesAsync();
@@ -73,6 +103,12 @@ public class StaffService
         
         await EmailIsUniqueAsync(staffDto.StaffEmail, staffDto.StaffId);
         await PhoneIsUniqueAsync(staffDto.StaffMobile, staffDto.StaffId);
+
+        // If new password provided, hash and set it. otherwise keep existing password
+        if (!string.IsNullOrEmpty(staffDto.StaffPassword))
+        {
+            existingStaff.StaffPassword = hasher.HashPassword(existingStaff, staffDto.StaffPassword);
+        }
 
         mapper.Map(staffDto, existingStaff);
 
@@ -114,5 +150,22 @@ public class StaffService
 
         if (exists)
             throw new ValidationException("Phone number already exists.");
+    }
+
+    public async Task<StaffDto> CreateWithDefaultPasswordAsync(StaffDto staffDto)
+    {
+        await EmailIsUniqueAsync(staffDto.StaffEmail);
+        await PhoneIsUniqueAsync(staffDto.StaffMobile);
+
+        var staff = mapper.Map<Staff>(staffDto);
+
+        // Hash the default password "123"
+        const string defaultPassword = "123";
+        staff.StaffPassword = hasher.HashPassword(staff, defaultPassword);
+
+        await context.Staff.AddAsync(staff);
+        await u.SaveChangesAsync();
+
+        return mapper.Map<StaffDto>(staff);
     }
 }

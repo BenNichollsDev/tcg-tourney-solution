@@ -151,6 +151,11 @@ namespace TCG.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("player_last_name");
 
+                    b.Property<string>("PlayerPassword")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("player_password");
+
                     b.Property<string>("PlayerPhone")
                         .IsRequired()
                         .HasColumnType("text")
@@ -189,14 +194,6 @@ namespace TCG.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("staff_password");
-
-                    b.Property<bool>("StaffRoleHead")
-                        .HasColumnType("boolean")
-                        .HasColumnName("staff_role_head");
-
-                    b.Property<bool>("StaffRoleManagement")
-                        .HasColumnType("boolean")
-                        .HasColumnName("staff_role_management");
 
                     b.Property<string>("StaffSurname")
                         .IsRequired()

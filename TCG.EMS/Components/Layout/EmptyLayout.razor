@@ -1,6 +1,6 @@
 ﻿/*
 Program: Local Games Store Management System
-Filename: ISetTournament.cs
+Filename: EmptyLayout.razor
 Author: Benjamin Nicholls
 Course: BSc Software Engineering (Hons)
 Module: CSY4022 - Computing Project Dissertation
@@ -12,15 +12,6 @@ Date: 14/06/2026
 Disclaimer: The following source code is the sole work of the author unless otherwise stated.
 Copyright (C) Benjamin Nicholls. All Rights Reserved.
 */
-using System;
-using System.Collections.Generic;
-using System.Text;
+@inherits LayoutComponentBase
 
-namespace TCG.Application.Interfaces
-{
-    public interface ISetTournament<TournamentDto>
-    {
-        public TournamentDto SetTournamentPairing(TournamentDto tournamentDto, string pairingType);
-    }
-}
-
+@Body

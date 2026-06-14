@@ -1,11 +1,29 @@
-﻿@inherits LayoutComponentBase
-@inject NavigationManager NavManager
+﻿/*
+Program: Local Games Store Management System
+Filename: MainLayout.razor
+Author: Benjamin Nicholls
+Course: BSc Software Engineering (Hons)
+Module: CSY4022 - Computing Project Dissertation
+Module Leader: Amir Minai
+Supervisor: Mark Johnson
 
-<!-- CHANGE HOW THE ERROR IS DISPLAYED WITH THE LOGIN, SHOULD USE DATA VALIDATION INSTEAD -->
+Date: 14/06/2026
+
+Disclaimer: The following source code is the sole work of the author unless otherwise stated.
+Copyright (C) Benjamin Nicholls. All Rights Reserved.
+*/
+
+@inherits LayoutComponentBase
+@inject NavigationManager NavManager
+@inject TCG.EMS.Services.StaffSessionService StaffSession
 
 <div class="page bg-main text-main min-vh-100 d-flex flex-column">
     <main class="d-flex flex-grow-1">
-        @if (!ShowLayout)
+        @if (!_hasInitialized)
+        {
+            <p>Initializing...</p>
+        }
+        else if (ShowLayout)
         {
             <nav class="sidebar d-flex flex-column p-3 bg-container sidebar-custom">
                 <!-- Brand -->
@@ -35,11 +53,7 @@
                                     Create a Tournament
                                 </NavLink>
                             </li>
-                            <li class="ps-2">
-                                <NavLink href="/tournaments/ongoing" class="nav-link text-white py-1 px-2 pt-0 pb-0 mt-2 mb-2">
-                                    View Ongoing Tournaments
-                                </NavLink>
-                            </li>
+
                             <li class="ps-2">
                                 <NavLink href="/tournaments" class="nav-link text-white py-1 px-2 pt-0 pb-0 mt-2 mb-2">
                                     Manage Tournaments
@@ -59,11 +73,7 @@
                                     Create a League
                                 </NavLink>
                             </li>
-                            <li class="ps-2">
-                                <NavLink href="/leagues/ongoing" class="nav-link text-white py-1 px-2 pt-0 pb-0 mt-2 mb-2">
-                                    View Ongoing Leagues
-                                </NavLink>
-                            </li>
+
                             <li class="ps-2">
                                 <NavLink href="/leagues" class="nav-link text-white py-1 px-2 pt-0 pb-0 mt-2 mb-2">
                                     Manage Leagues
@@ -85,9 +95,9 @@
                     </li>
 
                     <li class="mt-auto">
-                        <NavLink href="/auth/logout" class="nav-link text-white d-flex align-items-center fs-5 p-2 mt-3">
+                        <button class="nav-link text-white d-flex align-items-center fs-5 p-2 mt-3 w-100 border-0 bg-transparent" @onclick="HandleLogout" style="cursor: pointer;">
                             <i class="bi bi-box-arrow-right me-2"></i> Logout
-                        </NavLink>
+                        </button>
                     </li>
                 </ul>
             </nav>
@@ -97,23 +107,36 @@
         <article class="content flex-grow-1 m-0 p-0">
             @Body
         </article>
+        }
     </main>
 </div>
 
 @code {
     private string? UserRole;
+    private bool _hasInitialized = false;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        UserRole = await UserFromCookies.GetRoleAsync();
+        // Redirect to login if not authenticated and not on login page
+        if (!StaffSession.IsLoggedIn && !ShowLayout)
+        {
+            NavManager.NavigateTo("/login", replace: true);
+        }
+        _hasInitialized = true;
     }
-    
+
+    private void HandleLogout()
+    {
+        StaffSession.Logout();
+        NavManager.NavigateTo("/login", replace: true);
+    }
+
     private bool ShowLayout
     {
         get
         {
             var path = new Uri(NavManager.Uri).AbsolutePath.TrimEnd('/');
-            return path == "" || path == "/login" | path == "/login?error=invalid";
+            return path == "" || path == "/login";
         }
     }
 }

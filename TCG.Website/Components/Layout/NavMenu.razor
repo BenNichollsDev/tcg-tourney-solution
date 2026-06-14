@@ -1,4 +1,18 @@
-﻿@* refstart *@
+﻿/*
+Program: Local Games Store Management System
+Filename: NavMenu.razor
+Author: Benjamin Nicholls
+Course: BSc Software Engineering (Hons)
+Module: CSY4022 - Computing Project Dissertation
+Module Leader: Amir Minai
+Supervisor: Mark Johnson
+
+Date: 14/06/2026
+
+Disclaimer: The following source code is the sole work of the author unless otherwise stated.
+Copyright (C) Benjamin Nicholls. All Rights Reserved.
+*/
+@* refstart *@
 
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid" style="height: 100%;">
@@ -29,8 +43,33 @@
                     <span class="bi" aria-hidden="true"></span> Events
                 </NavLink>
             </div>
+
+            <div class="nav-item px-3 ms-auto">
+                @if (PlayerSession.IsLoggedIn)
+                {
+                    <div class="d-flex align-items-center">
+                        <span class="navbar-text me-3">Welcome, @PlayerSession.PlayerName</span>
+                        <button class="btn btn-sm btn-outline-light" @onclick="Logout">Logout</button>
+                    </div>
+                }
+                else
+                {
+                    <NavLink class="nav-link" href="login-signup">
+                        <span class="bi" aria-hidden="true"></span> Register/Login
+                    </NavLink>
+                }
+            </div>
         </nav>
     </div>
 </div>
 
+@code {
+    @inject PlayerSessionService PlayerSession
+    @inject NavigationManager NavManager
 
+    private void Logout()
+    {
+        PlayerSession.Logout();
+        NavManager.NavigateTo("/");
+    }
+}

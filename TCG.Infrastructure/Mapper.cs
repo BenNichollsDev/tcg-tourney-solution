@@ -1,4 +1,18 @@
-﻿using System;
+﻿/*
+Program: Local Games Store Management System
+Filename: Mapper.cs
+Author: Benjamin Nicholls
+Course: BSc Software Engineering (Hons)
+Module: CSY4022 - Computing Project Dissertation
+Module Leader: Amir Minai
+Supervisor: Mark Johnson
+
+Date: 14/06/2026
+
+Disclaimer: The following source code is the sole work of the author unless otherwise stated.
+Copyright (C) Benjamin Nicholls. All Rights Reserved.
+*/
+using System;
 using System.Collections.Generic;
 using System.Text;
 using TCG.Application.Dtos;
@@ -70,9 +84,7 @@ namespace TCG.Infrastructure
                 .ForMember(d => d.StaffSurname, o => o.MapFrom(s => s.StaffSurname))
                 .ForMember(d => d.StaffEmail, o => o.MapFrom(s => s.StaffEmail))
                 .ForMember(d => d.StaffPassword, o => o.MapFrom(s => s.StaffPassword))
-                .ForMember(d => d.StaffMobile, o => o.MapFrom(s => s.StaffMobile))
-                .ForMember(d => d.StaffRoleManagement, o => o.MapFrom(s => s.StaffRoleManagement))
-                .ForMember(d => d.StaffRoleHead, o => o.MapFrom(s => s.StaffRoleHead));
+                .ForMember(d => d.StaffMobile, o => o.MapFrom(s => s.StaffMobile));
 
             // Dto to Entity mappings
             CreateMap<LeagueDto, League>()
@@ -159,9 +171,7 @@ namespace TCG.Infrastructure
                 .ForMember(d => d.StaffSurname, o => o.MapFrom(s => s.StaffSurname))
                 .ForMember(d => d.StaffEmail, o => o.MapFrom(s => s.StaffEmail))
                 .ForMember(d => d.StaffPassword, o => o.MapFrom(s => s.StaffPassword))
-                .ForMember(d => d.StaffMobile, o => o.MapFrom(s => s.StaffMobile))
-                .ForMember(d => d.StaffRoleManagement, o => o.MapFrom(s => s.StaffRoleManagement))
-                .ForMember(d => d.StaffRoleHead, o => o.MapFrom(s => s.StaffRoleHead));
+                .ForMember(d => d.StaffMobile, o => o.MapFrom(s => s.StaffMobile));
 
             CreateMap<Player, PlayerDto>()
                 .ForMember(d => d.PlayerId, o => o.MapFrom(s => s.PlayerId))
@@ -183,3 +193,4 @@ namespace TCG.Infrastructure
         }
     }
 }
+
