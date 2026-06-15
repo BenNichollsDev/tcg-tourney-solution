@@ -92,7 +92,8 @@ builder.Services.AddScoped<IPasswordHasher<Staff>, PasswordHasher<Staff>>();
 
 builder.Services.AddScoped<INavigationService, NavigationService>();
 builder.Services.AddScoped<StaffSessionService>();
-builder.Services.AddScoped<LoginAuthService>();
+builder.Services.AddScoped(typeof(TCG.Application.Services.LoginAuthService));
+builder.Services.AddScoped(typeof(TCG.Application.Services.LoginService));
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<AuthenticationStateProvider, Microsoft.AspNetCore.Components.Server.ServerAuthenticationStateProvider>();
 builder.Services.AddAuthorizationCore();

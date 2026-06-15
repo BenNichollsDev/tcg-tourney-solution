@@ -21,22 +21,18 @@ namespace TCG.Application.Services
         public LoginAuthService(IStaffService staffService)
         {
             _staffService = staffService;
-            //_hasher = new PasswordHasher<object>();
         }
 
         public async Task<bool> VerifyLoginAsync(string email, string password)
         {
-            // IImplement the verifying login password from staffservice instead
+            var staff = await _staffService.GetByAsync(e => e.StaffEmail == email);
 
-            var login = await _staffService.GetByAsync(e => e.StaffEmail == email);
-
-            if (login == null)
+            if (staff == null)
                 return false;
 
-            if (login.StaffPassword! != password)
-                return false;
+            var isValid = await _staffService.VerifyPasswordAsync(staff.StaffId, password);
 
-            return true;
+            return isValid;
         }
     }
 }

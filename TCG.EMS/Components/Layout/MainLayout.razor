@@ -110,7 +110,6 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
         <article class="content flex-grow-1 m-0 p-0">
             @Body
         </article>
-        }
     </main>
 </div>
 
@@ -119,7 +118,8 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 
     protected override async Task OnInitializedAsync()
     {
-        
+        await Task.CompletedTask;
+        _hasInitialized = true;
     }
 
     private bool ShowLayout
@@ -127,7 +127,12 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
         get
         {
             var path = new Uri(NavManager.Uri).AbsolutePath.TrimEnd('/');
-            return path == "" || path == "/login" | path == "/login?error=invalid";
+            return path != "" && path != "/login";
         }
+    }
+
+    private void HandleLogout()
+    {
+        NavManager.NavigateTo("/auth/logout");
     }
 }

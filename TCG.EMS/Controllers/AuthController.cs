@@ -14,6 +14,7 @@
 //
 
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using TCG.Application.Services;
@@ -37,10 +38,13 @@ public class AuthController : Controller
         var result = await _loginService.LoginAsync(request.Email, request.Password);
 
         if (!result.WasSuccess)
-            // Handle failed login attempt (e.g., return an error message)
+        {
+            return Redirect("/login?error=1");
+        }
 
-            await HttpContext.SignInAsync(
-            "default",
+        // Use the configured cookie authentication scheme instead of the literal "default"
+        await HttpContext.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
             result.CPrinciple!
         );
 

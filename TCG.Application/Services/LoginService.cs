@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Linq.Expressions;
@@ -38,13 +39,13 @@ namespace TCG.Application.Services
             if (user is null)
                 return LoginResult.FailedAttempt();
 
-            var claims = new List<System.Security.Claims.Claim>
+            var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.StaffId.ToString())
             };
 
             var principal = new ClaimsPrincipal(
-                new ClaimsIdentity(claims, "default")
+                new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme)
             );
 
             return LoginResult.SuccessfulAttempt(principal);
@@ -53,10 +54,10 @@ namespace TCG.Application.Services
 
         public async Task LogoutAsync()
         {
-            var ctx = _httpContextAccessor.HttpContext;
-            if (ctx is not null)
+            var accessor = _httpContextAccessor.HttpContext;
+            if (accessor is not null)
             {
-                await ctx.SignOutAsync("default");
+                await accessor.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             }
         }
     }

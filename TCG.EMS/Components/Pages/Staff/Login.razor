@@ -12,123 +12,55 @@ Date: 14/06/2026
 Disclaimer: The following source code is the sole work of the author unless otherwise stated.
 Copyright (C) Benjamin Nicholls. All Rights Reserved.
 *@
+
 @page "/"
 @page "/login"
 @rendermode InteractiveServer
-@inject NavigationManager NavManager
-@inject HttpClient Http
-@using System.Net.Http
-@using System.Threading.Tasks
-@using TCG.Application.Models
 
 <div class="d-flex flex-column justify-content-center align-items-center min-vh-100">
     <div class="bg-container p-5">
 
         <h1 class="mb-3">TCGTourneys</h1>
 
-        <EditForm Model="loginModel" OnValidSubmit="HandleLogin">
-            <DataAnnotationsValidator />
-
+        <form method="post" action="/auth/login">
             <label>Email:</label>
-            <InputText id="email" class="form-control mb-3" @bind-Value="loginModel.Email" />
+            <input name="Email"
+                   class="form-control mb-3"
+                   required />
 
             <label>Password:</label>
-            <InputText id="password" type="password" class="form-control mb-3" @bind-Value="loginModel.Password" />
+            <input name="Password"
+                   type="password"
+                   class="form-control mb-3"
+                   required />
 
-            <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
-                @if (isSubmitting)
-                {
-                    <span>Loading...</span>
-                }
-                else
-                {
-                    <span>Login</span>
-                }
+            <button type="submit" class="btn btn-primary">
+                Login
             </button>
-        </EditForm>
+        </form>
 
         @if (!string.IsNullOrWhiteSpace(loginError))
         {
             <div class="text-danger mt-2">@loginError</div>
         }
-
-        @if (!string.IsNullOrWhiteSpace(debugMessage))
-        {
-            <div class="text-muted mt-2">@debugMessage</div>
-        }
-
     </div>
 </div>
 
 @code {
+    [SupplyParameterFromQuery]
+    public string? error { get; set; }
+
     private string? loginError;
-    private string? debugMessage;
-    private bool isSubmitting = false;
-    private LoginModel loginModel = new();
 
-    private class LoginModel
+    protected override void OnParametersSet()
     {
-        public string Email { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
-    }
-
-    protected override void OnInitialized()
-    {
-        if (Http.BaseAddress == null)
+        if (!string.IsNullOrWhiteSpace(error))
         {
-            Http.BaseAddress = new Uri(NavManager.BaseUri);
+            loginError = "Invalid login attempt.\nPlease check your email and password.";
         }
-        base.OnInitialized();
-    }
-
-    private async Task HandleLogin()
-    {
-        isSubmitting = true;
-        loginError = null;
-        debugMessage = null;
-
-        try
+        else
         {
-            var loginRequest = new LoginRequest
-            {
-                Email = loginModel.Email,
-                Password = loginModel.Password
-            };
-
-            var response = await Http.PostAsJsonAsync<LoginRequest>("/api/auth/login", loginRequest);
-
-            if (response.IsSuccessStatusCode)
-            {
-                await Task.Delay(500);
-
-                NavManager.NavigateTo("/home", forceLoad: true, replace: true);
-            }
-            else
-            {
-                var content = await response.Content.ReadAsStringAsync();
-                debugMessage = $"Response: {response.StatusCode} - {content}";
-
-                try
-                {
-                    var errorJson = System.Text.Json.JsonDocument.Parse(content);
-                    var messageElement = errorJson.RootElement.GetProperty("message");
-                    loginError = messageElement.GetString() ?? "Incorrect email or password.";
-                }
-                catch
-                {
-                    loginError = "Incorrect email or password.";
-                }
-            }
-        }
-        catch (Exception error)
-        {
-            loginError = $"An error occurred: {error.Message}";
-            debugMessage = error.ToString();
-        }
-        finally
-        {
-            isSubmitting = false;
+            loginError = null;
         }
     }
-
 }
