@@ -34,7 +34,16 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
             <label>Password:</label>
             <InputText id="password" type="password" class="form-control mb-3" @bind-Value="loginModel.Password" />
 
-            <button type="submit" class="btn btn-primary">Login</button>
+            <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                @if (isSubmitting)
+                {
+                    <span>Loading...</span>
+                }
+                else
+                {
+                    <span>Login</span>
+                }
+            </button>
         </EditForm>
 
         @if (!string.IsNullOrWhiteSpace(loginError))
@@ -42,11 +51,18 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
             <div class="text-danger mt-2">@loginError</div>
         }
 
+        @if (!string.IsNullOrWhiteSpace(debugMessage))
+        {
+            <div class="text-muted mt-2">@debugMessage</div>
+        }
+
     </div>
 </div>
 
 @code {
     private string? loginError;
+    private string? debugMessage;
+    private bool isSubmitting = false;
     private LoginModel loginModel = new();
 
     private class LoginModel
@@ -57,22 +73,5 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 
     private async Task HandleLogin()
     {
-        var form = new MultipartFormDataContent();
-        form.Add(new StringContent(loginModel.Email), "Email");
-        form.Add(new StringContent(loginModel.Password), "Password");
-
-        var uri = NavManager.ToAbsoluteUri("auth/login");
-        var resp = await Http.PostAsync(uri, form);
-
-        if (resp.IsSuccessStatusCode)
-        {
-            NavManager.NavigateTo("/home");
-        }
-        else
-        {
-            loginError = "Invalid email or password.";
-        }
     }
 }
-
-

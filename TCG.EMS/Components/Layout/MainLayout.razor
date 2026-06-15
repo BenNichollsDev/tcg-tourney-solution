@@ -115,8 +115,11 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
     private string? UserRole;
     private bool _hasInitialized = false;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
+        // Give the session a moment to initialize in the HTTP context
+        await Task.Delay(100);
+
         // Redirect to login if not authenticated and not on login page
         if (!StaffSession.IsLoggedIn && ShowSidebar)
         {
@@ -125,7 +128,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
         _hasInitialized = true;
     }
 
-    private void HandleLogout()
+    private async Task HandleLogout()
     {
         StaffSession.Logout();
         NavManager.NavigateTo("/login", replace: true);

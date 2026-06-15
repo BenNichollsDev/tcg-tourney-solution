@@ -162,12 +162,12 @@ app.UseAuthorization();
 
 app.UseAntiforgery();
 
+app.MapControllers();
+
 app.MapStaticAssets();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
-
-app.MapControllers();
 
 app.Run();
 

@@ -70,14 +70,29 @@ public class StaffService
         if (staff == null || string.IsNullOrWhiteSpace(staff.StaffPassword))
             return false;
 
-        // For the seeded admin (id == 1) the password is stored in plaintext in init.sql
-        if (staff.StaffId == 1)
+        // Special-case seeded admin stored in plaintext (id == 1)
+        if (staff.StaffId == 1 && staff.StaffPassword == password)
         {
-            return staff.StaffPassword == password;
+            return true;
         }
 
-        var result = hasher.VerifyHashedPassword(staff, staff.StaffPassword, password);
-        return result == Microsoft.AspNetCore.Identity.PasswordVerificationResult.Success || result == Microsoft.AspNetCore.Identity.PasswordVerificationResult.SuccessRehashNeeded;
+        // Try verifying as a hashed password
+        try
+        {
+            var result = hasher.VerifyHashedPassword(staff, staff.StaffPassword, password);
+            if (result == Microsoft.AspNetCore.Identity.PasswordVerificationResult.Success ||
+                result == Microsoft.AspNetCore.Identity.PasswordVerificationResult.SuccessRehashNeeded)
+            {
+                return true;
+            }
+        }
+        catch (FormatException)
+        {
+            // Malformed stored password not in expected hashed format
+            return false;
+        }
+
+        return false;
     }
 
     public async Task<StaffDto> CreateAsync(StaffDto staffDto)
