@@ -12,82 +12,46 @@
 // Disclaimer: The following source code is the sole work of the author unless otherwise stated.
 // Copyright (C) Benjamin Nicholls. All Rights Reserved.
 //
+
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
+using TCG.Application.Services;
 using TCG.Application.Models;
-using TCG.EMS.Services;
 
 namespace TCG.EMS.Controllers;
 
-[ApiController]
-[Route("api/[controller]")]
-public class AuthController : ControllerBase
+[Route("auth")]
+public class AuthController : Controller
 {
-    private readonly LoginAuthService _authService;
-    private readonly StaffSessionService _sessionService;
+    private readonly LoginService _loginService;
 
-    public AuthController(LoginAuthService authService, StaffSessionService sessionService)
+    public AuthController(LoginService loginService)
     {
-        _authService = authService;
-        _sessionService = sessionService;
+        _loginService = loginService;
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] LoginRequest request)
+    public async Task<IActionResult> Login([FromForm] LoginRequest request)
     {
-        if (request == null || string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
-        {
-            return BadRequest(new { success = false, message = "An email and password are required" });
-        }
+        var result = await _loginService.LoginAsync(request.Email, request.Password);
 
-        try
-        {
-            var staff = await _authService.AuthenticateAsync(request.Email, request.Password);
+        if (!result.WasSuccess)
+            // Handle failed login attempt (e.g., return an error message)
 
-            if (staff == null)
-            {
-                return Unauthorized(new { success = false, message = "Invalid email or password." });
-            }
+            await HttpContext.SignInAsync(
+            "default",
+            result.CPrinciple!
+        );
 
-            var principal = _authService.GetPrincipal(staff);
-
-            await _sessionService.SignInAsync(principal);
-
-            return Ok(new { success = true, message = "Login successful", staffId = staff.StaffId });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { success = false, message = "An error occurred during login", error = ex.Message });
-        }
+        return Redirect("/home");
     }
 
-    [HttpPost("logout")]
+    [HttpGet("logout")]
     public async Task<IActionResult> Logout()
     {
-        try
-        {
-            await _sessionService.LogoutAsync();
-            return Ok(new { success = true, message = "Logout successful" });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { success = false, message = "An error occurred during logout", error = ex.Message });
-        }
-    }
-
-    [HttpGet("current-user")]
-    public IActionResult GetCurrentUser()
-    {
-        if (!_sessionService.IsLoggedIn)
-        {
-            return Ok(new { isLoggedIn = false });
-        }
-
-        return Ok(new
-        {
-            isLoggedIn = true,
-            staffId = _sessionService.CurrentStaffId,
-            email = _sessionService.CurrentEmail,
-            name = _sessionService.CurrentName
-        });
+        await HttpContext.SignOutAsync("default");
+        return Redirect("/login");
     }
 }
+
