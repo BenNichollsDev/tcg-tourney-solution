@@ -1,4 +1,4 @@
-﻿/*
+﻿@*
 Program: Local Games Store Management System
 Filename: Login.razor
 Author: Benjamin Nicholls
@@ -11,14 +11,13 @@ Date: 14/06/2026
 
 Disclaimer: The following source code is the sole work of the author unless otherwise stated.
 Copyright (C) Benjamin Nicholls. All Rights Reserved.
-*/
+*@
 @page "/"
 @page "/login"
 @rendermode InteractiveServer
-@layout EmptyLayout
 @inject NavigationManager NavManager
+@inject HttpClient Http
 @using System.Net.Http
-@using System.Net.Http.Headers
 @using System.Threading.Tasks
 
 <div class="d-flex flex-column justify-content-center align-items-center min-vh-100">
@@ -58,12 +57,13 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 
     private async Task HandleLogin()
     {
-        using var http = new HttpClient();
         var form = new MultipartFormDataContent();
         form.Add(new StringContent(loginModel.Email), "Email");
         form.Add(new StringContent(loginModel.Password), "Password");
 
-        var resp = await http.PostAsync("/auth/login", form);
+        var uri = NavManager.ToAbsoluteUri("auth/login");
+        var resp = await Http.PostAsync(uri, form);
+
         if (resp.IsSuccessStatusCode)
         {
             NavManager.NavigateTo("/home");
@@ -74,4 +74,5 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
         }
     }
 }
+
 

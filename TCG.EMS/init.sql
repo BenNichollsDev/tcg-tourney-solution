@@ -1,0 +1,1 @@
+﻿INSERT INTO staff (staff_first_name, staff_surname, staff_email, staff_mobile, staff_password) VALUES ('John', 'Widows', '17cities@mail.com', '08537285555', '123');

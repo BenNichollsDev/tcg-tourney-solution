@@ -1,17 +1,17 @@
-﻿/*
-Program: Local Games Store Management System
-Filename: Program.cs
-Author: Benjamin Nicholls
-Course: BSc Software Engineering (Hons)
-Module: CSY4022 - Computing Project Dissertation
-Module Leader: Amir Minai
-Supervisor: Mark Johnson
-
-Date: 14/06/2026
-
-Disclaimer: The following source code is the sole work of the author unless otherwise stated.
-Copyright (C) Benjamin Nicholls. All Rights Reserved.
-*/
+//
+// Program: Local Games Store Management System
+// Filename: Program.cs
+// Author: Benjamin Nicholls
+// Course: BSc Software Engineering (Hons)
+// Module: CSY4022 - Computing Project Dissertation
+// Module Leader: Amir Minai
+// Supervisor: Mark Johnson
+//
+// Date: 14/06/2026
+//
+// Disclaimer: The following source code is the sole work of the author unless otherwise stated.
+// Copyright (C) Benjamin Nicholls. All Rights Reserved.
+//
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
@@ -33,6 +33,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
+builder.Services.AddHttpClient();
+
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
@@ -50,7 +52,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     )
 );
 
-// Use session-based scoped service for EMS instead of cookies-based authentication
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
@@ -59,13 +60,10 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-// No cookie authentication for EMS; we'll use a scoped StaffSessionService to track logged-in staff
 builder.Services.AddAuthorization();
-
 
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<AutoMapperProfile>());
 
-// Register application services
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IPairingService, PairingService>();
 builder.Services.AddScoped<IStaffService, StaffService>();
@@ -95,6 +93,59 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     dbContext.Database.Migrate();
+
+    // Runs SQL script on environment startup if the database is empty
+    bool hasAnything;
+    var conn = dbContext.Database.GetDbConnection();
+    try
+    {
+        conn.Open();
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = @"
+            SELECT
+                EXISTS(SELECT 1 FROM public.staff)
+             OR EXISTS(SELECT 1 FROM public.tournaments)
+             OR EXISTS(SELECT 1 FROM public.tournament_players)
+             OR EXISTS(SELECT 1 FROM public.pairings)
+             OR EXISTS(SELECT 1 FROM public.players)
+             OR EXISTS(SELECT 1 FROM public.leagues);
+        ";
+        var result = cmd.ExecuteScalar();
+        hasAnything = result is bool b && b;
+    }
+    finally
+    {
+        conn.Close();
+    }
+
+    if (!hasAnything)
+    {
+        var env = scope.ServiceProvider.GetRequiredService<IHostEnvironment>();
+        var possiblePaths = new[]
+        {
+            System.IO.Path.Combine(env.ContentRootPath, "Data", "init.sql"),
+            System.IO.Path.Combine(env.ContentRootPath, "init.sql")
+        };
+
+        string? initPath = null;
+        foreach (var file in possiblePaths)
+        {
+            if (System.IO.File.Exists(file))
+            {
+                initPath = file;
+                break;
+            }
+        }
+
+        if (!string.IsNullOrEmpty(initPath))
+        {
+            var sql = System.IO.File.ReadAllText(initPath);
+            if (!string.IsNullOrWhiteSpace(sql))
+            {
+                dbContext.Database.ExecuteSqlRaw(sql);
+            }
+        }
+    }
 }
 
 if (!app.Environment.IsDevelopment())
@@ -105,7 +156,6 @@ if (!app.Environment.IsDevelopment())
 
 app.UseStatusCodePagesWithReExecute("/_404", createScopeForStatusCodePages: true);
 
-// Use session middleware for EMS scoped session service
 app.UseSession();
 
 app.UseAuthorization();
@@ -120,3 +170,4 @@ app.MapRazorComponents<App>()
 app.MapControllers();
 
 app.Run();
+

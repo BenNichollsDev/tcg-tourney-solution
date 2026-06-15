@@ -1,17 +1,17 @@
-﻿/*
-Program: Local Games Store Management System
-Filename: Program.cs
-Author: Benjamin Nicholls
-Course: BSc Software Engineering (Hons)
-Module: CSY4022 - Computing Project Dissertation
-Module Leader: Amir Minai
-Supervisor: Mark Johnson
-
-Date: 14/06/2026
-
-Disclaimer: The following source code is the sole work of the author unless otherwise stated.
-Copyright (C) Benjamin Nicholls. All Rights Reserved.
-*/
+﻿//
+// Program: Local Games Store Management System
+// Filename: Program.cs
+// Author: Benjamin Nicholls
+// Course: BSc Software Engineering (Hons)
+// Module: CSY4022 - Computing Project Dissertation
+// Module Leader: Amir Minai
+// Supervisor: Mark Johnson
+//
+// Date: 14/06/2026
+//
+// Disclaimer: The following source code is the sole work of the author unless otherwise stated.
+// Copyright (C) Benjamin Nicholls. All Rights Reserved.
+//
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 using Microsoft.AspNetCore.StaticAssets;
 using Microsoft.EntityFrameworkCore;
@@ -34,7 +34,6 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<AutoMapperProfile>());
 
-// Register application services
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IPairingService, PairingService>();
 builder.Services.AddScoped<IStaffService, StaffService>();
@@ -73,7 +72,6 @@ app.MapDefaultEndpoints();
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    //dbContext.Database.Migrate();
 }
 
 if (!app.Environment.IsDevelopment())
@@ -92,6 +90,5 @@ app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
-//app.MapControllers();
-
 app.Run();
+

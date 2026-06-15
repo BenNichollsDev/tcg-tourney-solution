@@ -1,4 +1,4 @@
-﻿/*
+﻿@*
 Program: Local Games Store Management System
 Filename: MainLayout.razor
 Author: Benjamin Nicholls
@@ -11,7 +11,7 @@ Date: 14/06/2026
 
 Disclaimer: The following source code is the sole work of the author unless otherwise stated.
 Copyright (C) Benjamin Nicholls. All Rights Reserved.
-*/
+*@
 
 @inherits LayoutComponentBase
 @inject NavigationManager NavManager
@@ -23,7 +23,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
         {
             <p>Initializing...</p>
         }
-        else if (ShowLayout)
+        else if (ShowSidebar)
         {
             <nav class="sidebar d-flex flex-column p-3 bg-container sidebar-custom">
                 <!-- Brand -->
@@ -118,7 +118,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
     protected override void OnInitialized()
     {
         // Redirect to login if not authenticated and not on login page
-        if (!StaffSession.IsLoggedIn && !ShowLayout)
+        if (!StaffSession.IsLoggedIn && ShowSidebar)
         {
             NavManager.NavigateTo("/login", replace: true);
         }
@@ -131,12 +131,13 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
         NavManager.NavigateTo("/login", replace: true);
     }
 
-    private bool ShowLayout
+    private bool ShowSidebar
     {
         get
         {
             var path = new Uri(NavManager.Uri).AbsolutePath.TrimEnd('/');
-            return path == "" || path == "/login";
+            return path != "" && path != "/login";
         }
     }
 }
+

@@ -17,7 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.dockerignore = .dockerignore
 		.gitignore = .gitignore
-		init.sql = init.sql
+		TCG.EMS\init.sql = TCG.EMS\init.sql
+		TCG.EMS\init_psql.sql = TCG.EMS\init_psql.sql
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCG.AppHost", "TCG.AppHost\TCG.AppHost.csproj", "{55550FE7-92ED-4E89-B9E9-497EEEA57793}"
