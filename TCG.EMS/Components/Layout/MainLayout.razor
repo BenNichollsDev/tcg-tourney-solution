@@ -14,8 +14,11 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 *@
 
 @inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Components.Authorization
 @inject NavigationManager NavManager
 @inject TCG.EMS.Services.StaffSessionService StaffSession
+@inject HttpClient Http
+@inject AuthenticationStateProvider AuthStateProvider
 
 <div class="page bg-main text-main min-vh-100 d-flex flex-column">
     <main class="d-flex flex-grow-1">
@@ -112,34 +115,83 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 </div>
 
 @code {
-    private string? UserRole;
+    private bool ShowSidebar = false;
     private bool _hasInitialized = false;
 
     protected override async Task OnInitializedAsync()
     {
-        // Give the session a moment to initialize in the HTTP context
         await Task.Delay(100);
 
-        // Redirect to login if not authenticated and not on login page
-        if (!StaffSession.IsLoggedIn && ShowSidebar)
-        {
-            NavManager.NavigateTo("/login", replace: true);
-        }
+        AuthStateProvider.AuthenticationStateChanged += OnAuthenticationStateChanged;
+
+        var isLoggedIn = await StaffSession.IsLoggedInAsync();
+        UpdateLayoutForAuth(isLoggedIn);
+
         _hasInitialized = true;
+
+        StateHasChanged();
+    }
+
+    private async void OnAuthenticationStateChanged(Task<AuthenticationState> task)
+    {
+        try
+        {
+            var state = await task;
+            var isLoggedIn = state.User?.Identity?.IsAuthenticated == true;
+            UpdateLayoutForAuth(isLoggedIn);
+            StateHasChanged();
+        }
+        catch
+        {
+        }
+    }
+
+    private void UpdateLayoutForAuth(bool isLoggedIn)
+    {
+        var path = new Uri(NavManager.Uri).AbsolutePath.TrimEnd('/').ToLower();
+
+        if (!isLoggedIn)
+        {
+            ShowSidebar = false;
+            // Avoid navigating when already on an auth entry page to prevent redirect loops
+            if (path != "" && path != "/login")
+            {
+                NavManager.NavigateTo("/login", replace: true);
+            }
+        }
+        else
+        {
+            ShowSidebar = true;
+            // Only navigate to home if currently on root or login page
+            if (path == "" || path == "/login")
+            {
+                NavManager.NavigateTo("/home", replace: true);
+            }
+        }
     }
 
     private async Task HandleLogout()
     {
-        StaffSession.Logout();
-        NavManager.NavigateTo("/login", replace: true);
+        try
+        {
+            await Http.PostAsync("/api/auth/logout", null);
+            NavManager.NavigateTo("/login", replace: true);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Logout error: {ex.Message}");
+            NavManager.NavigateTo("/login", replace: true);
+        }
     }
 
-    private bool ShowSidebar
+    public void Dispose()
     {
-        get
+        try
         {
-            var path = new Uri(NavManager.Uri).AbsolutePath.TrimEnd('/');
-            return path != "" && path != "/login";
+            AuthStateProvider.AuthenticationStateChanged -= OnAuthenticationStateChanged;
+        }
+        catch
+        {
         }
     }
 }

@@ -12,6 +12,8 @@
 // Disclaimer: The following source code is the sole work of the author unless otherwise stated.
 // Copyright (C) Benjamin Nicholls. All Rights Reserved.
 //
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
@@ -62,6 +64,20 @@ builder.Services.AddSession(options =>
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/login";
+        options.LogoutPath = "/logout";
+        options.AccessDeniedPath = "/access-denied";
+        options.Cookie.Name = "TCGTourneys.Auth";
+        options.Cookie.HttpOnly = true;
+
+        options.Cookie.SecurePolicy = builder.Environment.IsDevelopment() ? CookieSecurePolicy.None : CookieSecurePolicy.Always;
+        options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax;
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+    });
+
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<AutoMapperProfile>());
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -72,11 +88,13 @@ builder.Services.AddScoped<ITournamentService, TournamentService>();
 builder.Services.AddScoped<ITournamentPlayerService, TournamentPlayerService>();
 
 builder.Services.AddScoped<TournamentScoringService>();
-builder.Services.AddScoped<StaffSessionService>();
 builder.Services.AddScoped<IPasswordHasher<Staff>, PasswordHasher<Staff>>();
 
 builder.Services.AddScoped<INavigationService, NavigationService>();
+builder.Services.AddScoped<StaffSessionService>();
+builder.Services.AddScoped<LoginAuthService>();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<AuthenticationStateProvider, Microsoft.AspNetCore.Components.Server.ServerAuthenticationStateProvider>();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddControllers();
 
@@ -158,16 +176,17 @@ app.UseStatusCodePagesWithReExecute("/_404", createScopeForStatusCodePages: true
 
 app.UseSession();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseAntiforgery();
-
-app.MapControllers();
 
 app.MapStaticAssets();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+app.MapControllers();
 
 app.Run();
 

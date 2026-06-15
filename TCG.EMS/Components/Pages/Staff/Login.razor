@@ -19,6 +19,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 @inject HttpClient Http
 @using System.Net.Http
 @using System.Threading.Tasks
+@using TCG.Application.Models
 
 <div class="d-flex flex-column justify-content-center align-items-center min-vh-100">
     <div class="bg-container p-5">
@@ -71,7 +72,63 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
         public string Password { get; set; } = string.Empty;
     }
 
+    protected override void OnInitialized()
+    {
+        if (Http.BaseAddress == null)
+        {
+            Http.BaseAddress = new Uri(NavManager.BaseUri);
+        }
+        base.OnInitialized();
+    }
+
     private async Task HandleLogin()
     {
+        isSubmitting = true;
+        loginError = null;
+        debugMessage = null;
+
+        try
+        {
+            var loginRequest = new LoginRequest
+            {
+                Email = loginModel.Email,
+                Password = loginModel.Password
+            };
+
+            var response = await Http.PostAsJsonAsync<LoginRequest>("/api/auth/login", loginRequest);
+
+            if (response.IsSuccessStatusCode)
+            {
+                await Task.Delay(500);
+
+                NavManager.NavigateTo("/home", forceLoad: true, replace: true);
+            }
+            else
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                debugMessage = $"Response: {response.StatusCode} - {content}";
+
+                try
+                {
+                    var errorJson = System.Text.Json.JsonDocument.Parse(content);
+                    var messageElement = errorJson.RootElement.GetProperty("message");
+                    loginError = messageElement.GetString() ?? "Incorrect email or password.";
+                }
+                catch
+                {
+                    loginError = "Incorrect email or password.";
+                }
+            }
+        }
+        catch (Exception error)
+        {
+            loginError = $"An error occurred: {error.Message}";
+            debugMessage = error.ToString();
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
     }
+
 }
