@@ -75,12 +75,13 @@ namespace TCG.Application.Services
             foreach (var player in tournamentPlayers)
             {
                 // Initialise stats from DB: wins, draws, losses, opponents, etc.
-                int gamesPlayed,
-                    matchesPlayed,
-                    gameWins,
-                    gameDraws,
-                    gameLosses,
-                    matchPoints;
+                int playerGamesPlayed,
+                    playerMatchesPlayed,
+                    playerGameWins,
+                    playerGameDraws,
+                    playerGameLosses,
+                    playerMatchPoints,
+                    playerTotalGames;
 
                 int byeCount = player.PlayerBye ?? 0;
 
@@ -89,24 +90,26 @@ namespace TCG.Application.Services
 
                 if (tournamentFormat == "RoundRobin")
                 {
-                    gameWins = player.PlayerRoundRobinWins ?? 0;
-                    gameDraws = player.PlayerRoundRobinDraws ?? 0;
-                    gameLosses = player.PlayerRoundRobinLosses ?? 0;
+                    playerGameWins = player.PlayerRoundRobinGameWins ?? 0;
+                    playerGameDraws = player.PlayerRoundRobinGameDraws ?? 0;
+                    playerGameLosses = player.PlayerRoundRobinGameLosses ?? 0;
 
-                    matchPoints = (gameWins * 3) + gameDraws;
-                    matchesPlayed = gameWins + gameDraws + gameLosses;
-                    gamesPlayed = player.GamesPlayed ?? matchesPlayed;
+                    playerMatchPoints = (playerGameWins * 3) + playerGameDraws;
+                    playerMatchesPlayed = playerGameWins + playerGameDraws + playerGameLosses;
+                    playerGamesPlayed = player.GamesPlayed ?? playerMatchesPlayed;
                 }
                 else
                 {
-                    gameWins = player.PlayerSwissWins ?? 0;
-                    gameDraws = player.PlayerSwissDraws ?? 0;
-                    gameLosses = player.PlayerSwissLosses ?? 0;
+                    playerGameWins = player.PlayerSwissGameWins ?? 0;
+                    playerGameDraws = player.PlayerSwissGameDraws ?? 0;
+                    playerGameLosses = player.PlayerSwissGameLosses ?? 0;
 
-                    matchPoints = (gameWins * 3) + gameDraws;
-                    matchesPlayed = gameWins + gameDraws + gameLosses;
-                    gamesPlayed = player.GamesPlayed ?? matchesPlayed;
+                    playerMatchPoints = (playerGameWins * 3) + playerGameDraws;
+                    playerMatchesPlayed = playerGameWins + playerGameDraws + playerGameLosses;
+                    playerGamesPlayed = player.GamesPlayed ?? playerMatchesPlayed;
                 }
+
+                playerTotalGames = playerGameWins + playerGameDraws + playerGameLosses;
 
 
                 // Stats
@@ -152,7 +155,7 @@ namespace TCG.Application.Services
                 Console.WriteLine($"Player {player.PlayerName}");
                 Console.WriteLine($"Opponents found: {opponents.Count}");
 
-                if (matchesPlayed > 0)
+                if (playerMatchesPlayed > 0)
                 {
                     // Disqualified players dont count towards any calculation.
                     if (!player.TpDisqualified)
@@ -167,7 +170,7 @@ namespace TCG.Application.Services
 
                             if (divisor > 0)
                             {
-                                matchWinPercent = (double)gameWins / divisor * 100;
+                                matchWinPercent = (double)playerGameWins / divisor * 100;
 
                                 // Apply min/max constraints for PKMN
                                 double minPercent = player.TpDropped ? 25.0 : 25.0;
@@ -182,13 +185,17 @@ namespace TCG.Application.Services
                         else
                         {
                             // For MTG or when tournament is not finished, use standard calculation
-                            matchWinPercent = matchesPlayed > 0 ? (double)gameWins / matchesPlayed * 100 : 0;
+                            matchWinPercent = playerMatchesPlayed > 0 ? (double)playerGameWins / playerMatchesPlayed * 100 : 0;
                         }
 
                         // Calculate game win percentage
-                        // bye wins do not count, so we exclude bye count from both numerator and denominator
-                        int gamesWithoutByes = gamesPlayed - byeCount;
-                        gameWinPercent = gamesWithoutByes > 0 ? (double)gameWins / gamesWithoutByes * 100 : 0;
+                        // bye wins do not count, so exclude bye count from both numerator and denominator
+                        int gamesWithoutByes = playerGamesPlayed - byeCount;
+                        gameWinPercent =
+                            totalGames > 0
+                                ? ((double)playerGameWins + (0.5 * playerGameDraws))
+                                    / totalGames * 100.0
+                                : 0;
 
                         // Apply clamping for MTG tournaments
                         // MTG percentages are clamped to minimum 33.3% and maximum 100%
@@ -371,13 +378,13 @@ namespace TCG.Application.Services
                     TournamentPlayerId = player.TournamentPlayerId,
                     PlayerName = player.PlayerName ?? string.Empty,
 
-                    Wins = gameWins,
-                    Draws = gameDraws,
-                    Losses = gameLosses,
-                    MatchesPlayed = gameWins + gameDraws + gameLosses,
-                    GamesPlayed = gamesPlayed,
+                    Wins = playerGameWins,
+                    Draws = playerGameDraws,
+                    Losses = playerGameLosses,
+                    MatchesPlayed = playerGameWins + playerGameDraws + playerGameLosses,
+                    GamesPlayed = playerGamesPlayed,
 
-                    MatchPoints = (gameWins * 3) + gameDraws,
+                    MatchPoints = (playerGameWins * 3) + playerGameDraws,
                     MatchWinPercent = matchWinPercent,
                     GameWinPercent = gameWinPercent,
                     OpMatchWinPercent = opMatchWinPercent,
