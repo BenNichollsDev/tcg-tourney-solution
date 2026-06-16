@@ -38,18 +38,20 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 
                             @if (_activeTourneys!.Any())
                             {
+                                <div style="display:grid;grid-template-columns:repeat(3,400px);justify-content:center;gap:16px;">
                                 @foreach (var tournament in _activeTourneys!)
                                 {
-                                    <NavLink class="event ongoing text-center" href="@($"/viewevent/{tournament.TournamentId}")">
-                                        <div class="event-title">@tournament.TournamentName</div>
+                                    <NavLink class="event card ongoing text-center" href="@($"/viewevent/{tournament.TournamentId}")" style="width:400px;height:200px;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+                                        <h4 class="event-title">@tournament.TournamentName</h4>
                                         @if (_leaguesOfTourneys.TryGetValue(tournament.TournamentId, out var leagueName))
                                         {
-                                            <div class="event-league">@leagueName</div>
+                                            <h5 class="event-league">@leagueName</h5>
                                         }
-                                        <div class="event-game">@(tournament.TournamentGame == "mtg" ? "Magic the Gathering" : "Pokémon")</div>
-                                        <div class="event-status">Ongoing</div>
+                                        <h5 class="event-game">@(tournament.TournamentGame == "mtg" ? "Magic the Gathering" : "Pokémon")</h5>
+                                        <h5 class="event-status">Ongoing</h5>
                                     </NavLink>
                                 }
+                                </div>
                             }
                             else
                             {
@@ -59,19 +61,19 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 
                         <div class="upcoming-column ps-3 pe-3 pt-3 pb-3 text-center">
                             <h2>Upcoming</h2>
-                            <div class="column-grid">
+                            <div style="display:grid;grid-template-columns:repeat(3,400px);justify-content:center;gap:16px;">
                                 @if (_tournamentsToDisplay!.Any())
                                 {
                                     @foreach (var tournament in _tournamentsToDisplay!)
                                                                     {
-                                                                        <NavLink class="event card text-center" href="@($"/viewevent/{tournament.TournamentId}")">
-                                                                            <div class="event-title">@tournament.TournamentName</div>
+                                                                        <NavLink class="event card text-center" href="@($"/viewevent/{tournament.TournamentId}")" style="width:400px;height:200px;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+                                                                            <h4 class="event-title">@tournament.TournamentName</h4>
                                                                             @if (_leaguesOfTourneys.TryGetValue(tournament.TournamentId, out var leagueName))
                                                                             {
-                                                                                <div class="event-league">@leagueName</div>
+                                                                                <h5 class="event-league">@leagueName</h5>
                                                                             }
-                                                                            <div class="event-game">@(tournament.TournamentGame == "mtg" ? "Magic the Gathering" : "Pokémon")</div>
-                                                                            <div class="event-time">@tournament.TournamentDate.ToString("dd MMM yyyy") at @tournament.TournamentTime</div>
+                                                                            <h5 class="event-game">@(tournament.TournamentGame == "mtg" ? "Magic the Gathering" : "Pokémon")</h5>
+                                                                            <h5 class="event-time">@tournament.TournamentDate.ToString("dd MMM yyyy") at @tournament.TournamentTime</h5>
                                                                         </NavLink>
                                                                     }
                                 }
@@ -84,19 +86,19 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 
                         <div class="recent-column ps-3 pe-3 pt-3 pb-3 text-center">
                             <h2>Recent</h2>
-                            <div class="column-grid">
+                            <div style="display:grid;grid-template-columns:repeat(3,400px);justify-content:center;gap:16px;">
                                 @if (_recentTourneys!.Any())
                                 {
                                     @foreach (var tournament in _recentTourneys!)
                                     {
-                                        <NavLink class="event card" href="@($"/viewevent/{tournament.TournamentId}")">
-                                            <div class="event-title">@tournament.TournamentName</div>
+                                        <NavLink class="event card" href="@($"/viewevent/{tournament.TournamentId}")" style="width:400px;height:200px;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+                                            <h4 class="event-title">@tournament.TournamentName</h4>
                                             @if (_leaguesOfTourneys.TryGetValue(tournament.TournamentId, out var leagueName))
                                             {
-                                                <div class="event-league">@leagueName</div>
+                                                <h5 class="event-league">@leagueName</h5>
                                             }
-                                            <div class="event-game">@(tournament.TournamentGame == "mtg" ? "Magic the Gathering" : "Pokémon")</div>
-                                            <div class="event-time">@tournament.TournamentDate.ToString("dd MMM yyyy") at @tournament.TournamentTime</div>
+                                            <h5 class="event-game">@(tournament.TournamentGame == "mtg" ? "Magic the Gathering" : "Pokémon")</h5>
+                                            <h5 class="event-time">@tournament.TournamentDate.ToString("dd MMM yyyy") at @tournament.TournamentTime</h5>
                                         </NavLink>
                                     }
                                 }

@@ -17,56 +17,57 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 @rendermode InteractiveServer
 
 <div class="ms-3 me-3">
-    <PageTitle>Angels of Cards | ifthereisnotourney then it says tourney not found, otherwise Tourney: @_tournament!.TournamentName</PageTitle>
+    <div class="ps-3 pe-3 pt-3 pb-3 text-center events-preview">
+        <PageTitle>Angels of Cards | ifthereisnotourney then it says tourney not found, otherwise Tourney: @_tournament!.TournamentName</PageTitle>
 
-    @if (!_hasDataLoaded)
-    {
-        <p>Loading event data...</p>
-    }
-    else
-    {
-        if (_tournament! is null)
+        @if (!_hasDataLoaded)
         {
-            <h1>Event not found.</h1>
+            <p>Loading event data...</p>
         }
         else
         {
-            <h1>@_tournament!.TournamentName</h1>
-            <h3>@_tournament!.TournamentGame</h3>
-            <h3>@_tournament!.TournamentFormat</h3>
-            <h3>@_tournament.TournamentDate.ToString("dd MMM yyyy") at @_tournament.TournamentTime</h3>
-
-            <h3>Entry Fee: @_tournament!.TournamentEntryFee</h3>
-
-            <p>@_tournament!.TournamentDescription</p>
-
-            <br />
-
-            @if (_participantNames == null || !_participantNames.Any())
+            if (_tournament! is null)
             {
-                <p>No participants yet.</p>
+                <h1>Event not found.</h1>
             }
             else
             {
-                <p>Participants: @_participantNames.Count / @_tournament!.TournamentMaxParticipants</p>
-            }
+                <h1 style ="margin-top: 1em; margin-bottom: 0.5em;">@_tournament!.TournamentName</h1>
+                <h5>Game: @((_tournament!.TournamentGame == "pkmn") ? "Pokémon" : (_tournament!.TournamentGame == "mtg" ? "Magic The Gathering" : _tournament!.TournamentGame))</h5>
+                <h5>Format: @_tournament!.TournamentFormat</h5>
+                <h5>Time and Date: @_tournament.TournamentDate.ToString("dd MMM yyyy") at @_tournament.TournamentTime</h5>
 
-            @if (!_tournament.TournamentStarted
-                && !_tournament.TournamentCancelled
-                && !_tournament.TournamentFinished
-                && (_participantNames is null || _participantNames.Count < _tournament.TournamentMaxParticipants))
-            {
-                <NavLink href="@($"/register/{_tournament.TournamentId}")" class="btn btn-primary">Sign up</NavLink>
-            }
+                <h5>@((_tournament!.TournamentEntryFee == 0) ? "Free Entry" : ($"Entry Fee: £{_tournament!.TournamentEntryFee}"))</h5>
 
-            <h2>
-                Standings
-            </h2>
-            @* Use real-time updates so spectators see live standings changes *@
-            <StandingsTable TournamentId="@_tournament.TournamentId" RealTimeUpdate="@true" />
+                <p>@_tournament!.TournamentDescription</p>
+
+                <br />
+
+                @if (_participantNames == null || !_participantNames.Any())
+                {
+                    <p>No participants yet.</p>
+                }
+                else
+                {
+                    <p>Participants: @_participantNames.Count / @_tournament!.TournamentMaxParticipants</p>
+                }
+
+                @if (!_tournament.TournamentStarted
+                    && !_tournament.TournamentCancelled
+                    && !_tournament.TournamentFinished
+                    && (_participantNames is null || _participantNames.Count < _tournament.TournamentMaxParticipants))
+                {
+                    <NavLink href="@($"/register/{_tournament.TournamentId}")" class="btn btn-primary">Sign up</NavLink>
+                }
+
+                <h2>
+                    Standings
+                </h2>
+                @* Use real-time updates so spectators see live standings changes *@
+                <StandingsTable TournamentId="@_tournament.TournamentId" RealTimeUpdate="@true" />
+            }
         }
-    }
-
+    </div>
 </div>
 
 @code {

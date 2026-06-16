@@ -58,17 +58,19 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
     <div class="ps-3 pe-3 pt-3 pb-3 text-center">
         <h2>Events</h2>
         <div class="events-grid">
-        <div class="ongoing-section">
+            <div class="ongoing-section">
             <h3>Ongoing</h3>
             @if (_activeTourneys!.Any())
             {
+                <div style="display:grid;grid-template-columns:repeat(3,400px);justify-content:center;gap:16px;">
                 @foreach(var t in _activeTourneys!)
                 {
-                    <NavLink class="event ongoing text-center" href="@($"/viewevent/{t.TournamentId}")">
-                        <div>@t.TournamentName</div>
-                        <div>@(t.TournamentGame=="mtg"?"Magic the Gathering":"Pokémon")</div>
+                    <NavLink class="event card ongoing text-center" href="@($"/viewevent/{t.TournamentId}")" style="width:400px;height:200px;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+                        <h4>@t.TournamentName</h4>
+                        <h5>@(t.TournamentGame=="mtg"?"Magic the Gathering":"Pokémon")</h5>
                     </NavLink>
                 }
+                </div>
             }
             else
             {
@@ -80,12 +82,12 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
             <h3>Upcoming</h3>
             @if (_tournamentsToDisplay!.Any())
             {
-                <div class="col-grid">
+                <div style="display:grid; grid-template-columns:repeat(3,400px); justify-content:center; gap:16px;">
                     @foreach(var t in _tournamentsToDisplay!)
                     {
-                        <NavLink class="event card text-center" href="@($"/viewevent/{t.TournamentId}")">
-                            <div>@t.TournamentName</div>
-                            <div>@t.TournamentDate.ToString("dd MMM")</div>
+                        <NavLink class="event card text-center" href="@($"/viewevent/{t.TournamentId}")" style="width:400px;height:200px;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+                            <h4>@t.TournamentName</h4>
+                            <h5>@t.TournamentDate.ToString("dd MMM")</h5>
                         </NavLink>
                     }
                 </div>
@@ -100,12 +102,12 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
             <h3>Recent</h3>
             @if (_recentTourneys!.Any())
             {
-                <div class="col-grid">
+                <div style="display:grid;grid-template-columns:repeat(3,400px);justify-content:center;gap:16px;">
                     @foreach(var t in _recentTourneys!)
                     {
-                        <NavLink class="event card" href="@($"/viewevent/{t.TournamentId}")">
-                            <div>@t.TournamentName</div>
-                            <div>@t.TournamentDate.ToString("dd MMM")</div>
+                        <NavLink class="event card" href="@($"/viewevent/{t.TournamentId}")" style="width:400px;height:200px;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+                            <h4>@t.TournamentName</h4>
+                            <h5>@t.TournamentDate.ToString("dd MMM")</h5>
                         </NavLink>
                     }
                 </div>
