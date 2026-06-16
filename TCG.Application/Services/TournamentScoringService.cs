@@ -80,7 +80,11 @@ namespace TCG.Application.Services
                     playerGameWins,
                     playerGameDraws,
                     playerGameLosses,
+                    playerMatchWins,
+                    playerMatchDraws,
+                    playerMatchLosses,
                     playerMatchPoints,
+                    playerGamePoints,
                     playerTotalGames;
 
                 int byeCount = player.PlayerBye ?? 0;
@@ -90,23 +94,43 @@ namespace TCG.Application.Services
 
                 if (tournamentFormat == "RoundRobin")
                 {
+                    // Game-level statistics
                     playerGameWins = player.PlayerRoundRobinGameWins ?? 0;
                     playerGameDraws = player.PlayerRoundRobinGameDraws ?? 0;
                     playerGameLosses = player.PlayerRoundRobinGameLosses ?? 0;
 
-                    playerMatchPoints = (playerGameWins * 3) + playerGameDraws;
-                    playerMatchesPlayed = playerGameWins + playerGameDraws + playerGameLosses;
-                    playerGamesPlayed = player.GamesPlayed ?? playerMatchesPlayed;
+                    // Match-level statistics
+                    playerMatchWins = player.PlayerRoundRobinWins ?? 0;
+                    playerMatchDraws = player.PlayerRoundRobinDraws ?? 0;
+                    playerMatchLosses = player.PlayerRoundRobinLosses ?? 0;
+
+                    // Derived match statistics
+                    playerMatchPoints = player.PlayerRoundRobinMatchPoints ?? ((playerMatchWins * 3) + playerMatchDraws);
+                    playerMatchesPlayed = playerMatchWins + playerMatchDraws + playerMatchLosses;
+
+                    // Game-level tracking
+                    playerGamesPlayed = player.GamesPlayed ?? (playerGameWins + playerGameDraws + playerGameLosses);
+                    playerGamePoints = (playerGameWins * 3) + playerGameDraws;
                 }
                 else
                 {
+                    // Game-level statistics
                     playerGameWins = player.PlayerSwissGameWins ?? 0;
                     playerGameDraws = player.PlayerSwissGameDraws ?? 0;
                     playerGameLosses = player.PlayerSwissGameLosses ?? 0;
 
-                    playerMatchPoints = (playerGameWins * 3) + playerGameDraws;
-                    playerMatchesPlayed = playerGameWins + playerGameDraws + playerGameLosses;
-                    playerGamesPlayed = player.GamesPlayed ?? playerMatchesPlayed;
+                    // Match-level statistics
+                    playerMatchWins = player.PlayerSwissWins ?? 0;
+                    playerMatchDraws = player.PlayerSwissDraws ?? 0;
+                    playerMatchLosses = player.PlayerSwissLosses ?? 0;
+
+                    // Derived match statistics
+                    playerMatchPoints = player.PlayerSwissMatchPoints ?? ((playerMatchWins * 3) + playerMatchDraws);
+                    playerMatchesPlayed = playerMatchWins + playerMatchDraws + playerMatchLosses;
+
+                    // Game-level tracking
+                    playerGamesPlayed = player.GamesPlayed ?? (playerGameWins + playerGameDraws + playerGameLosses);
+                    playerGamePoints = (playerGameWins * 3) + playerGameDraws;
                 }
 
                 playerTotalGames = playerGameWins + playerGameDraws + playerGameLosses;
@@ -192,9 +216,9 @@ namespace TCG.Application.Services
                         // bye wins do not count, so exclude bye count from both numerator and denominator
                         int gamesWithoutByes = playerGamesPlayed - byeCount;
                         gameWinPercent =
-                            totalGames > 0
+                            gamesWithoutByes > 0
                                 ? ((double)playerGameWins + (0.5 * playerGameDraws))
-                                    / totalGames * 100.0
+                                    / gamesWithoutByes * 100.0
                                 : 0;
 
                         // Apply clamping for MTG tournaments
@@ -283,13 +307,15 @@ namespace TCG.Application.Services
                                 }
 
                                 int totalGames = opponentGameWins + opponentGameDraws + opponentGameLosses;
+                                int opponentByeCount = opponentPlayer.PlayerBye ?? 0;
+                                gamesWithoutByes = totalGames - opponentByeCount;
 
-                                if (totalGames <= 0)
+                                if (gamesWithoutByes <= 0)
                                     continue;
 
                                 double opponentGameWinPercent =
                                     ((double)opponentGameWins + (0.5 * opponentGameDraws))
-                                    / totalGames
+                                    / gamesWithoutByes
                                     * 100.0;
 
                                 // MTG requires each opponent GWP to be floored at 33.3%
@@ -365,8 +391,7 @@ namespace TCG.Application.Services
                         }
                     }
 
-                    standings[player.TournamentPlayerId].OpOpMatchWinPercent =
-                        validCount > 0 ? total / validCount : 0;
+                    opOpMatchWinPercent = validCount > 0 ? total / validCount : 0;
                 }
 
 

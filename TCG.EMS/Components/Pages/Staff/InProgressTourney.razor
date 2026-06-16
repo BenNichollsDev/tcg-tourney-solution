@@ -41,20 +41,28 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 
                     <h4>Round @_tournamentModel.TournamentRoundNum/@_tournamentModel.TournamentMaxRoundNum</h4>
 
+                    @if (!string.IsNullOrEmpty(_validationErrorMessage))
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            <strong>Error:</strong> @_validationErrorMessage
+                        </div>
+                    }
+
                     <br />
 
                     @foreach (var pairing in pairings)
                     {
                         <div class="mb-3 border p-2">
-                            <div class="row">
+                            <div class="row align-items-center">
                                 <div class="col">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <span>@pairing.Player1Name</span>
                                         <input type="number" @bind-value="pairing.Player1Score"
+                                                     @bind-value:after="() => StateHasChanged()"
                                                      class="form-control form-control-sm ms-2"
                                                      style="width:4rem;"
                                                      min="0" max="3"
-                                                     disabled="@IsBye(pairing)" />
+                                                     disabled="@(pairing.Player1ScoreAutoAssigned || IsPlayerInBye(pairing, true) || (pairing.Player2Score == 3 && pairing.Player1Score != 3))" />
                                     </div>
                                 </div>
                                 <div class="col text-center">
@@ -64,16 +72,43 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                                     <div class="d-flex justify-content-between align-items-center">
                                         <span>@pairing.Player2Name</span>
                                         <input type="number" @bind-value="pairing.Player2Score"
+                                                     @bind-value:after="() => StateHasChanged()"
                                                      class="form-control form-control-sm ms-2"
                                                      style="width:4rem;"
                                                      min="0" max="3"
-                                                     disabled="@IsBye(pairing)" />
+                                                     disabled="@(pairing.Player2ScoreAutoAssigned || IsPlayerInBye(pairing, false) || (pairing.Player1Score == 3 && pairing.Player2Score != 3))" />
                                     </div>
+                                </div>
+                                <div class="col-auto">
+                                    <button class="btn btn-sm btn-info" @onclick="() => SetDraw(pairing)" disabled="@IsBye(pairing)">
+                                        Draw
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     }
                     <p></p>
+
+                    <!-- Disqualify/Drop controls -->
+                    <div class="mt-4 mb-3 d-flex gap-2 align-items-center">
+                        <select class="form-select w-auto" @bind="_selectedToDisqualify">
+                            <option value="">-- Select player to disqualify --</option>
+                            @foreach (var p in GetAvailablePlayersForDisqualify())
+                            {
+                                <option value="@p.TournamentPlayerId">@p.PlayerName</option>
+                            }
+                        </select>
+                        <button class="btn btn-danger" @onclick="DisqualifyPlayerAsync" disabled="@string.IsNullOrEmpty(_selectedToDisqualify)">Disqualify</button>
+
+                        <select class="form-select w-auto" @bind="_selectedToDrop">
+                            <option value="">-- Select player to drop --</option>
+                            @foreach (var p in GetAvailablePlayersForDrop())
+                            {
+                                <option value="@p.TournamentPlayerId">@p.PlayerName</option>
+                            }
+                        </select>
+                        <button class="btn btn-warning" @onclick="DropPlayerAsync" disabled="@string.IsNullOrEmpty(_selectedToDrop)">Drop</button>
+                    </div>
                 }
 
                 <div class="mt-3 d-flex gap-2">
@@ -104,11 +139,19 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
         public string? Player2Name { get; set; }
         public int Player1Score { get; set; }
         public int Player2Score { get; set; }
+
+        // Track if a player's score was auto-assigned due to opponent disqualification/drop
+        public bool Player1ScoreAutoAssigned { get; set; }
+        public bool Player2ScoreAutoAssigned { get; set; }
     }
 
     private bool _hasLoaded;
     private bool _showNull;
     private List<PairingSelection> pairings = new();
+    private string? _validationErrorMessage;
+    private string? _selectedToDisqualify;
+    private string? _selectedToDrop;
+    private List<TournamentPlayerDto> _tournamentPlayers = new();
 
     [Parameter]
     public int? TournamentId { get; set; }
@@ -179,13 +222,20 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                     p2Name = player2.PlayerName ?? "Unknown";
                 }
 
+                // For bye pairings, ensure Player1 has score locked to 3
+                int p1Score = pairing.Player1Score ?? 0;
+                if (!pairing.Player2Id.HasValue)
+                {
+                    p1Score = 3;
+                }
+
                 pairings.Add(new PairingSelection
                 {
                     Player1Id = pairing.Player1Id,
                     Player2Id = pairing.Player2Id,
                     Player1Name = p1Name,
-                    Player2Name = p2Name,
-                    Player1Score = pairing.Player1Score ?? 0,
+                    Player2Name = p2Name ?? "BYE",
+                    Player1Score = p1Score,
                     Player2Score = pairing.Player2Score ?? 0
                 });
             }
@@ -206,25 +256,228 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                 {
                     Player1Id = p1.TournamentPlayerId,
                     Player2Id = p2?.TournamentPlayerId,
-                    Player1Name = p1.PlayerName ?? "BYE",
+                    Player1Name = p1.PlayerName ?? "Unknown",
                     Player2Name = p2?.PlayerName ?? "BYE",
-                    Player1Score = 0,
+                    Player1Score = p2 == null ? 3 : 0,
                     Player2Score = 0
                 });
             }
         }
 
+        // Load all tournament players for disqualify/drop dropdowns
+        _tournamentPlayers = (await TournamentPlayerService
+            .GetAllWhereAsync(tp => tp.TournamentId == TournamentId.Value))
+            .ToList();
+
         _hasLoaded = true;
     }
 
+    private static bool IsValidPairingResult(PairingSelection pairing)
+    {
+        // Auto-assigned wins (from drop/disqualify) are always valid
+        if (pairing.Player1ScoreAutoAssigned || pairing.Player2ScoreAutoAssigned)
+            return true;
+
+        // Bye pairings are always valid
+        if (!pairing.Player2Id.HasValue)
+            return true;
+
+        int p1Score = pairing.Player1Score;
+        int p2Score = pairing.Player2Score;
+
+        // Valid scenario 1: Player 1 has 3, Player 2 has 0-2
+        if (p1Score == 3 && p2Score <= 2)
+            return true;
+
+        // Valid scenario 2: Player 2 has 3, Player 1 has 0-2
+        if (p2Score == 3 && p1Score <= 2)
+            return true;
+
+        // Valid scenario 3: Both have 1 (draw)
+        if (p1Score == 1 && p2Score == 1)
+            return true;
+
+        return false;
+    }
+
+    private bool AreAllPairingsValid()
+    {
+        _validationErrorMessage = null;
+
+        foreach (var pairing in pairings)
+        {
+            if (!IsValidPairingResult(pairing))
+            {
+                _validationErrorMessage = $"Invalid result for {pairing.Player1Name} vs {pairing.Player2Name}. " +
+                    "Each pairing must have either: one player with 3 points and the other with 0-2 points, or both players with 1 point (draw).";
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private List<TournamentPlayerDto> GetAvailablePlayersForDisqualify()
+    {
+        var pairingPlayerIds = pairings
+            .Where(p => p.Player1Id.HasValue || p.Player2Id.HasValue)
+            .SelectMany(p => new[] { p.Player1Id, p.Player2Id })
+            .Where(id => id.HasValue)
+            .Select(id => id.Value)
+            .ToHashSet();
+
+        return _tournamentPlayers
+            .Where(p => pairingPlayerIds.Contains(p.TournamentPlayerId) && !p.TpDisqualified)
+            .ToList();
+    }
+
+    private List<TournamentPlayerDto> GetAvailablePlayersForDrop()
+    {
+        var pairingPlayerIds = pairings
+            .Where(p => p.Player1Id.HasValue || p.Player2Id.HasValue)
+            .SelectMany(p => new[] { p.Player1Id, p.Player2Id })
+            .Where(id => id.HasValue)
+            .Select(id => id.Value)
+            .ToHashSet();
+
+        return _tournamentPlayers
+            .Where(p => pairingPlayerIds.Contains(p.TournamentPlayerId) && !p.TpDropped && !p.TpDisqualified)
+            .ToList();
+    }
+
+    private void UpdatePairingsForRemovedPlayer(int playerId)
+    {
+        foreach (var pairing in pairings)
+        {
+            // Replace the removed player with null
+            if (pairing.Player1Id == playerId)
+            {
+                pairing.Player1Id = null;
+                pairing.Player1Name = "BYE";
+                pairing.Player1Score = 0;
+                pairing.Player1ScoreAutoAssigned = false;
+            }
+            if (pairing.Player2Id == playerId)
+            {
+                pairing.Player2Id = null;
+                pairing.Player2Name = "BYE";
+                pairing.Player2Score = 0;
+                pairing.Player2ScoreAutoAssigned = false;
+            }
+
+            // If a player is left alone in the pairing, give them an automatic win (3 points)
+            if (pairing.Player1Id.HasValue && !pairing.Player2Id.HasValue)
+            {
+                pairing.Player2Name = "BYE";
+                pairing.Player2Score = 0;
+                pairing.Player1Score = 3;
+                pairing.Player1ScoreAutoAssigned = true;  // Mark as auto-assigned so it can't be edited
+            }
+            else if (!pairing.Player1Id.HasValue && pairing.Player2Id.HasValue)
+            {
+                // Move Player2 to Player1 and give them the automatic win
+                pairing.Player1Id = pairing.Player2Id;
+                pairing.Player1Name = pairing.Player2Name;
+                pairing.Player1Score = 3;
+                pairing.Player1ScoreAutoAssigned = true;
+                pairing.Player2Id = null;
+                pairing.Player2Name = "BYE";
+                pairing.Player2Score = 0;
+            }
+        }
+
+        // Remove empty pairings (both players null/bye)
+        pairings.RemoveAll(p => !p.Player1Id.HasValue && !p.Player2Id.HasValue);
+    }
+
     private static bool IsBye(PairingSelection p) =>
-        string.Equals(p.Player1Name, "BYE", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(p.Player2Name, "BYE", StringComparison.OrdinalIgnoreCase);
+        !p.Player2Id.HasValue;
+
+    private static bool IsPlayerInBye(PairingSelection p, bool isPlayer1)
+    {
+        if (!p.Player2Id.HasValue)
+        {
+            // This is a bye pairing - Player1 gets the bye, lock Player1's score to 3
+            return isPlayer1;
+        }
+        return false;
+    }
+
+    private void SetDraw(PairingSelection pairing)
+    {
+        if (!IsBye(pairing))
+        {
+            pairing.Player1Score = 1;
+            pairing.Player2Score = 1;
+            StateHasChanged();
+        }
+    }
+
+    private async Task DisqualifyPlayerAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_selectedToDisqualify))
+            return;
+
+        if (!int.TryParse(_selectedToDisqualify, out var playerId))
+            return;
+
+        var tp = _tournamentPlayers.FirstOrDefault(p => p.TournamentPlayerId == playerId);
+        if (tp == null)
+            return;
+
+        tp.TpDisqualified = true;
+        await TournamentPlayerService.UpdateAsync(tp);
+
+        // Update pairings immediately
+        UpdatePairingsForRemovedPlayer(playerId);
+
+        // Refresh tournament players list
+        _tournamentPlayers = (await TournamentPlayerService
+            .GetAllWhereAsync(tp => tp.TournamentId == TournamentId))
+            .ToList();
+
+        _selectedToDisqualify = null;
+        StateHasChanged();
+    }
+
+    private async Task DropPlayerAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_selectedToDrop))
+            return;
+
+        if (!int.TryParse(_selectedToDrop, out var playerId))
+            return;
+
+        var tp = _tournamentPlayers.FirstOrDefault(p => p.TournamentPlayerId == playerId);
+        if (tp == null)
+            return;
+
+        tp.TpDropped = true;
+        await TournamentPlayerService.UpdateAsync(tp);
+
+        // Update pairings immediately
+        UpdatePairingsForRemovedPlayer(playerId);
+
+        // Refresh tournament players list
+        _tournamentPlayers = (await TournamentPlayerService
+            .GetAllWhereAsync(tp => tp.TournamentId == TournamentId))
+            .ToList();
+
+        _selectedToDrop = null;
+        StateHasChanged();
+    }
 
     private async Task SaveResults()
     {
         if (TournamentId == null || _tournamentModel == null)
             return;
+
+        // Validate all pairings before saving
+        if (!AreAllPairingsValid())
+        {
+            StateHasChanged();
+            return;
+        }
 
         var dbPairings = (await PairingService
             .GetAllWhereAsync(p => p.TournamentId == TournamentId.Value && p.RoundNumber == _tournamentModel.TournamentRoundNum))
@@ -232,18 +485,26 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 
         foreach (var uiPairing in pairings)
         {
-            if (uiPairing.Player1Id == null)
+            if (uiPairing.Player1Id == null && uiPairing.Player2Id == null)
                 continue;
 
             int? p1 = uiPairing.Player1Id;
             int? p2 = uiPairing.Player2Id;
 
+            // Find matching pairing by checking current state and original state
+            // If current P1 matches a db entry's P1 or P2, theres a match
             var dbPairing = dbPairings.FirstOrDefault(x =>
-                x.Player1Id == p1 &&
-                x.Player2Id == p2);
+                (x.Player1Id == p1 && x.Player2Id == p2) ||
+                (x.Player1Id == p1 && x.Player2Id == null) ||
+                (x.Player1Id == p1 && p2 == null && x.Player2Id.HasValue) ||
+                (x.Player2Id == p1 && p2 == null && x.Player1Id != null));
 
             if (dbPairing == null)
                 continue;
+
+            // Update pairing IDs if they changed due to disqual or drop
+            dbPairing.Player1Id = p1 ?? dbPairing.Player1Id;
+            dbPairing.Player2Id = p2;
 
             // Save results
             dbPairing.Player1Score = uiPairing.Player1Score;
@@ -260,10 +521,10 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
         // Increment round
         _tournamentModel.TournamentRoundNum += 1;
 
-        await TournamentService.UpdateAsync(_tournamentModel);
-
-        // Keep tournament NOT in progress (return to view screen)
+        // Mark tournament as NOT in progress before updating
         _tournamentModel.TournamentRoundInProgress = false;
+
+        await TournamentService.UpdateAsync(_tournamentModel);
 
         NavManager.NavigateTo($"/tournaments/view/{TournamentId}");
     }
@@ -395,12 +656,6 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 
         var dbPairings = await PairingService
             .GetAllWhereAsync(p => p.TournamentId == TournamentId.Value);
-
-        // foreach (var pairing in dbPairings)
-        // {
-        //     if (pairing.PairingId > 0)
-        //         await PairingService.DeleteAsync(pairing.PairingId);
-        // }
 
         // Round is no longer in progress
         _tournamentModel.TournamentRoundInProgress = false;

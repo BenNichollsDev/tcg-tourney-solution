@@ -103,7 +103,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                         <h2>Round Robin Standings</h2>
 
                         @* Use the shared StandingsTable component to display round-robin standings *@
-                        <StandingsTable TournamentId="@TournamentId!.Value" RealTimeUpdate="@false" />
+                        <StandingsTable TournamentId="@TournamentId!.Value" RealTimeUpdate="@false" RefreshKey="@_standingsRefreshKey" />
 
                                         <button class="btn btn-primary"
                                                 @onclick="StartRoundAsync"
@@ -239,7 +239,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                         <h2 class="mt-4">Swiss Standings</h2>
 
                         @* Use the shared StandingsTable component to display Swiss standings *@
-                        <StandingsTable TournamentId="@TournamentId.Value" RealTimeUpdate="@false" />
+                        <StandingsTable TournamentId="@TournamentId.Value" RealTimeUpdate="@false" RefreshKey="@_standingsRefreshKey" />
                     }
                 }
 
@@ -268,6 +268,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
     private bool _canTournamentEnd;
     private string? _selectedToDisqualify;
     private string? _selectedToDrop;
+    private int _standingsRefreshKey = 0;
 
     private TournamentDto? _tournamentModel = new();
 
@@ -501,6 +502,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
         _computedStats = standingsList1 ?? new Dictionary<int, ITournamentScoringService.PlayerComputedStats>();
 
         _selectedToDisqualify = null;
+        _standingsRefreshKey++;
         StateHasChanged();
     }
 
@@ -529,6 +531,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
         _computedStats = standingsList2 ?? new Dictionary<int, ITournamentScoringService.PlayerComputedStats>();
 
         _selectedToDrop = null;
+        _standingsRefreshKey++;
         StateHasChanged();
     }
 

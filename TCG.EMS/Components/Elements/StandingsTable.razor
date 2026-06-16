@@ -121,6 +121,10 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
     [Parameter]
     public bool RealTimeUpdate { get; set; }
 
+    // Refresh key to trigger a refresh of the standings
+    [Parameter]
+    public int RefreshKey { get; set; }
+
     // Stores the computed player stats
     private Dictionary<int, ITournamentScoringService.PlayerComputedStats> _computedStats = new();
 
