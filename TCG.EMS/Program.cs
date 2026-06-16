@@ -87,7 +87,7 @@ builder.Services.AddScoped<ILeagueService, LeagueService>();
 builder.Services.AddScoped<ITournamentService, TournamentService>();
 builder.Services.AddScoped<ITournamentPlayerService, TournamentPlayerService>();
 
-builder.Services.AddScoped<TournamentScoringService>();
+builder.Services.AddScoped<ITournamentScoringService, TournamentScoringService>();
 builder.Services.AddScoped<IPasswordHasher<Staff>, PasswordHasher<Staff>>();
 
 builder.Services.AddScoped<INavigationService, NavigationService>();

@@ -23,13 +23,21 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
     <div class="row">
         <div class="col-12">
             <div class="bg-container p-4">
+
+                @if (_roundNumNotice != null)
+                {
+                    <div class="alert alert-warning">
+                        @_roundNumNotice
+                    </div>
+                }
+
                 @if (_notice != null)
                 {
                     <div class="alert alert-warning">
                         @_notice
                     </div>
                 }
-
+                
                 @if (!_hasLoaded)
                 {
                     <p>Loading...</p>
@@ -96,6 +104,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 
                         @* Use the shared StandingsTable component to display round-robin standings *@
                         <StandingsTable TournamentId="@TournamentId!.Value" RealTimeUpdate="@false" />
+
                                         <button class="btn btn-primary"
                                                 @onclick="StartRoundAsync"
                                                 disabled="@(!CanStartMatch() || HasInsufficientParticipants)">
@@ -251,6 +260,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
     private bool _hasLoaded;
     private bool _showNull;
     private string? _notice;
+    private string? _roundNumNotice;
 
     // Check if there are fewer than two active participants (ignores disqualified/dropped)
     private bool HasInsufficientParticipants => _participants.Count(p => !p.TpDisqualified && !p.TpDropped) < 2;
@@ -284,7 +294,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
     private IPairingService PairingService { get; set; } = null!;
 
     [Inject]
-    private TournamentScoringService ScoringService { get; set; } = null!;
+    private ITournamentScoringService ScoringService { get; set; } = null!;
 
     protected override async Task OnInitializedAsync()
     {
@@ -304,6 +314,11 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
             _showNull = true;
             _hasLoaded = true;
             return;
+        }
+
+        if (_tournamentModel.TournamentRoundNum >= _tournamentModel.TournamentMaxRoundNum)
+        {
+            _roundNumNotice = "Maximum number of rounds reached. This can be bypassed if neccesary.";
         }
 
         // If tournament is in progress, redirect to view page
@@ -387,8 +402,13 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
     private async Task NormalizeAndSavePairingsAsync()
     {
         var normalized = NormalizePairingsForPersist();
+
+        Console.WriteLine($"Normalized pairings count: {normalized.Count}");
+
         foreach (var dto in normalized)
         {
+            Console.WriteLine($"Pair: {dto.Player1Id} vs {dto.Player2Id}");
+
             dto.RoundNumber = _tournamentModel!.TournamentRoundNum;
             await PairingService.CreateAsync(dto);
         }
@@ -396,14 +416,12 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 
     private async Task StartRoundAsync()
     {
-        // normalize and save
         await NormalizeAndSavePairingsAsync();
 
         // Match now in progress
         _tournamentModel!.TournamentRoundInProgress = true;
         await TournamentService.UpdateAsync(_tournamentModel);
 
-        // navigate to in-progress page or refresh
         NavManager.NavigateTo($"/tournaments/inprogress/{TournamentId}");
     }
 

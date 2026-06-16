@@ -16,6 +16,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 using TCG.Application.Services;
 using TCG.Application.Models;
@@ -42,7 +43,6 @@ public class AuthController : Controller
             return Redirect("/login?error=1");
         }
 
-        // Use the configured cookie authentication scheme instead of the literal "default"
         await HttpContext.SignInAsync(
             CookieAuthenticationDefaults.AuthenticationScheme,
             result.CPrinciple!

@@ -18,6 +18,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 @using System
 @using Microsoft.AspNetCore.Components
 @using Microsoft.AspNetCore.Components.Forms
+@inject NavigationManager NavManager
 
 @rendermode InteractiveServer
 
@@ -49,8 +50,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                                 <div class="col">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <span>@pairing.Player1Name</span>
-                                        <InputNumber @bind-Value="pairing.Player1Score"
-                                                     TValue="int"
+                                        <input type="number" @bind-value="pairing.Player1Score"
                                                      class="form-control form-control-sm ms-2"
                                                      style="width:4rem;"
                                                      min="0" max="3"
@@ -63,8 +63,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                                 <div class="col">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <span>@pairing.Player2Name</span>
-                                        <InputNumber @bind-Value="pairing.Player2Score"
-                                                     TValue="int"
+                                        <input type="number" @bind-value="pairing.Player2Score"
                                                      class="form-control form-control-sm ms-2"
                                                      style="width:4rem;"
                                                      min="0" max="3"
@@ -295,6 +294,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
             {
                 // MTG: bye counts as 3 match points, 0 games played
                 p1.PlayerSwissMatchPoints = (p1.PlayerSwissMatchPoints ?? 0) + 3;
+                p1.PlayerSwissPoints = (p1.PlayerSwissPoints ?? 0) + 3;
                 p1.PlayerBye = (p1.PlayerBye ?? 0) + 1;
             }
 
@@ -313,22 +313,76 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
         p1Player.GamesPlayed = (p1Player.GamesPlayed ?? 0) + 1;
         p2Player.GamesPlayed = (p2Player.GamesPlayed ?? 0) + 1;
 
-        // Update wins, losses, and draws based on score
+        // Compute point deltas for match points / swiss points
+        int p1GameDifference = 0;
+        int p2GameDifference = 0;
+
+        bool isRoundRobin = string.Equals(_tournamentModel?.TournamentFormat, "RoundRobin", StringComparison.OrdinalIgnoreCase);
+
         if (uiPairing.Player1Score > uiPairing.Player2Score)
         {
             p1Player.PlayerSwissWins = (p1Player.PlayerSwissWins ?? 0) + 1;
             p2Player.PlayerSwissLosses = (p2Player.PlayerSwissLosses ?? 0) + 1;
+
+            if (isRoundRobin)
+            {
+                p1Player.PlayerRoundRobinGameWins = (p1Player.PlayerRoundRobinGameWins ?? 0) + 1;
+                p2Player.PlayerRoundRobinGameLosses = (p2Player.PlayerRoundRobinGameLosses ?? 0) + 1;
+            }
+            else
+            {
+                p1Player.PlayerSwissGameWins = (p1Player.PlayerSwissGameWins ?? 0) + 1;
+                p2Player.PlayerSwissGameLosses = (p2Player.PlayerSwissGameLosses ?? 0) + 1;
+            }
+
+            p1GameDifference = 3;
+            p2GameDifference = 0;
         }
         else if (uiPairing.Player2Score > uiPairing.Player1Score)
         {
             p1Player.PlayerSwissLosses = (p1Player.PlayerSwissLosses ?? 0) + 1;
             p2Player.PlayerSwissWins = (p2Player.PlayerSwissWins ?? 0) + 1;
+
+            if (isRoundRobin)
+            {
+                p1Player.PlayerRoundRobinGameLosses = (p1Player.PlayerRoundRobinGameLosses ?? 0) + 1;
+                p2Player.PlayerRoundRobinGameWins = (p2Player.PlayerRoundRobinGameWins ?? 0) + 1;
+            }
+            else
+            {
+                p1Player.PlayerSwissGameLosses = (p1Player.PlayerSwissGameLosses ?? 0) + 1;
+                p2Player.PlayerSwissGameWins = (p2Player.PlayerSwissGameWins ?? 0) + 1;
+            }
+
+            p1GameDifference = 0;
+            p2GameDifference = 3;
         }
         else
         {
             p1Player.PlayerSwissDraws = (p1Player.PlayerSwissDraws ?? 0) + 1;
             p2Player.PlayerSwissDraws = (p2Player.PlayerSwissDraws ?? 0) + 1;
+
+            if (isRoundRobin)
+            {
+                p1Player.PlayerRoundRobinGameDraws = (p1Player.PlayerRoundRobinGameDraws ?? 0) + 1;
+                p2Player.PlayerRoundRobinGameDraws = (p2Player.PlayerRoundRobinGameDraws ?? 0) + 1;
+            }
+            else
+            {
+                p1Player.PlayerSwissGameDraws = (p1Player.PlayerSwissGameDraws ?? 0) + 1;
+                p2Player.PlayerSwissGameDraws = (p2Player.PlayerSwissGameDraws ?? 0) + 1;
+            }
+
+            p1GameDifference = 1;
+            p2GameDifference = 1;
         }
+
+        // Update match points and swiss points
+        p1Player.PlayerSwissMatchPoints = (p1Player.PlayerSwissMatchPoints ?? 0) + p1GameDifference;
+        p2Player.PlayerSwissMatchPoints = (p2Player.PlayerSwissMatchPoints ?? 0) + p2GameDifference;
+
+        p1Player.PlayerSwissPoints = (p1Player.PlayerSwissPoints ?? 0) + p1GameDifference;
+        p2Player.PlayerSwissPoints = (p2Player.PlayerSwissPoints ?? 0) + p2GameDifference;
 
         await TournamentPlayerService.UpdateAsync(p1Player);
         await TournamentPlayerService.UpdateAsync(p2Player);
@@ -342,11 +396,11 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
         var dbPairings = await PairingService
             .GetAllWhereAsync(p => p.TournamentId == TournamentId.Value);
 
-        foreach (var pairing in dbPairings)
-        {
-            if (pairing.PairingId > 0)
-                await PairingService.DeleteAsync(pairing.PairingId);
-        }
+        // foreach (var pairing in dbPairings)
+        // {
+        //     if (pairing.PairingId > 0)
+        //         await PairingService.DeleteAsync(pairing.PairingId);
+        // }
 
         // Round is no longer in progress
         _tournamentModel.TournamentRoundInProgress = false;

@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Numerics;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TCG.Application.Dtos;
@@ -57,6 +58,9 @@ namespace TCG.Application.Services
 
             var allPairings = await _pService.GetAllWhereAsync(p => p.TournamentId == tournamentId);
 
+            Console.WriteLine($"Tournament ID = {tournamentId}");
+            Console.WriteLine($"Pairings Count = {allPairings.Count()}");
+
             // Get full tournament to access finished status and max rounds
             var tournament = await _tService.GetByIdAsync(tournamentId);
             var tournamentGame = tournament.TournamentGame;
@@ -85,22 +89,25 @@ namespace TCG.Application.Services
 
                 if (tournamentFormat == "RoundRobin")
                 {
-                    gamesPlayed = player.PlayerRoundRobinWins ?? 0;
-                    matchesPlayed = player.PlayerRoundRobinDraws ?? 0;
                     gameWins = player.PlayerRoundRobinWins ?? 0;
                     gameDraws = player.PlayerRoundRobinDraws ?? 0;
                     gameLosses = player.PlayerRoundRobinLosses ?? 0;
-                    matchPoints = player.PlayerRoundRobinDraws ?? 0;
+
+                    matchPoints = (gameWins * 3) + gameDraws;
+                    matchesPlayed = gameWins + gameDraws + gameLosses;
+                    gamesPlayed = player.GamesPlayed ?? matchesPlayed;
                 }
                 else
                 {
-                    gamesPlayed = player.PlayerSwissWins ?? 0;
-                    matchesPlayed = player.PlayerSwissDraws ?? 0;
                     gameWins = player.PlayerSwissWins ?? 0;
                     gameDraws = player.PlayerSwissDraws ?? 0;
                     gameLosses = player.PlayerSwissLosses ?? 0;
-                    matchPoints = player.PlayerSwissDraws ?? 0;
+
+                    matchPoints = (gameWins * 3) + gameDraws;
+                    matchesPlayed = gameWins + gameDraws + gameLosses;
+                    gamesPlayed = player.GamesPlayed ?? matchesPlayed;
                 }
+
 
                 // Stats
                 double matchWinPercent = 0;
@@ -118,6 +125,9 @@ namespace TCG.Application.Services
                         .Where(p => (p.Player1Id == player.TournamentPlayerId)
                             || (p.Player2Id == player.TournamentPlayerId))
                         .ToList();
+
+                Console.WriteLine(
+                    $"Player {player.TournamentPlayerId}: relevantPairings={relevantPairings.Count}");
 
                 opponents = relevantPairings
                     .Select(p => p.Player1Id == player.TournamentPlayerId ? p.Player2Id : p.Player1Id)
@@ -139,9 +149,10 @@ namespace TCG.Application.Services
                     .Distinct()
                     .ToList();
 
-                
-                
-                if (player.GamesPlayed > 0 && matchesPlayed > 0)
+                Console.WriteLine($"Player {player.PlayerName}");
+                Console.WriteLine($"Opponents found: {opponents.Count}");
+
+                if (matchesPlayed > 0)
                 {
                     // Disqualified players dont count towards any calculation.
                     if (!player.TpDisqualified)
@@ -196,38 +207,31 @@ namespace TCG.Application.Services
 
                             foreach (var opponentId in opponents)
                             {
-                                // Find the opponent player from tournament players to get their stats
-                                var opponentPlayer = tournamentPlayers.FirstOrDefault(tp => tp.TournamentPlayerId == opponentId);
-                                if (opponentPlayer != null && !opponentPlayer.TpDisqualified)
-                                {
-                                    // Get opponent's match record without byes
-                                    int opponentMatches = (opponentPlayer.PlayerRoundRobinWins ?? 0) + 
-                                                        (opponentPlayer.PlayerRoundRobinDraws ?? 0) + 
-                                                        (opponentPlayer.PlayerRoundRobinLosses ?? 0);
+                                var opponentPairings = allPairings
+                                    .Where(p =>
+                                        (p.Player1Id == opponentId || p.Player2Id == opponentId)
+                                        && p.HasResult)
+                                    .ToList();
 
-                                    if (tournamentFormat == "Swiss")
-                                    {
-                                        opponentMatches = (opponentPlayer.PlayerSwissWins ?? 0) + 
-                                                        (opponentPlayer.PlayerSwissDraws ?? 0) + 
-                                                        (opponentPlayer.PlayerSwissLosses ?? 0);
-                                    }
+                                // If opponent has no completed games, skip them
+                                if (opponentPairings.Count == 0)
+                                    continue;
 
-                                    int opponentWins = (opponentPlayer.PlayerRoundRobinWins ?? 0);
-                                    if (tournamentFormat == "Swiss")
-                                    {
-                                        opponentWins = (opponentPlayer.PlayerSwissWins ?? 0);
-                                    }
+                                int opponentWins = opponentPairings.Count(p =>
+                                    (p.Player1Id == opponentId && p.Player1Score > p.Player2Score) ||
+                                    (p.Player2Id == opponentId && p.Player2Score > p.Player1Score));
 
-                                    int opponentByes = opponentPlayer.PlayerBye ?? 0;
-                                    int opponentGamesWithoutByes = (opponentPlayer.GamesPlayed ?? 0) - opponentByes;
+                                int opponentDraws = opponentPairings.Count(p =>
+                                    p.Player1Score == p.Player2Score);
 
-                                    // Only count opponent if they have played matches
-                                    if (opponentMatches > 0)
-                                    {
-                                        totalOpponentMatchWinPercent += (double)opponentWins / opponentMatches * 100;
-                                        validOpponents++;
-                                    }
-                                }
+                                int opponentMatches = opponentPairings.Count;
+
+                                // If still no valid matches, skip (safety)
+                                if (opponentMatches == 0)
+                                    continue;
+
+                                totalOpponentMatchWinPercent += (double)opponentWins / opponentMatches * 100;
+                                validOpponents++;
                             }
 
                             // Average out the opponent match percentages
@@ -240,8 +244,7 @@ namespace TCG.Application.Services
                             }
                         }
 
-                        // Calculate opponent game win percentage
-                        // bye wins do not count
+                        // Calculate Opponent Game Win Percentage (OGW%)
                         if (opponents.Count > 0)
                         {
                             double totalOpponentGameWinPercent = 0;
@@ -249,76 +252,117 @@ namespace TCG.Application.Services
 
                             foreach (var opponentId in opponents)
                             {
-                                var opponentPlayer = tournamentPlayers.FirstOrDefault(tp => tp.TournamentPlayerId == opponentId);
-                                if (opponentPlayer != null && !opponentPlayer.TpDisqualified)
+                                var opponentPlayer = tournamentPlayers
+                                    .FirstOrDefault(tp => tp.TournamentPlayerId == opponentId);
+
+                                if (opponentPlayer == null || opponentPlayer.TpDisqualified)
+                                    continue;
+
+                                int opponentGameWins;
+                                int opponentGameDraws;
+                                int opponentGameLosses;
+
+                                if (tournamentFormat == "Swiss")
                                 {
-                                    int opponentByes = opponentPlayer.PlayerBye ?? 0;
-                                    int opponentGamesWithoutByes = (opponentPlayer.GamesPlayed ?? 0) - opponentByes;
-
-                                    int opponentGameWins = (opponentPlayer.PlayerRoundRobinWins ?? 0);
-                                    if (tournamentFormat == "Swiss")
-                                    {
-                                        opponentGameWins = (opponentPlayer.PlayerSwissWins ?? 0);
-                                    }
-
-                                    if (opponentGamesWithoutByes > 0)
-                                    {
-                                        totalOpponentGameWinPercent += (double)opponentGameWins / opponentGamesWithoutByes * 100;
-                                        validOpponents++;
-                                    }
+                                    opponentGameWins = opponentPlayer.PlayerSwissGameWins ?? 0;
+                                    opponentGameDraws = opponentPlayer.PlayerSwissGameDraws ?? 0;
+                                    opponentGameLosses = opponentPlayer.PlayerSwissGameLosses ?? 0;
                                 }
+                                else
+                                {
+                                    opponentGameWins = opponentPlayer.PlayerRoundRobinGameWins ?? 0;
+                                    opponentGameDraws = opponentPlayer.PlayerRoundRobinGameDraws ?? 0;
+                                    opponentGameLosses = opponentPlayer.PlayerRoundRobinGameLosses ?? 0;
+                                }
+
+                                int totalGames = opponentGameWins + opponentGameDraws + opponentGameLosses;
+
+                                if (totalGames <= 0)
+                                    continue;
+
+                                double opponentGameWinPercent =
+                                    ((double)opponentGameWins + (0.5 * opponentGameDraws))
+                                    / totalGames
+                                    * 100.0;
+
+                                // MTG requires each opponent GWP to be floored at 33.3%
+                                if (tournamentGame == "mtg")
+                                {
+                                    opponentGameWinPercent =
+                                        Math.Max(33.3, opponentGameWinPercent);
+                                }
+
+                                totalOpponentGameWinPercent += opponentGameWinPercent;
+                                validOpponents++;
                             }
 
-                            opGameWinPercent = validOpponents > 0 ? totalOpponentGameWinPercent / validOpponents : 0;
-
-                            // For MTG, apply clamping to opponent game win percentage
-                            if (tournamentGame == "mtg")
-                            {
-                                opGameWinPercent = Math.Max(33.3, Math.Min(100.0, opGameWinPercent));
-                            }
+                            opGameWinPercent =
+                                validOpponents > 0
+                                    ? totalOpponentGameWinPercent / validOpponents
+                                    : 0;
                         }
 
                         // Calculate opponent's opponent match win percentage
                         // bye wins do not count
-                        if (opponentsOpponents.Count > 0)
-                        {
-                            double totalOpOpMatchWinPercent = 0;
-                            int validOpOpponents = 0;
-
-                            foreach (var opOpId in opponentsOpponents)
-                            {
-                                var opOpPlayer = tournamentPlayers.FirstOrDefault(tp => tp.TournamentPlayerId == opOpId);
-                                if (opOpPlayer != null && !opOpPlayer.TpDisqualified)
-                                {
-                                    int opOpMatches = (opOpPlayer.PlayerRoundRobinWins ?? 0) + 
-                                                    (opOpPlayer.PlayerRoundRobinDraws ?? 0) + 
-                                                    (opOpPlayer.PlayerRoundRobinLosses ?? 0);
-
-                                    if (tournamentFormat == "Swiss")
-                                    {
-                                        opOpMatches = (opOpPlayer.PlayerSwissWins ?? 0) + 
-                                                    (opOpPlayer.PlayerSwissDraws ?? 0) + 
-                                                    (opOpPlayer.PlayerSwissLosses ?? 0);
-                                    }
-
-                                    int opOpWins = (opOpPlayer.PlayerRoundRobinWins ?? 0);
-                                    if (tournamentFormat == "Swiss")
-                                    {
-                                        opOpWins = (opOpPlayer.PlayerSwissWins ?? 0);
-                                    }
-
-                                    if (opOpMatches > 0)
-                                    {
-                                        totalOpOpMatchWinPercent += (double)opOpWins / opOpMatches * 100;
-                                        validOpOpponents++;
-                                    }
-                                }
-                            }
-
-                            opOpMatchWinPercent = validOpOpponents > 0 ? totalOpOpMatchWinPercent / validOpOpponents : 0;
-                        }
+                        // Calculated in a second pass after all MatchWinPercent values exist.
+                        opOpMatchWinPercent = 0;
                     }
                 }
+
+
+                // Calculate Opponent's Opponent Match Win %
+                foreach (var tPlayer in tournamentPlayers)
+                {
+                    var tRelevantPairings = allPairings
+                        .Where(p =>
+                            p.Player1Id == tPlayer.TournamentPlayerId ||
+                            p.Player2Id == tPlayer.TournamentPlayerId)
+                        .ToList();
+
+                    var tOpponents = tRelevantPairings
+                        .Select(p =>
+                            p.Player1Id == tPlayer.TournamentPlayerId
+                                ? p.Player2Id
+                                : p.Player1Id)
+                        .Where(id => id.HasValue)
+                        .Select(id => id!.Value)
+                        .ToList();
+
+                    var tOpponentsOpponents = allPairings
+                        .Where(p =>
+                            (tOpponents.Contains(p.Player1Id) && p.Player2Id.HasValue) ||
+                            (p.Player2Id.HasValue && tOpponents.Contains(p.Player2Id.Value)))
+                        .Select(p =>
+                            tOpponents.Contains(p.Player1Id)
+                                ? p.Player2Id
+                                : p.Player1Id)
+                        .Where(id => id.HasValue)
+                        .Select(id => id!.Value)
+                        .Where(id => id != player.TournamentPlayerId)
+                        .Where(id => !tOpponents.Contains(id))
+                        .Distinct()
+                        .ToList();
+
+                    double total = 0;
+                    int validCount = 0;
+
+                    foreach (var opOpId in tOpponentsOpponents)
+                    {
+                        if (standings.TryGetValue(opOpId, out var opOpStats))
+                        {
+                            if (!opOpStats.IsDisqualified)
+                            {
+                                total += opOpStats.MatchWinPercent;
+                                validCount++;
+                            }
+                        }
+                    }
+
+                    standings[player.TournamentPlayerId].OpOpMatchWinPercent =
+                        validCount > 0 ? total / validCount : 0;
+                }
+
+
 
                 // Create initial standings dictionary for each player with values from database
                 // And calculated values for points (wins * 3 + draws) and other stats
@@ -357,11 +401,36 @@ namespace TCG.Application.Services
                 // Sort players in descending order by MTG tiebreaker rules
                 // Sort by: MatchPoints > OpMatchWinPercent > GameWinPercent > OpGameWinPercent
                 // Disqualified players do not get rankings
-                var activePlayers = allPlayers.Where(p => !p.IsDisqualified).OrderByDescending(p => p.MatchPoints)
-                    .ThenByDescending(p => p.OpMatchWinPercent)
-                    .ThenByDescending(p => p.GameWinPercent)
-                    .ThenByDescending(p => p.OpGameWinPercent)
-                    .ToList();
+                // Tiebreakers are only applied within hierarchical groups at each level
+
+                var activePlayers = new List<ITournamentScoringService.PlayerComputedStats>();
+
+                var groupedByMatchPoints = allPlayers.Where(p => !p.IsDisqualified)
+                    .GroupBy(p => p.MatchPoints)
+                    .OrderByDescending(g => g.Key);
+
+                foreach (var matchPointGroup in groupedByMatchPoints)
+                {
+                    var groupedByOpMatchWin = matchPointGroup
+                        .GroupBy(p => Math.Round(p.OpMatchWinPercent, 3))
+                        .OrderByDescending(g => g.Key);
+
+                    foreach (var opMatchWinGroup in groupedByOpMatchWin)
+                    {
+                        var groupedByGameWin = opMatchWinGroup
+                            .GroupBy(p => Math.Round(p.GameWinPercent, 3))
+                            .OrderByDescending(g => g.Key);
+
+                        foreach (var gameWinGroup in groupedByGameWin)
+                        {
+                            var sortedByOpGameWin = gameWinGroup
+                                .OrderByDescending(p => p.OpGameWinPercent)
+                                .ToList();
+
+                            activePlayers.AddRange(sortedByOpGameWin);
+                        }
+                    }
+                }
 
                 // Assign positions, giving the same position to players with identical tiebreaker values
                 int currentPosition = 1;
@@ -394,7 +463,6 @@ namespace TCG.Application.Services
             // If the game is PKMN, sort by PKMN tiebreaker rules
             else if (tournamentGame == "pkmn")
             {
-                // Sort players in descending order by PKMN tiebreaker rules
                 // Sort by: OpMatchWinPercent > OpOpMatchWinPercent > HeadToHeadPosition (only if tournament finished)
 
                 List<ITournamentScoringService.PlayerComputedStats> activePlayers;
@@ -402,19 +470,60 @@ namespace TCG.Application.Services
                 // Only include HeadToHeadPosition in sorting if tournament is finished
                 if (tournamentIsFinished)
                 {
-                    activePlayers = allPlayers.Where(p => !p.IsDisqualified)
-                        .OrderByDescending(p => p.OpMatchWinPercent)
-                        .ThenByDescending(p => p.OpOpMatchWinPercent)
-                        .ThenBy(p => p.HeadToHeadPosition)
-                        .ToList();
+                    activePlayers = new List<ITournamentScoringService.PlayerComputedStats>();
+
+                    var groupedByMatchPoints = allPlayers.Where(p => !p.IsDisqualified)
+                        .GroupBy(p => p.MatchPoints)
+                        .OrderByDescending(g => g.Key);
+
+                    foreach (var matchPointGroup in groupedByMatchPoints)
+                    {
+                        var groupedByOpMatchWin = matchPointGroup
+                            .GroupBy(p => Math.Round(p.OpMatchWinPercent, 3))
+                            .OrderByDescending(g => g.Key);
+
+                        foreach (var opMatchWinGroup in groupedByOpMatchWin)
+                        {
+                            var groupedByOpOpMatchWin = opMatchWinGroup
+                                .GroupBy(p => Math.Round(p.OpOpMatchWinPercent, 3))
+                                .OrderByDescending(g => g.Key);
+
+                            foreach (var opOpMatchWinGroup in groupedByOpOpMatchWin)
+                            {
+                                var sortedByHeadToHead = opOpMatchWinGroup
+                                    .OrderBy(p => p.HeadToHeadPosition)
+                                    .ToList();
+
+                                activePlayers.AddRange(sortedByHeadToHead);
+                            }
+                        }
+                    }
                 }
                 else
                 {
                     // If tournament is not finished, do not use head-to-head; use default 0 position for tiebreaker
-                    activePlayers = allPlayers.Where(p => !p.IsDisqualified)
-                        .OrderByDescending(p => p.OpMatchWinPercent)
-                        .ThenByDescending(p => p.OpOpMatchWinPercent)
-                        .ToList();
+                    activePlayers = new List<ITournamentScoringService.PlayerComputedStats>();
+
+                    var groupedByMatchPoints = allPlayers.Where(p => !p.IsDisqualified)
+                        .GroupBy(p => p.MatchPoints)
+                        .OrderByDescending(g => g.Key);
+
+                    foreach (var matchPointGroup in groupedByMatchPoints)
+                    {
+                        var groupedByOpMatchWin = matchPointGroup
+                            .GroupBy(p => Math.Round(p.OpMatchWinPercent, 3))
+                            .OrderByDescending(g => g.Key);
+
+                        foreach (var opMatchWinGroup in groupedByOpMatchWin)
+                        {
+
+                            var sortedByOpOpMatchWin = opMatchWinGroup
+                                .OrderByDescending(p => p.OpOpMatchWinPercent)
+                                .ToList();
+
+                            activePlayers.AddRange(sortedByOpOpMatchWin);
+                        }
+                    }
                 }
 
                 // Assign positions, giving the same position to players with identical tiebreaker values
@@ -424,20 +533,21 @@ namespace TCG.Application.Services
                     // Check if this player has the same tiebreaker stats as the previous player
                     if (i > 0)
                     {
+                        bool sameMatchPoints = activePlayers[i].MatchPoints == activePlayers[i - 1].MatchPoints;
                         bool sameOpMatchWin = Math.Abs(activePlayers[i].OpMatchWinPercent - activePlayers[i - 1].OpMatchWinPercent) < 0.001;
                         bool sameOpOpMatchWin = Math.Abs(activePlayers[i].OpOpMatchWinPercent - activePlayers[i - 1].OpOpMatchWinPercent) < 0.001;
 
                         // Include head-to-head comparison only if tournament is finished
                         bool sameHeadToHead = !tournamentIsFinished || activePlayers[i].HeadToHeadPosition == activePlayers[i - 1].HeadToHeadPosition;
 
-                        if (sameOpMatchWin && sameOpOpMatchWin && sameHeadToHead)
+                        if (sameMatchPoints && sameOpMatchWin && sameOpOpMatchWin && sameHeadToHead)
                         {
                             // Same position as previous player since all tiebreakers are equal
                             activePlayers[i].Position = activePlayers[i - 1].Position;
                         }
                         else
                         {
-                            // New position starting from where we are in the list
+                            // New position starting from current list position
                             currentPosition = i + 1;
                             activePlayers[i].Position = currentPosition;
                         }
@@ -449,7 +559,7 @@ namespace TCG.Application.Services
                     }
                 }
 
-                // Disqualified players get no position (stays 0)
+                // Disqualified players get no position
                 foreach (var disqualifiedPlayer in allPlayers.Where(p => p.IsDisqualified))
 
                 {

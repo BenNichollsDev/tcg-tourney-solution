@@ -21,102 +21,165 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 
 @rendermode InteractiveServer
 
-<div class="container py-4">
-	<div class="row">
-		<div class="col-12">
-			<h1 class="mb-3">TCGTourneys | Dashboard</h1>
+<div class="container-fluid py-4">
+	<div class="row justify-content-center mb-4">
+		<div class="col-auto">
+			<h1 class="text-center">TCGTourneys | Dashboard</h1>
 		</div>
 	</div>
 
 	<div class="row">
-		<div class="col-md-6">
-			<div class="bg-container p-3 mb-3">
-				<h4>Tournaments</h4>
+		<div class="col-lg-6 pe-0">
+			<div class="bg-container p-4 h-100">
+				<h4 class="mb-3">Tournaments</h4>
 
 				@if (!_hasLoaded)
 				{
 					<p>Loading...</p>
 				}
+				else if (_upcoming == null || (_upcoming.Count == 0 && _ongoing.Count == 0))
+				{
+					<p>No tournaments found.</p>
+				}
 				else
 				{
-					@if (_upcoming != null)
-					{
-						<h5>Upcoming</h5>
-						@foreach (var tournament in _upcoming)
+					<div class="container-fluid">
+						@if (_upcoming != null && _upcoming.Count > 0)
 						{
-							<NavLink class="text-decoration-none" href="@($"/tournaments/edit/{tournament.TournamentId}")">
-								<div class="card mb-2 p-2">
-									<div class="d-flex justify-content-between">
-										<div>
-											<strong>@tournament.TournamentName</strong>
-											<div class="text-muted">@tournament.TournamentGame • @tournament.TournamentFormat</div>
-										</div>
-										<div class="text-end">
-											<div>@tournament.TournamentDate</div>
-											<div class="text-muted">@tournament.TournamentTime</div>
-										</div>
+							<div class="mb-4">
+								<h5 class="mb-2">Upcoming</h5>
+								<div class="row mb-2 border-bottom border-2 border-light">
+									<div class="col-3 border-end border-1 border-light">
+										<span>Name</span>
+									</div>
+									<div class="col-3 border-end border-1 border-light">
+										<span>Game</span>
+									</div>
+									<div class="col-2 border-end border-1 border-light">
+										<span>Format</span>
+									</div>
+									<div class="col-2 border-end border-1 border-light">
+										<span>Date</span>
+									</div>
+									<div class="col-2">
+										<span>Time</span>
 									</div>
 								</div>
-							</NavLink>
-						}
-					}
 
-					@if (_ongoing != null)
-					{
-						<h5 class="mt-3">Ongoing</h5>
-						@foreach (var tournament in _ongoing)
-						{
-							<NavLink class="text-decoration-none" href="@($"/tournaments/view/{tournament.TournamentId}")">
-								<div class="card mb-2 p-2">
-									<div class="d-flex justify-content-between">
-										<div>
-											<strong>@tournament.TournamentName</strong>
-											<div class="text-muted">@tournament.TournamentGame • @tournament.TournamentFormat</div>
+								@foreach (var tournament in _upcoming)
+								{
+									<div class="row mb-1 align-items-center tourney-card">
+										<div class="col-3 border-end border-1 border-light">
+											<span>@tournament.TournamentName</span>
 										</div>
-										<div class="text-end">
-											<div>@tournament.TournamentDate</div>
-											<div class="text-muted">@tournament.TournamentTime</div>
+										<div class="col-3 border-end border-1 border-light">
+											<span>@tournament.TournamentGame</span>
+										</div>
+										<div class="col-2 border-end border-1 border-light">
+											<span>@tournament.TournamentFormat</span>
+										</div>
+										<div class="col-2 border-end border-1 border-light">
+											<span>@tournament.TournamentDate</span>
+										</div>
+										<div class="col-2">
+											<span>@tournament.TournamentTime</span>
 										</div>
 									</div>
-								</div>
-							</NavLink>
+								}
+							</div>
 						}
-					}
+
+						@if (_ongoing != null && _ongoing.Count > 0)
+						{
+							<div>
+								<h5 class="mb-2">Ongoing</h5>
+								<div class="row mb-2 border-bottom border-2 border-light">
+									<div class="col-3 border-end border-1 border-light">
+										<span>Name</span>
+									</div>
+									<div class="col-3 border-end border-1 border-light">
+										<span>Game</span>
+									</div>
+									<div class="col-2 border-end border-1 border-light">
+										<span>Format</span>
+									</div>
+									<div class="col-2 border-end border-1 border-light">
+										<span>Date</span>
+									</div>
+									<div class="col-2">
+										<span>Time</span>
+									</div>
+								</div>
+
+								@foreach (var tournament in _ongoing)
+								{
+									<div class="row mb-1 align-items-center tourney-card">
+										<div class="col-3 border-end border-1 border-light">
+											<span>@tournament.TournamentName</span>
+										</div>
+										<div class="col-3 border-end border-1 border-light">
+											<span>@tournament.TournamentGame</span>
+										</div>
+										<div class="col-2 border-end border-1 border-light">
+											<span>@tournament.TournamentFormat</span>
+										</div>
+										<div class="col-2 border-end border-1 border-light">
+											<span>@tournament.TournamentDate</span>
+										</div>
+										<div class="col-2">
+											<span>@tournament.TournamentTime</span>
+										</div>
+									</div>
+								}
+							</div>
+						}
+					</div>
 				}
 			</div>
 		</div>
 
-		<div class="col-md-6">
-			<div class="bg-container p-3 mb-3">
-				<h4>Leagues</h4>
+		<div class="col-lg-6 ps-0">
+			<div class="bg-container p-4 h-100">
+				<h4 class="mb-3">Leagues</h4>
 
 				@if (!_hasLoaded)
 				{
 					<p>Loading...</p>
 				}
+				else if (_leagues == null || _leagues.Count == 0)
+				{
+					<p>No leagues found.</p>
+				}
 				else
 				{
-					@if (_leagues != null)
-					{
+					<div class="container-fluid">
+						<div class="row mb-2 border-bottom border-2 border-light">
+							<div class="col-4 border-end border-1 border-light">
+								<span>Name</span>
+							</div>
+							<div class="col-3 border-end border-1 border-light">
+								<span>Game</span>
+							</div>
+							<div class="col-5">
+								<span>Description</span>
+							</div>
+						</div>
+
 						@foreach (var league in _leagues)
 						{
-							<NavLink class="text-decoration-none" href="@($"/leagues/edit/{league.LeagueId}")">
-								<div class="card mb-2 p-2">
-									<div class="d-flex justify-content-between">
-										<div>
-											<strong>@league.LeagueName</strong>
-											<div class="text-muted">@league.LeagueGame</div>
-											<div class="text-muted">@league.LeagueDescription</div>
-										</div>
-									</div>
+							<div class="row mb-1 align-items-center tourney-card">
+								<div class="col-4 border-end border-1 border-light">
+									<span>@league.LeagueName</span>
 								</div>
-							</NavLink>
+								<div class="col-3 border-end border-1 border-light">
+									<span>@league.LeagueGame</span>
+								</div>
+								<div class="col-5">
+									<span>@league.LeagueDescription</span>
+								</div>
+							</div>
 						}
-					}
-					else
-					{
-						<p>No leagues</p>
-					}
+					</div>
 				}
 			</div>
 		</div>
@@ -143,7 +206,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 
 		if (_tournaments != null)
 		{
-			_upcoming = _tournaments.Where(tournament => !tournament.TournamentCancelled && (!tournament.TournamentStarted || tournament.TournamentDate.ToDateTime(tournament.TournamentTime) <= DateTime.Now.AddMinutes(-15))).ToList();
+			_upcoming = _tournaments.Where(tournament => !tournament.TournamentCancelled && !tournament.TournamentStarted && tournament.TournamentDate.ToDateTime(tournament.TournamentTime) > DateTime.Now.AddMinutes(-15)).ToList();
 			_ongoing = _tournaments.Where(tournament => !tournament.TournamentCancelled && tournament.TournamentStarted && !tournament.TournamentFinished).ToList();
 		}
 

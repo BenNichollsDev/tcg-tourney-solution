@@ -88,8 +88,8 @@ namespace TCG.Domain.Entities
         public League League { get; set; } = null!;
 
         public ICollection<TournamentPlayer> TournamentPlayers { get; set; } = new List<TournamentPlayer>();
-        
-        public ICollection<Pairing> Pairings { get; set; } = new List<Pairing>();
+
+        public ICollection<Pairing> Pairings { get; set; } = null!;
     }
 }
 

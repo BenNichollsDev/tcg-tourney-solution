@@ -72,6 +72,24 @@ namespace TCG.Domain.Entities
         [Column("tp_matches_played")]
         public int? MatchesPlayed { get; set; }
 
+        [Column("tp_round_robin_game_wins")]
+        public int? PlayerRoundRobinGameWins { get; set; }
+
+        [Column("tp_round_robin_game_draws")]
+        public int? PlayerRoundRobinGameDraws { get; set; }
+
+        [Column("tp_round_robin_game_losses")]
+        public int? PlayerRoundRobinGameLosses { get; set; }
+
+        [Column("tp_swiss_game_wins")]
+        public int? PlayerSwissGameWins { get; set; }
+
+        [Column("tp_swiss_game_draws")]
+        public int? PlayerSwissGameDraws { get; set; }
+
+        [Column("tp_swiss_game_losses")]
+        public int? PlayerSwissGameLosses { get; set; }
+
         [Column("tp_disqualified")]
         public bool TpDisqualified { get; set; }
 

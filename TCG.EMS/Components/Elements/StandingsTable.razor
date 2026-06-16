@@ -23,8 +23,17 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
             <th>Wins</th>
             <th>Draws</th>
             <th>Losses</th>
-            <th>Game Win %</th>
-            <th>Op Win%</th>
+            @if (_tournamentGame == "mtg")
+            {
+                <th>Op Match %</th>
+                <th>Game Win %</th>
+                <th>Op Game %</th>
+            }
+            else if (_tournamentGame == "pkmn")
+            {
+                <th>Op Match %</th>
+                <th>Op Op Match %</th>
+            }
         </tr>
     </thead>
 
@@ -53,8 +62,17 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                     <td style="word-wrap: break-word; overflow-wrap: break-word;">@player.Wins</td>
                     <td style="word-wrap: break-word; overflow-wrap: break-word;">@player.Draws</td>
                     <td style="word-wrap: break-word; overflow-wrap: break-word;">@player.Losses</td>
-                    <td style="word-wrap: break-word; overflow-wrap: break-word;">@player.GameWinPercent.ToString("0.00")</td>
-                    <td style="word-wrap: break-word; overflow-wrap: break-word;">@player.OpMatchWinPercent.ToString("0.00")</td>
+                    @if (_tournamentGame == "mtg")
+                    {
+                        <td style="word-wrap: break-word; overflow-wrap: break-word;">@player.OpMatchWinPercent.ToString("0.00")</td>
+                        <td style="word-wrap: break-word; overflow-wrap: break-word;">@player.GameWinPercent.ToString("0.00")</td>
+                        <td style="word-wrap: break-word; overflow-wrap: break-word;">@player.OpGameWinPercent.ToString("0.00")</td>
+                    }
+                    else if (_tournamentGame == "pkmn")
+                    {
+                        <td style="word-wrap: break-word; overflow-wrap: break-word;">@player.OpMatchWinPercent.ToString("0.00")</td>
+                        <td style="word-wrap: break-word; overflow-wrap: break-word;">@player.OpOpMatchWinPercent.ToString("0.00")</td>
+                    }
                 </tr>
             }
 
@@ -71,8 +89,17 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                     <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
                     <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
                     <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
-                    <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
-                    <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
+                    @if (_tournamentGame == "mtg")
+                    {
+                        <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
+                        <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
+                        <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
+                    }
+                    else if (_tournamentGame == "pkmn")
+                    {
+                        <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
+                        <td style="word-wrap: break-word; overflow-wrap: break-word;">N/A</td>
+                    }
                 </tr>
             }
         }
@@ -82,6 +109,9 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 @code {
     [Inject]
     private ITournamentScoringService ScoringService { get; set; } = null!;
+
+    [Inject]
+    private ITournamentService TournamentService { get; set; } = null!;
 
     [Parameter]
     public int TournamentId { get; set; } = new();
@@ -94,12 +124,19 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
     // Stores the computed player stats
     private Dictionary<int, ITournamentScoringService.PlayerComputedStats> _computedStats = new();
 
+    // Stores the tournament game type ("mtg" or "pkmn")
+    private string _tournamentGame = "";
+
     private PeriodicTimer? _timer;
 
     private CancellationTokenSource? _cts;
 
     protected override async Task OnInitializedAsync()
     {
+        // Load tournament game type
+        var tournament = await TournamentService.GetByIdAsync(TournamentId);
+        _tournamentGame = tournament?.TournamentGame ?? "";
+
         if (RealTimeUpdate)
         {
             // Set up a background task to poll for updates every 30 seconds

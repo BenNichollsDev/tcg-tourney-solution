@@ -79,9 +79,8 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
     private ITournamentPlayerService TournamentPlayerService { get; set; } = default!;
 
     [Inject]
-    private TournamentScoringService ScoringService { get; set; } = default!;
+    private ITournamentScoringService ScoringService { get; set; } = default!;
 
-    // This initialises the page, computes rankings and saves positions to the database.
     protected override async Task OnInitializedAsync()
     {
         _hasLoaded = false;

@@ -116,10 +116,10 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 @code {
     private bool _hasInitialized = false;
 
-    protected override async Task OnInitializedAsync()
+    protected override Task OnInitializedAsync()
     {
-        await Task.CompletedTask;
         _hasInitialized = true;
+        return Task.CompletedTask;
     }
 
     private bool ShowLayout

@@ -137,18 +137,56 @@ body {
     max-width: 100%;
 }
 
-/* ----- Additional layout rules for sticky sidebar and responsive content ----- */
 
-/* Make the sidebar static (sticky) without affecting layout */
 .sidebar-static {
   position: sticky;
   top: 0;
-  z-index: 1020; /* above content but below modals */
+  z-index: 1020;
 }
 
-/* Content container: allow expansion horizontally but enforce a minimum width and enable horizontal scrolling when needed */
 .page-inner-responsive {
-  min-width: 800px; /* adjust as needed based on current design */
+  min-width: 800px;
   width: auto;
   overflow-x: auto;
+}
+
+/* Tournament row card styling */
+.tourney-card {
+    position: relative;
+    background-color: #10002b;
+    color: white;
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+    padding: 0.5rem 0.75rem;
+}
+
+.tourney-card.align-items-center {
+    align-items: stretch !important;
+}
+
+.tourney-card > [class*="col-"] {
+    height: 100%;
+}
+
+.tourney-card .border-end {
+    border-right: none !important;
+    position: relative;
+    height: 100%;
+}
+
+.tourney-card .border-end::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 50%;
+    height: 50%;
+    width: 1px;
+    background-color: rgba(255,255,255,0.18);
+}
+
+.d-flex.justify-content-center > .btn,
+.tourney-card .btn {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.9rem;
 }
