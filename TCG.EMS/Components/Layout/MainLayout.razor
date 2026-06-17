@@ -98,9 +98,9 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                     </li>
 
                     <li class="mt-auto">
-                        <button class="nav-link text-white d-flex align-items-center fs-5 p-2 mt-3 w-100 border-0 bg-transparent" @onclick="HandleLogout" style="cursor: pointer;">
+                        <a href="/auth/logout" class="nav-link text-white d-flex align-items-center fs-5 p-2 mt-3 w-100 border-0 bg-transparent" style="cursor: pointer;">
                             <i class="bi bi-box-arrow-right me-2"></i> Logout
-                        </button>
+                        </a>
                     </li>
                 </ul>
             </nav>
@@ -114,12 +114,28 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 </div>
 
 @code {
+    string? CurrentUserId = null;
+    string? CurrentUserEmail = null;
+    string? CurrentUserFirstName = null;
+    string? CurrentUserSurname = null;
+
     private bool _hasInitialized = false;
 
-    protected override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
+        var authenticationState = await AuthStateProvider.GetAuthenticationStateAsync();
+
+        if (authenticationState.User is null) return;
+        if (authenticationState.User.Claims is null) return;
+
+        CurrentUserId = authenticationState.User.Claims.FirstOrDefault(e => e.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        CurrentUserEmail = authenticationState.User.Claims.FirstOrDefault(e => e.Type == System.Security.Claims.ClaimTypes.Email)?.Value;
+        CurrentUserFirstName = authenticationState.User.Claims.FirstOrDefault(e => e.Type == "StaffFirstName")?.Value;
+        CurrentUserSurname = authenticationState.User.Claims.FirstOrDefault(e => e.Type == "StaffSurname")?.Value;
+
+
         _hasInitialized = true;
-        return Task.CompletedTask;
+        return;
     }
 
     private bool ShowLayout
@@ -127,7 +143,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
         get
         {
             var path = new Uri(NavManager.Uri).AbsolutePath.TrimEnd('/');
-            return path != "" && path != "/login";
+            return path != "" && path != "/login" && CurrentUserId is not null;
         }
     }
 

@@ -41,7 +41,10 @@ namespace TCG.Application.Services
 
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, user.StaffId.ToString())
+                new Claim(ClaimTypes.NameIdentifier, user.StaffId.ToString()),
+                new Claim(ClaimTypes.Email, user.StaffEmail),
+                new Claim("StaffFirstName", user.StaffFirstName ?? string.Empty),
+                new Claim("StaffSurname", user.StaffSurname ?? string.Empty),
             };
 
             var principal = new ClaimsPrincipal(
