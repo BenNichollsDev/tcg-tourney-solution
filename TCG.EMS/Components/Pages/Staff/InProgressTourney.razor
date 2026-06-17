@@ -61,8 +61,8 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                                                      @bind-value:after="() => StateHasChanged()"
                                                      class="form-control form-control-sm ms-2"
                                                      style="width:4rem;"
-                                                     min="0" max="3"
-                                                     disabled="@(pairing.Player1ScoreAutoAssigned || IsPlayerInBye(pairing, true) || (pairing.Player2Score == 3 && pairing.Player1Score != 3))" />
+                                                     min="0" max="@GetMaxScoreForPlayer1(pairing)"
+                                                     disabled="@(pairing.Player1ScoreAutoAssigned || IsPlayerInBye(pairing, true))" />
                                     </div>
                                 </div>
                                 <div class="col text-center">
@@ -75,8 +75,8 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                                                      @bind-value:after="() => StateHasChanged()"
                                                      class="form-control form-control-sm ms-2"
                                                      style="width:4rem;"
-                                                     min="0" max="3"
-                                                     disabled="@(pairing.Player2ScoreAutoAssigned || IsPlayerInBye(pairing, false) || (pairing.Player1Score == 3 && pairing.Player2Score != 3))" />
+                                                     min="0" max="@GetMaxScoreForPlayer2(pairing)"
+                                                     disabled="@(pairing.Player2ScoreAutoAssigned || IsPlayerInBye(pairing, false))" />
                                     </div>
                                 </div>
                                 <div class="col-auto">
@@ -401,6 +401,24 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
             return isPlayer1;
         }
         return false;
+    }
+
+    private static int GetMaxScoreForPlayer1(PairingSelection pairing)
+    {
+        // If Player2 has 3 points, Player1 can only have max 2
+        if (pairing.Player2Score == 3)
+            return 2;
+
+        return 3;
+    }
+
+    private static int GetMaxScoreForPlayer2(PairingSelection pairing)
+    {
+        // If Player1 has 3 points, Player2 can only have max 2
+        if (pairing.Player1Score == 3)
+            return 2;
+
+        return 3;
     }
 
     private void SetDraw(PairingSelection pairing)

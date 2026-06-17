@@ -18,9 +18,6 @@ using TCG.Application.Interfaces.Services;
 
 namespace TCG.EMS.Services;
 
-/// <summary>
-/// Service for handling authentication operations with staff service and claims.
-/// </summary>
 public class LoginAuthService : IAuthenticationService
 {
     private readonly IStaffService _staffService;

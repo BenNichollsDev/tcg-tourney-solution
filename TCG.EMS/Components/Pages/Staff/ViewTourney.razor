@@ -592,12 +592,6 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
             .Where(p => !p.TpDisqualified && !p.TpDropped)
             .ToList();
 
-        if (activePlayers.Any(p => (p.PlayerBye ?? 0) >= byeLimit))
-        {
-            _notice = "At least one player already has " + (byeLimit == 1 ? "one" : "three") + " bye" + (byeLimit == 1 ? "" : "s") + ".";
-            return;
-        }
-
         var occurred = await GetExistingPairings();
 
         var players = activePlayers.Select(p => p.TournamentPlayerId).ToList();
@@ -609,6 +603,20 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
             if (opponentCount >= players.Count - 1)
             {
                 _notice = "Cannot generate a unique pairing.";
+                return;
+            }
+        }
+
+        // Check if a bye is needed and if all remaining players have reached the bye limit
+        if (players.Count % 2 == 1)
+        {
+            // Odd number of players means a bye is needed
+            var playersAtByeLimit = activePlayers.Count(p => (p.PlayerBye ?? 0) >= byeLimit);
+
+            // If ALL active players are at the bye limit, cannot proceed
+            if (playersAtByeLimit == activePlayers.Count)
+            {
+                _notice = "All players have reached the bye limit. Cannot generate pairings.";
                 return;
             }
         }
@@ -696,12 +704,6 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
             .ThenByDescending(p => p.PlayerSwissMatchPoints ?? 0)
             .ToList();
 
-        if (activePlayers.Any(p => (p.PlayerBye ?? 0) >= byeLimit))
-        {
-            _notice = "At least one player already has " + (byeLimit == 1 ? "one" : "three") + " bye" + (byeLimit == 1 ? "" : "s") + ".";
-            return;
-        }
-
         var occurred = await GetExistingPairings();
 
         if (HasInsufficientParticipants)
@@ -719,6 +721,20 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
         foreach (var bracket in brackets)
         {
             playersForPairing.AddRange(bracket.Select(p => p.TournamentPlayerId));
+        }
+
+        // Check if a bye is needed and if all remaining players have reached the bye limit
+        if (playersForPairing.Count % 2 == 1)
+        {
+            // Odd number of players means a bye is needed
+            var playersAtByeLimit = activePlayers.Count(p => (p.PlayerBye ?? 0) >= byeLimit);
+
+            // If ALL active players are at the bye limit, cannot proceed
+            if (playersAtByeLimit == activePlayers.Count)
+            {
+                _notice = "All players have reached the bye limit. Cannot generate pairings.";
+                return;
+            }
         }
 
         // If odd, choose bye from lowest bracket(s) and least byes

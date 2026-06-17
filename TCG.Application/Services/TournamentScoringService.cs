@@ -371,7 +371,7 @@ namespace TCG.Application.Services
                                 : p.Player1Id)
                         .Where(id => id.HasValue)
                         .Select(id => id!.Value)
-                        .Where(id => id != player.TournamentPlayerId)
+                        .Where(id => id != tPlayer.TournamentPlayerId)
                         .Where(id => !tOpponents.Contains(id))
                         .Distinct()
                         .ToList();
