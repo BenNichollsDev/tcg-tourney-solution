@@ -310,17 +310,17 @@ namespace TCG.Application.Services
                                 int opponentGameDraws;
                                 int opponentGameLosses;
 
-                                if (tournamentFormat == "Swiss")
-                                {
-                                    opponentGameWins = opponentPlayer.PlayerSwissGameWins ?? 0;
-                                    opponentGameDraws = opponentPlayer.PlayerSwissGameDraws ?? 0;
-                                    opponentGameLosses = opponentPlayer.PlayerSwissGameLosses ?? 0;
-                                }
-                                else
+                                if (tournamentFormat == "RoundRobin")
                                 {
                                     opponentGameWins = opponentPlayer.PlayerRoundRobinGameWins ?? 0;
                                     opponentGameDraws = opponentPlayer.PlayerRoundRobinGameDraws ?? 0;
                                     opponentGameLosses = opponentPlayer.PlayerRoundRobinGameLosses ?? 0;
+                                }
+                                else
+                                {
+                                    opponentGameWins = opponentPlayer.PlayerSwissGameWins ?? 0;
+                                    opponentGameDraws = opponentPlayer.PlayerSwissGameDraws ?? 0;
+                                    opponentGameLosses = opponentPlayer.PlayerSwissGameLosses ?? 0;
                                 }
 
                                 int totalGames = opponentGameWins + opponentGameDraws + opponentGameLosses;

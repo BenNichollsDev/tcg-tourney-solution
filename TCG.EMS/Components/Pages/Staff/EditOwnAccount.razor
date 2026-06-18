@@ -17,12 +17,14 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 @using TCG.Application.Dtos
 @using TCG.Application.Interfaces.Services
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 
 @attribute [Authorize]
 
 @inject INavigationService NavService
 @inject NavigationManager NavManager
 @inject StaffSessionService StaffSession
+@inject AuthenticationStateProvider AuthStateProvider
 
 @rendermode InteractiveServer
 
@@ -100,15 +102,12 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 
 @code {
     private StaffDto? _staffModel = new();
-    
+
     private bool _hasLoaded;
     private bool _showNull;
 
     private string? _newPassword;
     private string? _currentPassword;
-
-    [CascadingParameter]
-    public string? CurrentUserId { get; set; }
 
     [Inject]
     private IStaffService StaffService { get; set; } = default!;
@@ -121,29 +120,38 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
         _hasLoaded = false;
         base.OnInitialized();
     }
-    
+
     protected override async Task OnInitializedAsync()
     {
-        var userId = CurrentUserId;
+        // Get user ID from authentication state instead of cascading parameter
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var userId = authState?.User?.Claims?.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
-        if (userId == null)
+        if (string.IsNullOrEmpty(userId))
         {
             _showNull = true;
             _hasLoaded = true;
             return;
         }
 
-        _staffModel = await StaffService.GetByIdAsync(int.Parse(CurrentUserId));
+        try
+        {
+            _staffModel = await StaffService.GetByIdAsync(int.Parse(userId));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading staff data: {ex.Message}");
+            _showNull = true;
+        }
 
         _hasLoaded = true;
     }
-    
+
     private async Task OnFormSubmit()
     {
        if (!await StaffService.VerifyPasswordAsync(_staffModel.StaffId, _currentPassword ?? string.Empty))
        {
             _showNull = false;
-
             throw new Exception("Current password is incorrect.");
        }
 

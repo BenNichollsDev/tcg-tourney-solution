@@ -39,11 +39,11 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                     <h1 class="mb-3 text-center">Final Results - @_tournamentModel.TournamentName</h1>
 
                     <div class="mb-3">
-                        <strong>1st:</strong> @(_firstPlace ?? "N/A")<br />
-                        <strong>2nd:</strong> @(_secondPlace ?? "N/A")<br />
+                        <h5>1st: @(_firstPlace ?? "N/A")</h5><br />
+                        <h5>2nd: @(_secondPlace ?? "N/A")</h5><br />
                         @if (!string.IsNullOrEmpty(_thirdPlace))
                         {
-                            <strong>3rd:</strong> @(_thirdPlace)
+                            <h5>3rd: @(_thirdPlace)</h5>
                         }
                     </div>
 
