@@ -75,7 +75,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 											<span>@tournament.TournamentName</span>
 										</div>
 										<div class="col-3 border-end border-1 border-light">
-											<span>@tournament.TournamentGame</span>
+											<span>@(tournament.TournamentGame?.ToLower() == "pkmn" ? "Pokémon" : tournament.TournamentGame?.ToLower() == "mtg" ? "Magic The Gathering" : tournament.TournamentGame)</span>
 										</div>
 										<div class="col-2 border-end border-1 border-light">
 											<span>@tournament.TournamentFormat</span>
@@ -120,7 +120,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 											<span>@tournament.TournamentName</span>
 										</div>
 										<div class="col-3 border-end border-1 border-light">
-											<span>@tournament.TournamentGame</span>
+											<span>@(tournament.TournamentGame?.ToLower() == "pkmn" ? "Pokémon" : tournament.TournamentGame?.ToLower() == "mtg" ? "Magic The Gathering" : tournament.TournamentGame)</span>
 										</div>
 										<div class="col-2 border-end border-1 border-light">
 											<span>@tournament.TournamentFormat</span>
@@ -174,7 +174,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 									<span>@league.LeagueName</span>
 								</div>
 								<div class="col-3 border-end border-1 border-light">
-									<span>@league.LeagueGame</span>
+									<span>@(league.LeagueGame?.ToLower() == "pkmn" ? "Pokémon" : league.LeagueGame?.ToLower() == "mtg" ? "Magic The Gathering" : league.LeagueGame)</span>
 								</div>
 								<div class="col-5">
 									<span>@league.LeagueDescription</span>

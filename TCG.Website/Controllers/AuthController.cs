@@ -55,10 +55,7 @@ public class AuthController : Controller
     public async Task<IActionResult> Logout()
     {
         await HttpContext.SignOutAsync();
-        return Redirect("/login");
+        return Redirect("/");
     }
-}
-    public string? PlayerDOB { get; set; }
-    public string? PlayerGender { get; set; }
 }
 

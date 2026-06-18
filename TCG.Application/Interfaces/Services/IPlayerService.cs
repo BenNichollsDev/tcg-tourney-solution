@@ -40,8 +40,6 @@ namespace TCG.Application.Interfaces.Services
         Task PhoneIsUniqueAsync(string phone, int? currentPlayerId = null);
 
         Task<bool> VerifyPasswordAsync(int playerId, string password);
-
-        Task<PlayerDto> CreateWithDefaultPasswordAsync(PlayerDto playerDto);
     }
 }
 

@@ -1,0 +1,202 @@
+@*
+Program: Local Games Store Management System
+Filename: Account.razor
+Author: Benjamin Nicholls
+Course: BSc Software Engineering (Hons)
+Module: CSY4022 - Computing Project Dissertation
+Module Leader: Amir Minai
+Supervisor: Mark Johnson
+
+Date: 14/06/2026
+
+Disclaimer: The following source code is the sole work of the author unless otherwise stated.
+Copyright (C) Benjamin Nicholls. All Rights Reserved.
+
+*@
+@page "/account"
+@using System.ComponentModel.DataAnnotations
+@using TCG.Application.Dtos
+@using TCG.Application.Interfaces.Services
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize]
+
+@inject IPlayerService PlayerService
+@inject NavigationManager NavManager
+@inject PlayerSessionService PlayerSession
+
+@rendermode InteractiveServer
+
+<PageTitle>Angels of Cards | Account</PageTitle>
+
+<div class="d-flex justify-content-center align-items-center min-vh-100">
+    <div class="ps-3 pe-3 pt-3 pb-3 text-center events-preview" style="width: 100%; max-width: 600px;">
+
+        <h1 class="mb-3">Account Details</h1>
+
+        @if (!_hasLoaded)
+        {
+            <p>Loading...</p>
+        }
+        else if (CurrentUserId == null || !int.TryParse(CurrentUserId, out var playerId))
+        {
+            <div class="alert alert-danger">
+                <p>You must be logged in to access this page.</p>
+                <NavLink href="/" class="btn btn-primary">Go to Home</NavLink>
+            </div>
+        }
+        else if (_playerModel == null)
+        {
+            <div class="alert alert-danger">
+                <p>Player account not found.</p>
+                <NavLink href="/" class="btn btn-primary">Go to Home</NavLink>
+            </div>
+        }
+        else
+        {
+            <EditForm Model="@_playerModel" OnValidSubmit="OnFormSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="mb-3">
+                    <label for="firstname">First Name:</label>
+                    <InputText id="firstname"
+                               class="form-control"
+                               @bind-Value="_playerModel.PlayerFirstName" />
+                    <ValidationMessage For="@(() => _playerModel.PlayerFirstName)" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="lastname">Last Name:</label>
+                    <InputText id="lastname"
+                               class="form-control"
+                               @bind-Value="_playerModel.PlayerLastName" />
+                    <ValidationMessage For="@(() => _playerModel.PlayerLastName)" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="email">Email:</label>
+                    <InputText id="email"
+                               type="email"
+                               class="form-control"
+                               @bind-Value="_playerModel.PlayerEmail" />
+                    <ValidationMessage For="@(() => _playerModel.PlayerEmail)" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="dob">Date of Birth:</label>
+                    <InputDate id="dob"
+                               class="form-control"
+                               @bind-Value="_playerModel.PlayerDOB" />
+                    <ValidationMessage For="@(() => _playerModel.PlayerDOB)" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="newpassword">New Password (leave blank to keep current):</label>
+                    <InputText id="newpassword"
+                               type="password"
+                               class="form-control"
+                               @bind-Value="_newPassword" />
+                </div>
+
+                <hr />
+
+                <div class="mb-3">
+                    <label for="currentpassword">Current Password (required to confirm changes):</label>
+                    <InputText id="currentpassword"
+                               type="password"
+                               class="form-control"
+                               @bind-Value="_currentPassword" />
+                    <ValidationMessage For="@(() => _currentPassword)" />
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(_errorMessage))
+                {
+                    <div class="alert alert-danger mt-2">@_errorMessage</div>
+                }
+
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">
+                        Save Changes
+                    </button>
+                    <NavLink href="/" class="btn btn-secondary">
+                        Back
+                    </NavLink>
+                </div>
+            </EditForm>
+        }
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    public string? CurrentUserId { get; set; }
+
+    private PlayerDto? _playerModel;
+    private bool _hasLoaded = false;
+    private string? _newPassword = string.Empty;
+    private string? _currentPassword = string.Empty;
+    private string? _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (CurrentUserId == null || !int.TryParse(CurrentUserId, out var playerId))
+        {
+            _hasLoaded = true;
+            return;
+        }
+
+        try
+        {
+            _playerModel = await PlayerService.GetByIdAsync(playerId);
+            _hasLoaded = true;
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = "Error loading player data: " + ex.Message;
+            _hasLoaded = true;
+        }
+    }
+
+    private async Task OnFormSubmit()
+    {
+        if (string.IsNullOrWhiteSpace(_currentPassword))
+        {
+            _errorMessage = "Current password is required to save changes.";
+            return;
+        }
+
+        if (_playerModel == null || !int.TryParse(CurrentUserId, out var playerId))
+        {
+            _errorMessage = "Invalid player data.";
+            return;
+        }
+
+        try
+        {
+            bool passwordValid = await PlayerService.VerifyPasswordAsync(playerId, _currentPassword);
+            if (!passwordValid)
+            {
+                _errorMessage = "Current password is incorrect.";
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(_newPassword))
+            {
+                _playerModel.PlayerPassword = _newPassword;
+            }
+
+            await PlayerService.UpdateAsync(_playerModel);
+
+            NavManager.NavigateTo("/");
+        }
+        catch (ValidationException ex)
+        {
+            _errorMessage = ex.Message;
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = "An error occurred while saving changes: " + ex.Message;
+        }
+    }
+}

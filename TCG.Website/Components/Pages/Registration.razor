@@ -72,6 +72,15 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
     [Parameter]
     public int tournamentId { get; set; }
 
+    [CascadingParameter]
+    public string? CurrentUserId { get; set; }
+
+    [CascadingParameter]
+    public string? CurrentUserFirstName { get; set; }
+
+    [CascadingParameter]
+    public string? CurrentUserSurname { get; set; }
+
     private TournamentDto? _tournament = new();
 
     private bool _hasLoaded = false;
@@ -110,8 +119,8 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
             var newTp = new TournamentPlayerDto
             {
                 TournamentId = tournamentId,
-                PlayerId = PlayerSession.PlayerId ?? 0,
-                PlayerName = PlayerSession.PlayerName ?? ""
+                PlayerId = int.TryParse(CurrentUserId, out var userId) ? userId : 0,
+                PlayerName = (CurrentUserFirstName ?? "") + " " + (CurrentUserSurname ?? "")
             };
 
             await TournamentPlayerService.CreateAsync(newTp);

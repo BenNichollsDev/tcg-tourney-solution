@@ -18,6 +18,9 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 @using System
 @using Microsoft.AspNetCore.Components
 @using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize]
 @inject NavigationManager NavManager
 
 @rendermode InteractiveServer
@@ -25,7 +28,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 <div class="container py-4">
     <div class="row justify-content-center">
         <div class="col-12 col-md-8 col-lg-6">
-            <div class="bg-container p-4">
+            <div class="inprogress-container p-4">
 
                 @if (!_hasLoaded)
                 {
@@ -61,7 +64,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                                                      @bind-value:after="() => StateHasChanged()"
                                                      class="form-control form-control-sm ms-2"
                                                      style="width:4rem;"
-                                                     min="0" max="@GetMaxScoreForPlayer1(pairing)"
+                                                     min="0" max="@Math.Min(3, GetMaxScoreForPlayer1(pairing))"
                                                      disabled="@(pairing.Player1ScoreAutoAssigned || IsPlayerInBye(pairing, true))" />
                                     </div>
                                 </div>
@@ -75,7 +78,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                                                      @bind-value:after="() => StateHasChanged()"
                                                      class="form-control form-control-sm ms-2"
                                                      style="width:4rem;"
-                                                     min="0" max="@GetMaxScoreForPlayer2(pairing)"
+                                                     min="0" max="@Math.Min(3, GetMaxScoreForPlayer2(pairing))"
                                                      disabled="@(pairing.Player2ScoreAutoAssigned || IsPlayerInBye(pairing, false))" />
                                     </div>
                                 </div>
@@ -99,7 +102,9 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                             }
                         </select>
                         <button class="btn btn-danger" @onclick="DisqualifyPlayerAsync" disabled="@string.IsNullOrEmpty(_selectedToDisqualify)">Disqualify</button>
+                    </div>
 
+                    <div class="mt-4 mb-3 d-flex gap-2 align-items-center">
                         <select class="form-select w-auto" @bind="_selectedToDrop">
                             <option value="">-- Select player to drop --</option>
                             @foreach (var p in GetAvailablePlayersForDrop())
@@ -600,16 +605,19 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 
         if (uiPairing.Player1Score > uiPairing.Player2Score)
         {
-            p1Player.PlayerSwissWins = (p1Player.PlayerSwissWins ?? 0) + 1;
-            p2Player.PlayerSwissLosses = (p2Player.PlayerSwissLosses ?? 0) + 1;
-
             if (isRoundRobin)
             {
+                p1Player.PlayerRoundRobinWins = (p1Player.PlayerRoundRobinWins ?? 0) + 1;
+                p2Player.PlayerRoundRobinLosses = (p2Player.PlayerRoundRobinLosses ?? 0) + 1;
+
                 p1Player.PlayerRoundRobinGameWins = (p1Player.PlayerRoundRobinGameWins ?? 0) + 1;
                 p2Player.PlayerRoundRobinGameLosses = (p2Player.PlayerRoundRobinGameLosses ?? 0) + 1;
             }
             else
             {
+                p1Player.PlayerSwissWins = (p1Player.PlayerSwissWins ?? 0) + 1;
+                p2Player.PlayerSwissLosses = (p2Player.PlayerSwissLosses ?? 0) + 1;
+
                 p1Player.PlayerSwissGameWins = (p1Player.PlayerSwissGameWins ?? 0) + 1;
                 p2Player.PlayerSwissGameLosses = (p2Player.PlayerSwissGameLosses ?? 0) + 1;
             }
@@ -619,16 +627,20 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
         }
         else if (uiPairing.Player2Score > uiPairing.Player1Score)
         {
-            p1Player.PlayerSwissLosses = (p1Player.PlayerSwissLosses ?? 0) + 1;
-            p2Player.PlayerSwissWins = (p2Player.PlayerSwissWins ?? 0) + 1;
 
             if (isRoundRobin)
             {
+                p1Player.PlayerRoundRobinWins = (p1Player.PlayerRoundRobinWins ?? 0) + 1;
+                p2Player.PlayerRoundRobinLosses = (p2Player.PlayerRoundRobinLosses ?? 0) + 1;
+
                 p1Player.PlayerRoundRobinGameLosses = (p1Player.PlayerRoundRobinGameLosses ?? 0) + 1;
                 p2Player.PlayerRoundRobinGameWins = (p2Player.PlayerRoundRobinGameWins ?? 0) + 1;
             }
             else
             {
+                p1Player.PlayerSwissWins = (p1Player.PlayerSwissWins ?? 0) + 1;
+                p2Player.PlayerSwissLosses = (p2Player.PlayerSwissLosses ?? 0) + 1;
+
                 p1Player.PlayerSwissGameLosses = (p1Player.PlayerSwissGameLosses ?? 0) + 1;
                 p2Player.PlayerSwissGameWins = (p2Player.PlayerSwissGameWins ?? 0) + 1;
             }
@@ -638,16 +650,19 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
         }
         else
         {
-            p1Player.PlayerSwissDraws = (p1Player.PlayerSwissDraws ?? 0) + 1;
-            p2Player.PlayerSwissDraws = (p2Player.PlayerSwissDraws ?? 0) + 1;
-
             if (isRoundRobin)
             {
+                p1Player.PlayerRoundRobinDraws = (p1Player.PlayerRoundRobinDraws ?? 0) + 1;
+                p2Player.PlayerRoundRobinDraws = (p2Player.PlayerRoundRobinDraws ?? 0) + 1;
+
                 p1Player.PlayerRoundRobinGameDraws = (p1Player.PlayerRoundRobinGameDraws ?? 0) + 1;
                 p2Player.PlayerRoundRobinGameDraws = (p2Player.PlayerRoundRobinGameDraws ?? 0) + 1;
             }
             else
             {
+                p1Player.PlayerSwissDraws = (p1Player.PlayerSwissDraws ?? 0) + 1;
+                p2Player.PlayerSwissDraws = (p2Player.PlayerSwissDraws ?? 0) + 1;
+
                 p1Player.PlayerSwissGameDraws = (p1Player.PlayerSwissGameDraws ?? 0) + 1;
                 p2Player.PlayerSwissGameDraws = (p2Player.PlayerSwissGameDraws ?? 0) + 1;
             }
@@ -656,12 +671,24 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
             p2GameDifference = 1;
         }
 
-        // Update match points and swiss points
-        p1Player.PlayerSwissMatchPoints = (p1Player.PlayerSwissMatchPoints ?? 0) + p1GameDifference;
-        p2Player.PlayerSwissMatchPoints = (p2Player.PlayerSwissMatchPoints ?? 0) + p2GameDifference;
+        if (isRoundRobin)
+        {
+            // Update match points and RoundRobin points
+            p1Player.PlayerRoundRobinMatchPoints = (p1Player.PlayerRoundRobinMatchPoints ?? 0) + p1GameDifference;
+            p2Player.PlayerRoundRobinMatchPoints = (p2Player.PlayerRoundRobinMatchPoints ?? 0) + p2GameDifference;
 
-        p1Player.PlayerSwissPoints = (p1Player.PlayerSwissPoints ?? 0) + p1GameDifference;
-        p2Player.PlayerSwissPoints = (p2Player.PlayerSwissPoints ?? 0) + p2GameDifference;
+            p1Player.PlayerRoundRobinPoints = (p1Player.PlayerRoundRobinPoints ?? 0) + p1GameDifference;
+            p2Player.PlayerRoundRobinPoints = (p2Player.PlayerRoundRobinPoints ?? 0) + p2GameDifference;
+        }
+        else
+        {
+            // Update match points and swiss points
+            p1Player.PlayerSwissMatchPoints = (p1Player.PlayerSwissMatchPoints ?? 0) + p1GameDifference;
+            p2Player.PlayerSwissMatchPoints = (p2Player.PlayerSwissMatchPoints ?? 0) + p2GameDifference;
+
+            p1Player.PlayerSwissPoints = (p1Player.PlayerSwissPoints ?? 0) + p1GameDifference;
+            p2Player.PlayerSwissPoints = (p2Player.PlayerSwissPoints ?? 0) + p2GameDifference;
+        }
 
         await TournamentPlayerService.UpdateAsync(p1Player);
         await TournamentPlayerService.UpdateAsync(p2Player);

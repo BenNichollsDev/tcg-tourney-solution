@@ -49,14 +49,24 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                 {
                     <div class="d-flex align-items-center">
                         <span class="navbar-text me-3">Welcome, @PlayerSession.PlayerName</span>
+                        <NavLink class="nav-link" href="account">Account</NavLink>
                         <button class="btn btn-sm btn-outline-light" @onclick="Logout">Logout</button>
                     </div>
                 }
                 else
                 {
-                    <NavLink class="nav-link" href="login-signup">
-                        <span class="bi" aria-hidden="true"></span> Register/Login
-                    </NavLink>
+                    if (CurrentUserId is not null)
+                    {
+                        <a href="/auth/logout" class="nav-link">
+                            <span class="bi" aria-hidden="true"></span> Logout
+                        </a>
+                    }
+                    else
+                    {
+                        <a href="login-signup" class="nav-link">
+                            <span class="bi" aria-hidden="true"></span> Login
+                        </a>
+                    }
                 }
             </div>
         </nav>
@@ -64,13 +74,25 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 </div>
 
 @code {
+    [CascadingParameter]
+    public string? CurrentUserId { get; set; }
+
     @inject PlayerSessionService PlayerSession
     @inject NavigationManager NavManager
+    @inject HttpClient Http
 
-    private void Logout()
+    private async Task Logout()
     {
-        PlayerSession.Logout();
-        NavManager.NavigateTo("/");
+        try
+        {
+            await Http.GetAsync("/auth/logout");
+            PlayerSession.Logout();
+            NavManager.NavigateTo("/", forceLoad: true);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Logout error: {ex.Message}");
+        }
     }
 }
 

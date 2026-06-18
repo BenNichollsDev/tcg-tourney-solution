@@ -16,6 +16,8 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
     position: relative;
     display: flex;
     flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
 }
 
 main {
@@ -68,8 +70,13 @@ main {
     .sidebar {
         width: 250px;
         height: 100vh;
-        position: sticky;
+        position: fixed;
+        left: 0;
         top: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        z-index: 999;
+        flex-shrink: 0;
     }
 
     .top-row {
@@ -82,6 +89,18 @@ main {
         flex: 1;
         text-align: right;
         width: 0;
+    }
+
+    main {
+        margin-left: 250px;
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    article {
+        overflow-y: auto;
+        overflow-x: hidden;
     }
 
     .top-row, article {
@@ -111,36 +130,9 @@ main {
         top: 0.5rem;
     }
 
-/*    refbelow*/
 
-/* New verbose CSS rules for fixed sidebar and responsive layout */
 
-/* Fixed sidebar positioning - keeps sidebar in place as user scrolls */
-@media (min-width: 641px) {
-    .sidebar {
-        position: fixed;
-        left: 0;
-        top: 0;
-        height: 100vh;
-        overflow-y: auto;
-        overflow-x: hidden;
-        z-index: 999;
-    }
 
-    /* Main content area offset to prevent overlap with fixed sidebar */
-    main {
-        margin-left: 250px;
-    }
-
-    /* Ensure article content doesn't get hidden behind fixed sidebar */
-    article {
-        margin-left: 0;
-        padding-left: 2rem;
-        padding-right: 1.5rem;
-    }
-}
-
-/* Mobile responsive - hide fixed positioning on smaller screens */
 @media (max-width: 640.98px) {
     .sidebar {
         position: relative;
@@ -150,11 +142,15 @@ main {
 
     main {
         margin-left: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
     }
 
     article {
         padding-left: 1rem;
         padding-right: 1rem;
+        overflow-y: auto;
+        overflow-x: hidden;
     }
 }
 

@@ -18,6 +18,9 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 @using System.ComponentModel.DataAnnotations
 @using TCG.Application.Interfaces
 @using TCG.Application.DTOs
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize]
 @using TCG.Application.Dtos
 @using TCG.Application.Interfaces.Services
 @using TCG.Application.Services
@@ -62,7 +65,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                                    required/>
                     
                     <div>
-                        <button type="submit" class="btn btn-secondary">
+                        <button type="submit" class="btn btn-primary">
                             Submit
                         </button>
                         <NavLink href="/leagues" type="button" class="btn btn-secondary">

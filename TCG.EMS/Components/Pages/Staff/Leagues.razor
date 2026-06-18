@@ -18,6 +18,9 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 @using System.ComponentModel.DataAnnotations
 @using TCG.Application.Interfaces
 @using TCG.Application.DTOs
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize]
 @using TCG.Application.Dtos
 @using TCG.Application.Interfaces.Services
 @using TCG.Domain.Entities
@@ -51,7 +54,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                         <i class="bi bi-check"></i>Create a League
                     </NavLink>
 
-                    <div class="container-fluid ms-4 me-4 mt-2 mb-2">
+                    <div class="container-fluid me-4 mt-2 mb-2">
 
                         <div class="row mb-3 border-bottom border-2 border-light">
                             <div class="col-3 border-end border-1 border-light">
@@ -66,41 +69,42 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                                 <span>Description</span>
                             </div>
 
-                            <div class="col-1">
+                            <div class="col-1 d-flex justify-content-center">
                             </div>
 
-                            <div class="col-1">
+                            <div class="col-1 d-flex justify-content-center">
                             </div>
                         </div>
 
                         @foreach (var l in _leagues!)
                         {
-                            <div class="row mb-1">
+                            <div class="row mb-2 align-items-center tourney-card">
 
                                 <div class="col-3 border-end border-1 border-light">
-                                    <span>@l.LeagueName</span>
+                                    <div class="league-cell d-flex align-items-center h-100">
+                                        <span>@l.LeagueName</span>
+                                    </div>
                                 </div>
 
                                 <div class="col-2 border-end border-1 border-light">
-                                    <span>@l.LeagueGame</span>
+                                    <div class="league-cell d-flex align-items-center h-100">
+                                        <span>
+                                            @(l.LeagueGame == "mtg" ? "Magic: The Gathering" : "Pokémon")
+                                        </span>
+                                    </div>
                                 </div>
 
                                 <div class="col-4 border-end border-1 border-light">
-                                    <span>@l.LeagueDescription</span>
+                                    <div class="league-cell d-flex align-items-center h-100">
+                                        <span>@l.LeagueDescription</span>
+                                    </div>
                                 </div>
 
-                                <div class="col-1">
-                                    <NavLink href="@($"/leagues/view/{l.LeagueId}")" class="btn btn-primary">
-                                        View
-                                    </NavLink>
-                                </div>
-
-                                <div class="col-1">
-                                    <NavLink href="@($"/leagues/edit/{l.LeagueId}")" class="btn btn-secondary">
+                                <div class="col-1 d-flex justify-content-center">
+                                    <NavLink href="@($"/leagues/edit/{l.LeagueId}")" class="btn btn-primary">
                                         Edit
                                     </NavLink>
                                 </div>
-
                             </div>
                         }
                     </div>

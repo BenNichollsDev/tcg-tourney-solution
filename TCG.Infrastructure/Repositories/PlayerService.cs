@@ -147,23 +147,6 @@ public class PlayerService : IPlayerService
         var result = _passwordHasher.VerifyHashedPassword(player, player.PlayerPassword, password);
         return result == PasswordVerificationResult.Success || result == PasswordVerificationResult.SuccessRehashNeeded;
     }
-
-    public async Task<PlayerDto> CreateWithDefaultPasswordAsync(PlayerDto playerDto)
-    {
-        await EmailIsUniqueAsync(playerDto.PlayerEmail);
-        await PhoneIsUniqueAsync(playerDto.PlayerPhone);
-
-        var player = _mapper.Map<Player>(playerDto);
-
-        // Hash the default password "123"
-        const string defaultPassword = "123";
-        player.PlayerPassword = _passwordHasher.HashPassword(player, defaultPassword);
-
-        await _context.Set<Player>().AddAsync(player);
-        await _u.SaveChangesAsync();
-
-        return _mapper.Map<PlayerDto>(player);
-    }
 }
 
 

@@ -68,6 +68,11 @@ namespace TCG.Application.Services
             var tournamentIsFinished = tournament.TournamentFinished;
             var maxRounds = tournament.TournamentMaxRoundNum ?? 0;
 
+
+            Console.WriteLine($"Tournament Format = '{tournamentFormat}'");
+            Console.WriteLine($"Tournament Game = '{tournamentGame}'");
+
+
             // Create a single standings dictionary with all players
             var standings = new Dictionary<int, ITournamentScoringService.PlayerComputedStats>();
 
@@ -215,6 +220,18 @@ namespace TCG.Application.Services
                         // Calculate game win percentage
                         // bye wins do not count, so exclude bye count from both numerator and denominator
                         int gamesWithoutByes = playerGamesPlayed - byeCount;
+
+
+                        Console.WriteLine(
+    $"PLAYER {player.PlayerName}: " +
+    $"SwissW={player.PlayerSwissGameWins}, " +
+    $"SwissD={player.PlayerSwissGameDraws}, " +
+    $"SwissL={player.PlayerSwissGameLosses}, " +
+    $"RRW={player.PlayerRoundRobinGameWins}, " +
+    $"RRD={player.PlayerRoundRobinGameDraws}, " +
+    $"RRL={player.PlayerRoundRobinGameLosses}");
+
+
                         gameWinPercent =
                             gamesWithoutByes > 0
                                 ? ((double)playerGameWins + (0.5 * playerGameDraws))
@@ -308,14 +325,14 @@ namespace TCG.Application.Services
 
                                 int totalGames = opponentGameWins + opponentGameDraws + opponentGameLosses;
                                 int opponentByeCount = opponentPlayer.PlayerBye ?? 0;
-                                gamesWithoutByes = totalGames - opponentByeCount;
+                                int opponentGamesWithoutByes = totalGames - opponentByeCount;
 
-                                if (gamesWithoutByes <= 0)
+                                if (opponentGamesWithoutByes <= 0)
                                     continue;
 
                                 double opponentGameWinPercent =
                                     ((double)opponentGameWins + (0.5 * opponentGameDraws))
-                                    / gamesWithoutByes
+                                    / opponentGamesWithoutByes
                                     * 100.0;
 
                                 // MTG requires each opponent GWP to be floored at 33.3%
@@ -333,6 +350,11 @@ namespace TCG.Application.Services
                                 validOpponents > 0
                                     ? totalOpponentGameWinPercent / validOpponents
                                     : 0;
+                        }
+                        else
+                        {
+                            // No opponents means opponent game win percent is 0
+                            opGameWinPercent = 0;
                         }
 
                         // Calculate opponent's opponent match win percentage

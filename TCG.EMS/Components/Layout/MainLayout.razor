@@ -28,7 +28,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
         }
         else if (ShowLayout)
         {
-            <nav class="sidebar d-flex flex-column p-3 bg-container sidebar-custom">
+            <nav class="sidebar d-flex flex-column p-3 sidenav-container sidebar-custom" style="position: fixed">
                 <!-- Brand -->
                 <NavLink href="/" class="d-flex align-items-center mb-3 mb-md-0 text-decoration-none">
                     <span class="text-white fw-bold layout-text-title fs-3">
@@ -108,7 +108,9 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 
         <!-- Page content -->
         <article class="content flex-grow-1 m-0 p-0">
-            @Body
+            <CascadingValue Value="CurrentUserId">
+                @Body
+            </CascadingValue>
         </article>
     </main>
 </div>

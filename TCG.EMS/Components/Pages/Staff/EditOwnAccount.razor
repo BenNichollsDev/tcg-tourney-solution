@@ -16,6 +16,9 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 
 @using TCG.Application.Dtos
 @using TCG.Application.Interfaces.Services
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize]
 
 @inject INavigationService NavService
 @inject NavigationManager NavManager
@@ -103,10 +106,9 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 
     private string? _newPassword;
     private string? _currentPassword;
-    
-    [Parameter]
-    [SupplyParameterFromQuery]
-    public int? Id { get; set; }
+
+    [CascadingParameter]
+    public string? CurrentUserId { get; set; }
 
     [Inject]
     private IStaffService StaffService { get; set; } = default!;
@@ -122,7 +124,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
     
     protected override async Task OnInitializedAsync()
     {
-        var userId = await StaffSession.GetCurrentStaffIdAsync();
+        var userId = CurrentUserId;
 
         if (userId == null)
         {
@@ -131,7 +133,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
             return;
         }
 
-        _staffModel = await StaffService.GetByIdAsync(userId.Value);
+        _staffModel = await StaffService.GetByIdAsync(int.Parse(CurrentUserId));
 
         _hasLoaded = true;
     }

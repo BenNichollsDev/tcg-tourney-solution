@@ -14,6 +14,9 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 *@
 @page "/login-signup"
 @page "/login"
+@using System.ComponentModel.DataAnnotations
+@using TCG.Application.Dtos
+@using TCG.Application.Interfaces.Services
 @rendermode InteractiveServer
 
 <PageTitle>Angels of Cards | Login / Sign Up</PageTitle>
@@ -53,47 +56,64 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
         }
         else
         {
-            <form method="post" action="/auth/signup">
+            <EditForm Model="@_playerModel" OnValidSubmit="OnFormSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
                 <div class="mb-3">
-                    <label>First Name:</label>
-                    <input name="PlayerFirstName"
-                           class="form-control"
-                           required />
+                    <label for="firstname">First Name:</label>
+                    <InputText id="firstname"
+                               class="form-control"
+                               @bind-Value="_playerModel.PlayerFirstName" />
+                    <ValidationMessage For="@(() => _playerModel.PlayerFirstName)" />
                 </div>
 
                 <div class="mb-3">
-                    <label>Last Name:</label>
-                    <input name="PlayerLastName"
-                           class="form-control"
-                           required />
+                    <label for="lastname">Last Name:</label>
+                    <InputText id="lastname"
+                               class="form-control"
+                               @bind-Value="_playerModel.PlayerLastName" />
+                    <ValidationMessage For="@(() => _playerModel.PlayerLastName)" />
                 </div>
 
                 <div class="mb-3">
-                    <label>Email:</label>
-                    <input name="PlayerEmail"
-                           type="email"
-                           class="form-control"
-                           required />
+                    <label for="email">Email:</label>
+                    <InputText id="email"
+                               type="email"
+                               class="form-control"
+                               @bind-Value="_playerModel.PlayerEmail" />
+                    <ValidationMessage For="@(() => _playerModel.PlayerEmail)" />
                 </div>
 
                 <div class="mb-3">
-                    <label>Phone:</label>
-                    <input name="PlayerPhone"
-                           class="form-control" />
+                    <label for="phone">Phone:</label>
+                    <InputText id="phone"
+                               class="form-control"
+                               @bind-Value="_playerModel.PlayerPhone" />
+                    <ValidationMessage For="@(() => _playerModel.PlayerPhone)" />
                 </div>
 
                 <div class="mb-3">
-                    <label>Date of Birth:</label>
-                    <input name="PlayerDOB"
-                           type="date"
-                           class="form-control" />
+                    <label for="dob">Date of Birth:</label>
+                    <InputDate id="dob"
+                               class="form-control"
+                               @bind-Value="_playerModel.PlayerDOB" />
+                    <ValidationMessage For="@(() => _playerModel.PlayerDOB)" />
                 </div>
 
+                <div class="mb-3">
+                    <label for="password">Password:</label>
+                    <InputText id="password"
+                               type="password"
+                               class="form-control"
+                               @bind-Value="_playerModel.PlayerPassword" />
+                    <ValidationMessage For="@(() => _playerModel.PlayerPassword)" />
+                </div>
 
                 <button type="submit" class="btn btn-primary w-100">
                     Create Account
                 </button>
-            </form>
+            </EditForm>
 
             @if (!string.IsNullOrWhiteSpace(signupError))
             {
@@ -115,9 +135,13 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
     [SupplyParameterFromQuery(Name = "signupError")]
     public string? signupErrorQuery { get; set; }
 
+    @inject IPlayerService PlayerService
+    @inject NavigationManager NavManager
+
     private bool _showLogin = true;
     private string? loginError;
     private string? signupError;
+    private PlayerDto _playerModel = new();
 
     protected override void OnParametersSet()
     {
@@ -133,12 +157,28 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
         if (!string.IsNullOrWhiteSpace(signupErrorQuery))
         {
             signupError = signupErrorQuery;
-            // Display signup form if there was an error creating account
             _showLogin = false;
         }
         else
         {
             signupError = null;
+        }
+    }
+
+    private async Task OnFormSubmit()
+    {
+        try
+        {
+            await PlayerService.CreateAsync(_playerModel);
+            NavManager.NavigateTo("/");
+        }
+        catch (ValidationException ex)
+        {
+            signupError = ex.Message;
+        }
+        catch (Exception ex)
+        {
+            signupError = "An error occurred while creating your account: " + ex.Message;
         }
     }
 }

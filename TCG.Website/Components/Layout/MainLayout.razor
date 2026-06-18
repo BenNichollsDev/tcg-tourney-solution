@@ -15,17 +15,29 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 @* /*refstart*/ *@
 
 @inherits LayoutComponentBase
+@inject HttpClient Http
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthStateProvider
+@inject TCG.Website.Services.PlayerSessionService PlayerSession
 
 <div class="page">
 
     @* /*refend*/ *@
-
-    <NavMenu />
+    
+    <CascadingValue Value="CurrentUserId">
+        <NavMenu />
+    </CascadingValue>
 
     <main>
 
         <article class="content flex-grow-1 m-0 p-0">
-            @Body
+            <CascadingValue Value="CurrentUserId">
+                <CascadingValue Value="CurrentUserFirstName">
+                    <CascadingValue Value="CurrentUserSurname">
+                        @Body
+                    </CascadingValue>
+                </CascadingValue>
+            </CascadingValue>
         </article>
 
     </main>
@@ -41,11 +53,42 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 
 @* /*refstart*/ *@
 
-<div id="blazor-error-ui" data-nosnippet>
+@* <div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred.
     <a href="." class="reload">Reload</a>
     <span class="dismiss">🗙</span>
-</div>
+</div> *@
 
 @* /*refend*/ *@
 
+@code
+{
+    string? CurrentUserId = null;
+    string? CurrentUserEmail = null;
+    string? CurrentUserFirstName = null;
+    string? CurrentUserSurname = null;
+
+    private bool _hasInitialized = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authenticationState = await AuthStateProvider.GetAuthenticationStateAsync();
+
+        if (authenticationState.User is null) return;
+        if (authenticationState.User.Claims is null) return;
+
+        CurrentUserId = authenticationState.User.Claims.FirstOrDefault(e => e.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        CurrentUserEmail = authenticationState.User.Claims.FirstOrDefault(e => e.Type == System.Security.Claims.ClaimTypes.Email)?.Value;
+        CurrentUserFirstName = authenticationState.User.Claims.FirstOrDefault(e => e.Type == "StaffFirstName")?.Value;
+        CurrentUserSurname = authenticationState.User.Claims.FirstOrDefault(e => e.Type == "StaffSurname")?.Value;
+
+
+        _hasInitialized = true;
+        return;
+    }
+
+    private void HandleLogout()
+    {
+        NavManager.NavigateTo("/auth/logout");
+    }
+}

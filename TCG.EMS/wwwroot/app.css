@@ -96,6 +96,18 @@ body {
     background-color: #3d3477;
 }
 
+.sidenav-container {
+    background-color: #3d3477;
+}
+
+.inprogress-container {
+    background-color: #3d3477;
+    width: 100%;
+    display: block;
+    min-height: auto;
+    margin: auto;
+}
+
 .sidebar-custom {
     flex: 0 0 auto;
     padding-right: 1rem;

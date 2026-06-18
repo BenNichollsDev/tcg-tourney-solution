@@ -18,6 +18,9 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 @using TCG.Application.Dtos
 @using TCG.Application.Interfaces.Services
 @using TCG.Domain.Entities
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize]
 
 @rendermode InteractiveServer
 
@@ -60,7 +63,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                                        @bind-Value="_leagueModel.LeagueDescription"/>
 
                         <div>
-                            <button type="submit" class="btn btn-secondary">
+                            <button type="submit" class="btn btn-primary">
                                 Submit
                             </button>
                             <NavLink href="/leagues" type="button" class="btn btn-secondary">

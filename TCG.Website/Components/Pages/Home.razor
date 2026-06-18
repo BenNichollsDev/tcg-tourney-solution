@@ -62,11 +62,12 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
             <h3>Ongoing</h3>
             @if (_activeTourneys!.Any())
             {
-                <div style="display:grid;grid-template-columns:repeat(3,400px);justify-content:center;gap:16px;">
+                <div class="event-cards-grid">
                 @foreach(var t in _activeTourneys!)
                 {
-                    <NavLink class="event card ongoing text-center" href="@($"/viewevent/{t.TournamentId}")" style="width:400px;height:200px;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+                    <NavLink class="event card ongoing text-center event-card" href="@($"/viewevent/{t.TournamentId}")">
                         <h4>@t.TournamentName</h4>
+                        <h5>@t.TournamentDate.ToString("dd MMM yyyy") at @t.TournamentTime</h5>
                         <h5>@(t.TournamentGame=="mtg"?"Magic the Gathering":"Pokémon")</h5>
                     </NavLink>
                 }
@@ -82,12 +83,13 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
             <h3>Upcoming</h3>
             @if (_tournamentsToDisplay!.Any())
             {
-                <div style="display:grid; grid-template-columns:repeat(3,400px); justify-content:center; gap:16px;">
+                <div class="event-cards-grid">
                     @foreach(var t in _tournamentsToDisplay!)
                     {
-                        <NavLink class="event card text-center" href="@($"/viewevent/{t.TournamentId}")" style="width:400px;height:200px;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+                        <NavLink class="event card text-center event-card" href="@($"/viewevent/{t.TournamentId}")">
                             <h4>@t.TournamentName</h4>
-                            <h5>@t.TournamentDate.ToString("dd MMM")</h5>
+                            <h5>@t.TournamentDate.ToString("dd MMM yyyy") at @t.TournamentTime</h5>
+                            <h5>@(t.TournamentGame=="mtg"?"Magic the Gathering":"Pokémon")</h5>
                         </NavLink>
                     }
                 </div>
@@ -102,12 +104,13 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
             <h3>Recent</h3>
             @if (_recentTourneys!.Any())
             {
-                <div style="display:grid;grid-template-columns:repeat(3,400px);justify-content:center;gap:16px;">
+                <div class="event-cards-grid">
                     @foreach(var t in _recentTourneys!)
                     {
-                        <NavLink class="event card" href="@($"/viewevent/{t.TournamentId}")" style="width:400px;height:200px;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+                        <NavLink class="event card event-card" href="@($"/viewevent/{t.TournamentId}")">
                             <h4>@t.TournamentName</h4>
-                            <h5>@t.TournamentDate.ToString("dd MMM")</h5>
+                            <h5>@t.TournamentDate.ToString("dd MMM yyyy") at @t.TournamentTime</h5>
+                            <h5>@(t.TournamentGame=="mtg" ? "Magic the Gathering" : "Pokémon")</h5>
                         </NavLink>
                     }
                 </div>
@@ -166,7 +169,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                             .Where
                             (
                                 t => !t.TournamentCancelled
-                                && !t.TournamentStarted
+                                && t.TournamentStarted
                                 && !t.TournamentFinished
                             )
                             .OrderByDescending(t => t.TournamentDate)

@@ -15,7 +15,10 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 
 @page "/"
 @page "/login"
+@using Microsoft.AspNetCore.Components.Authorization
 @rendermode InteractiveServer
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavManager
 
 <div class="d-flex flex-column justify-content-center align-items-center min-vh-100">
     <div class="bg-container p-5">
@@ -51,6 +54,16 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
     public string? error { get; set; }
 
     private string? loginError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity?.IsAuthenticated == true)
+        {
+            NavManager.NavigateTo("/home");
+            return;
+        }
+    }
 
     protected override void OnParametersSet()
     {

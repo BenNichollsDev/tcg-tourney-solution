@@ -16,8 +16,11 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 @using TCG.Application.Dtos
 @using TCG.Application.Services
 @using TCG.EMS.Components.Elements
+@using Microsoft.AspNetCore.Authorization
 
 @rendermode InteractiveServer
+
+@attribute [Authorize]
 
 <div class="container-fluid py-4" style="max-width: 50%">
     <div class="row">

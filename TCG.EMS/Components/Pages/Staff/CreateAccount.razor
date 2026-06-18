@@ -17,6 +17,9 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 @using System.ComponentModel.DataAnnotations
 @using TCG.Application.Dtos
 @using TCG.Application.Interfaces.Services
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize]
 
 @inject INavigationService NavService
 @inject NavigationManager NavManager
@@ -55,8 +58,6 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                     <InputText id="mobile"
                                class="form-control mb-3"
                                @bind-Value="_staffModel.StaffMobile"/>
-                    
-                    @* role selection removed: roles are no longer used *@
                     
                     <div>
                         <button type="submit" class="btn btn-primary">
@@ -100,7 +101,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
             // Ensure password is set and will be hashed by StaffService.CreateAsync
             if (string.IsNullOrWhiteSpace(_staffModel.StaffPassword))
             {
-                _staffModel.StaffPassword = "ChangeMe123!"; // default temporary password; StaffService will hash it
+                _staffModel.StaffPassword = "123";
             }
 
             await StaffService.CreateAsync(_staffModel);
