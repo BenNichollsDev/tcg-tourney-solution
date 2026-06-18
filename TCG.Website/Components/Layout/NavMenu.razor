@@ -22,53 +22,39 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 
 
 
-        <nav class="nav flex-row navbar-nav">
-            <div class="nav-item px-3">
+        <nav class="nav flex-row navbar-nav ms-auto" style="width:33%; min-width:220px; justify-content:space-between; align-items:center;">
+            <div class="nav-item text-center">
                 <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-
-                    @* refend *@
-
                     <span class="bi" aria-hidden="true"></span> Home
-
-                    @* refstart *@
-
                 </NavLink>
             </div>
 
-            <div class="nav-item px-3">
-
-                @* refend *@
-
+            <div class="nav-item text-center">
                 <NavLink class="nav-link" href="events">
                     <span class="bi" aria-hidden="true"></span> Events
                 </NavLink>
             </div>
 
-            <div class="nav-item px-3 ms-auto">
-                @if (PlayerSession.IsLoggedIn)
-                {
-                    <div class="d-flex align-items-center">
-                        <span class="navbar-text me-3">Welcome, @PlayerSession.PlayerName</span>
-                        <NavLink class="nav-link" href="account">Account</NavLink>
-                        <button class="btn btn-sm btn-outline-light" @onclick="Logout">Logout</button>
-                    </div>
-                }
-                else
-                {
-                    if (CurrentUserId is not null)
-                    {
-                        <a href="/auth/logout" class="nav-link">
-                            <span class="bi" aria-hidden="true"></span> Logout
-                        </a>
-                    }
-                    else
-                    {
-                        <a href="login-signup" class="nav-link">
-                            <span class="bi" aria-hidden="true"></span> Login
-                        </a>
-                    }
-                }
-            </div>
+            @if (CurrentUserId is not null)
+            {
+                <div class="nav-item text-center">
+                    <NavLink class="nav-link" href="account">
+                        <span class="bi" aria-hidden="true"></span> Account
+                    </NavLink>
+                </div>
+
+                <div class="nav-item text-center">
+                    <a class="nav-link" role="button" @onclick="Logout">Logout</a>
+                </div>
+            }
+            else
+            {
+                <div class="nav-item text-center">
+                    <NavLink class="nav-link" href="login-signup">
+                        <span class="bi" aria-hidden="true"></span> Login
+                    </NavLink>
+                </div>
+            }
         </nav>
     </div>
 </div>
@@ -77,7 +63,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
     [CascadingParameter]
     public string? CurrentUserId { get; set; }
 
-    @inject PlayerSessionService PlayerSession
+
     @inject NavigationManager NavManager
     @inject HttpClient Http
 
@@ -86,7 +72,6 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
         try
         {
             await Http.GetAsync("/auth/logout");
-            PlayerSession.Logout();
             NavManager.NavigateTo("/", forceLoad: true);
         }
         catch (Exception ex)

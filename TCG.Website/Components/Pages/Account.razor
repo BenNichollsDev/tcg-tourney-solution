@@ -18,12 +18,13 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 @using TCG.Application.Dtos
 @using TCG.Application.Interfaces.Services
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 
 @attribute [Authorize]
 
 @inject IPlayerService PlayerService
 @inject NavigationManager NavManager
-@inject PlayerSessionService PlayerSession
+@inject AuthenticationStateProvider AuthStateProvider
 
 @rendermode InteractiveServer
 
@@ -140,7 +141,11 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 
     protected override async Task OnInitializedAsync()
     {
-        if (CurrentUserId == null || !int.TryParse(CurrentUserId, out var playerId))
+
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var userId = authState?.User?.Claims?.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        
+        if (string.IsNullOrEmpty(userId))
         {
             _hasLoaded = true;
             return;
@@ -148,7 +153,14 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 
         try
         {
-            _playerModel = await PlayerService.GetByIdAsync(playerId);
+            if (!int.TryParse(userId, out var userIdInt))
+            {
+                _errorMessage = "Invalid user id.";
+                _hasLoaded = true;
+                return;
+            }
+
+            _playerModel = await PlayerService.GetByIdAsync(userIdInt);
             _hasLoaded = true;
         }
         catch (Exception ex)

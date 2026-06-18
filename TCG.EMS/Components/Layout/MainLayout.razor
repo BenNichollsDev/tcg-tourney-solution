@@ -106,6 +106,12 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
             </nav>
         }
 
+        <!-- Placeholder div that reserves space for the fixed sidebar -->
+        @if (ShowLayout)
+        {
+            <div class="sidebar-placeholder"></div>
+        }
+
         <!-- Page content -->
         <article class="content flex-grow-1 m-0 p-0">
             <CascadingValue Value="CurrentUserId">

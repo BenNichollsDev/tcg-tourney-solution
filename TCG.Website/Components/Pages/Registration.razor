@@ -20,7 +20,6 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 @inject ITournamentService TournamentService
 @inject ITournamentPlayerService TournamentPlayerService
 @inject NavigationManager NavManager
-@inject PlayerSessionService PlayerSession
 @rendermode InteractiveServer
 
 <PageTitle>Angels of Cards | Register for Tournament</PageTitle>
@@ -31,7 +30,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
         {
             <p>Loading...</p>
         }
-        else if (!PlayerSession.IsLoggedIn)
+        else if (string.IsNullOrEmpty(CurrentUserId))
         {
             <div class="alert alert-info">
                 <p>You need to be logged in to register for tournaments.</p>
@@ -56,7 +55,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
         }
         else
         {
-            <h3>Welcome back, @PlayerSession.PlayerName</h3>
+            <h3>Welcome back, @(CurrentUserFirstName ?? "") @(CurrentUserSurname ?? "")</h3>
             <p>Click to join the tournament:</p>
             <button class="btn btn-primary" @onclick="JoinAsLoggedIn">Join Tournament</button>
         }
@@ -95,9 +94,9 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
         var tps = await TournamentPlayerService.GetAllWhereAsync(tp => tp.TournamentId == tournamentId);
         _participantCount = tps.Count();
 
-        if (PlayerSession.IsLoggedIn)
+        if (!string.IsNullOrEmpty(CurrentUserId) && int.TryParse(CurrentUserId, out var currentPlayerId))
         {
-            _alreadyParticipant = tps.Any(tp => tp.PlayerId == PlayerSession.PlayerId);
+            _alreadyParticipant = tps.Any(tp => tp.PlayerId == currentPlayerId);
         }
 
         _hasLoaded = true;

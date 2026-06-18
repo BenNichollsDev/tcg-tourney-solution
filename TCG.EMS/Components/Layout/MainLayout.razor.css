@@ -22,10 +22,13 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
     display: flex;
     flex-direction: column;
     height: 100vh;
+    overflow: hidden;
 }
 
 main {
     flex: 1;
+    display: flex;
+    overflow: hidden;
 }
 
 .sidebar {
@@ -72,9 +75,8 @@ main {
     }
 
     main {
-        display: flex;
         flex: 1;
-        margin-left: var(--sidebar-width);
+        overflow: hidden;
     }
 
     .sidebar {
@@ -84,13 +86,24 @@ main {
         width: var(--sidebar-width);
         height: 100vh;
         overflow-y: auto;
+        overflow-x: hidden;
         z-index: 1000;
+        flex-shrink: 0;
     }
 
-    .content {
-        margin-left: var(--sidebar-width);
-        width: calc(100% - var(--sidebar-width));
-        min-height: 100vh;
+    /* Placeholder div that reserves space for the fixed sidebar */
+    .sidebar-placeholder {
+        position: relative;
+        width: var(--sidebar-width);
+        height: 100vh;
+        flex-shrink: 0;
+        background: transparent;
+    }
+
+    article {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
     }
 
     .top-row {
@@ -103,10 +116,6 @@ main {
         flex: 1;
         text-align: right;
         width: 0;
-    }
-
-    article {
-/*        flex: 1;*/
     }
 
     .top-row, article {
@@ -136,27 +145,20 @@ main {
         top: 0.5rem;
     }
 
-
-
-
-@media (max-width: 640px) {
+@media (max-width: 640.98px) {
     .sidebar {
         position: relative;
         width: 100%;
         height: auto;
     }
 
-    .content {
-        margin-left: 0;
-        width: 100%;
+    .sidebar-placeholder {
+        display: none;
+    }
+
+    article {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
     }
 }
-
-:root {
-    --sidebar-width: 300px;
-}
-
-/*.sidebar-spacer {
-    width: var(--sidebar-width);
-    flex-shrink: 0;
-}*/
