@@ -14,13 +14,15 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 *@
 
 @inherits LayoutComponentBase
+@implements IDisposable
 @using Microsoft.AspNetCore.Components.Authorization
 @inject NavigationManager NavManager
 @inject TCG.EMS.Services.StaffSessionService StaffSession
 @inject HttpClient Http
 @inject AuthenticationStateProvider AuthStateProvider
+@inject TCG.EMS.Services.AppBusyService BusyService
 
-<div class="page bg-main text-main min-vh-100 d-flex flex-column">
+<div class="page bg-main text-main min-vh-100 d-flex flex-column @(BusyService.IsWriting ? "blocked-writing" : BusyService.IsReading ? "blocked-reading" : string.Empty)">
     <main class="d-flex flex-grow-1">
         @if (!_hasInitialized)
         {
@@ -146,6 +148,11 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
         return;
     }
 
+    protected override void OnInitialized()
+    {
+        BusyService.OnChange += StateHasChanged;
+    }
+
     private bool ShowLayout
     {
         get
@@ -158,5 +165,10 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
     private void HandleLogout()
     {
         NavManager.NavigateTo("/auth/logout");
+    }
+
+    public void Dispose()
+    {
+        BusyService.OnChange -= StateHasChanged;
     }
 }

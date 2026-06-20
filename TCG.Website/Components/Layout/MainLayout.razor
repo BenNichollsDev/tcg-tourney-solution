@@ -15,12 +15,14 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 @* /*refstart*/ *@
 
 @inherits LayoutComponentBase
+@implements IDisposable
 @inject HttpClient Http
+@inject TCG.Website.Services.AppBusyService BusyService
 @using Microsoft.AspNetCore.Components.Authorization
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager NavManager
 
-<div class="page">
+<div class="page @(BusyService.IsWriting ? "blocked-writing" : BusyService.IsReading ? "blocked-reading" : string.Empty)">
 
     @* /*refend*/ *@
     
@@ -70,6 +72,12 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 
     private bool _hasInitialized = false;
 
+    protected override void OnInitialized()
+    {
+        // Subscribe to busy state changes so the layout re-renders
+        BusyService.OnChange += StateHasChanged;
+    }
+
     protected override async Task OnInitializedAsync()
     {
         var authenticationState = await AuthStateProvider.GetAuthenticationStateAsync();
@@ -90,5 +98,10 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
     private void HandleLogout()
     {
         NavManager.NavigateTo("/auth/logout");
+    }
+
+    public void Dispose()
+    {
+        BusyService.OnChange -= StateHasChanged;
     }
 }

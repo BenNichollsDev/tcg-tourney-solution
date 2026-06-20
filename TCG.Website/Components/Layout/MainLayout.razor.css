@@ -170,4 +170,20 @@ main {
     margin-right: 8rem;
 }
 
+.blocked-reading * {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.blocked-reading .top-row,
+.blocked-reading .top-row * {
+    pointer-events: auto;
+    opacity: 1;
+}
+
+.blocked-writing * {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
 

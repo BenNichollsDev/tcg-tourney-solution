@@ -12,6 +12,7 @@
 // Disclaimer: The following source code is the sole work of the author unless otherwise stated.
 // Copyright (C) Benjamin Nicholls. All Rights Reserved.
 //
+
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -70,6 +71,8 @@ builder.Services.AddSession(options =>
 });
 
 builder.Services.AddAuthorization();
+
+builder.Services.AddSingleton<TCG.Website.Services.AppBusyService>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
