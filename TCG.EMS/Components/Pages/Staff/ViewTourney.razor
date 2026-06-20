@@ -343,12 +343,13 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 
         _participants = (await TournamentPlayerService.GetAllWhereAsync(tp => tp.TournamentId == TournamentId.Value)).ToList();
 
-        // initialize pairings based on participants count
+        // initialize pairings based on active participants (exclude dropped/disqualified)
         _pairings = new List<PairingSelection>();
-        int pairCount = _participants.Count / 2;
+        var activeCount = _participants.Count(p => !p.TpDisqualified && !p.TpDropped);
+        int pairCount = activeCount / 2;
         for (int i = 0; i < pairCount; i++) _pairings.Add(new PairingSelection());
 
-        // Compute standings - the service returns a dictionary
+        // Compute standings - returns a dictionary
         var standingsList = await ScoringService.ComputeTournamentStandings(TournamentId.Value);
         _computedStats = standingsList ?? new Dictionary<int, ITournamentScoringService.PlayerComputedStats>();
 
@@ -359,6 +360,81 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                 ? "This tournament has fewer than two participants. More participants must be added to be able to start the tournament."
                 : _notice + "\nThis tournament has fewer than two participants. More participants must be added to be able to start the tournament.";
 
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (TournamentId.HasValue)
+        {
+            await RefreshParticipantsAndPairingsAsync();
+        }
+    }
+
+    private async Task RefreshParticipantsAndPairingsAsync()
+    {
+        _participants = (await TournamentPlayerService.GetAllWhereAsync(tp => tp.TournamentId == TournamentId!.Value)).ToList();
+
+        var activeIds = _participants.Where(p => !p.TpDisqualified && !p.TpDropped).Select(p => p.TournamentPlayerId).ToHashSet();
+
+        foreach (var pairing in _pairings)
+        {
+            if (int.TryParse(pairing.Player1Id, out var p1) && !activeIds.Contains(p1))
+                pairing.Player1Id = BYE;
+            if (int.TryParse(pairing.Player2Id, out var p2) && !activeIds.Contains(p2))
+                pairing.Player2Id = BYE;
+        }
+
+        // remove pairings that are entirely byes
+        _pairings.RemoveAll(p => IsBye(p.Player1Id) && IsBye(p.Player2Id));
+
+        // ensure pairing slots count matches active participants
+        var activeCount2 = activeIds.Count;
+        int neededPairCount = activeCount2 / 2;
+
+        // If have less pair slots than needed, add empty slots
+        while (_pairings.Count < neededPairCount)
+        {
+            _pairings.Add(new PairingSelection());
+        }
+
+        // If have more pair slots than needed, remove bottom empty/partial pairings first
+        while (_pairings.Count > neededPairCount)
+        {
+            int indexToRemove = -1;
+            for (int i = _pairings.Count - 1; i >= 0; i--)
+            {
+                var p = _pairings[i];
+                if (!IsRealPlayer(p.Player1Id) || !IsRealPlayer(p.Player2Id))
+                {
+                    indexToRemove = i;
+                    break;
+                }
+            }
+
+            if (indexToRemove < 0)
+                indexToRemove = _pairings.Count - 1;
+
+            var removed = _pairings[indexToRemove];
+            _pairings.RemoveAt(indexToRemove);
+
+            var removedIds = new[] { removed.Player1Id, removed.Player2Id }
+                .Where(id => IsRealPlayer(id))
+                .ToList();
+
+            if (removedIds.Count > 0)
+            {
+                foreach (var pid in removedIds)
+                {
+                    foreach (var p in _pairings)
+                    {
+                        if (p.Player1Id == pid) p.Player1Id = null;
+                        if (p.Player2Id == pid) p.Player2Id = null;
+                    }
+                }
+            }
+        }
+
+        StateHasChanged();
     }
 
     // Normalise pairings so Player1 is always the actual player and Player2 is BYE if applicable
@@ -460,24 +536,60 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
     private void UpdatePairingsForRemovedPlayer(int playerId)
     {
         var playerIdStr = playerId.ToString();
-        var pairingsToRemove = new List<PairingSelection>();
 
+        // Replace occurrences of removed player with BYE
         foreach (var pairing in _pairings)
         {
-            // Replace the removed player with BYE
             if (pairing.Player1Id == playerIdStr)
                 pairing.Player1Id = BYE;
             if (pairing.Player2Id == playerIdStr)
                 pairing.Player2Id = BYE;
-
-            // Mark pairings with two BYEs for removal
-            if (pairing.Player1Id == BYE && pairing.Player2Id == BYE)
-                pairingsToRemove.Add(pairing);
         }
 
-        // Remove empty pairings (both BYE)
-        foreach (var pairing in pairingsToRemove)
-            _pairings.Remove(pairing);
+        // Remove pairings that are entirely BYEs
+        _pairings.RemoveAll(p => IsBye(p.Player1Id) && IsBye(p.Player2Id));
+
+        // Restart desired pairing count based on active participants
+        var activeCount = _participants.Count(p => !p.TpDisqualified && !p.TpDropped);
+        int neededPairCount = activeCount / 2;
+
+        // If have more pairing slots than needed, remove bottom empty/partial pairings first
+        while (_pairings.Count > neededPairCount)
+        {
+            // Remove a pairing that has at least one empty/BYE slot
+            int indexToRemove = -1;
+            for (int i = _pairings.Count - 1; i >= 0; i--)
+            {
+                var p = _pairings[i];
+                if (!IsRealPlayer(p.Player1Id) || !IsRealPlayer(p.Player2Id))
+                {
+                    indexToRemove = i;
+                    break;
+                }
+            }
+
+            if (indexToRemove < 0)
+                indexToRemove = _pairings.Count - 1;
+
+            var removed = _pairings[indexToRemove];
+            _pairings.RemoveAt(indexToRemove);
+
+            var removedIds = new[] { removed.Player1Id, removed.Player2Id }
+                .Where(id => IsRealPlayer(id))
+                .ToList();
+
+            if (removedIds.Count > 0)
+            {
+                foreach (var pid in removedIds)
+                {
+                    foreach (var p in _pairings)
+                    {
+                        if (p.Player1Id == pid) p.Player1Id = null;
+                        if (p.Player2Id == pid) p.Player2Id = null;
+                    }
+                }
+            }
+        }
     }
 
     // This marks a selected player as disqualified and refreshes local data
