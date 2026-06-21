@@ -78,8 +78,8 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                                     class="btn btn-primary"
                                     @onclick="AddParticipantAndFocus"
                                     disabled="@((_tournamentModel != null &&
-                                                                            _participants.Count >= _tournamentModel.TournamentMaxParticipants)
-                                                                            || _isReadOnly)">
+                                        _participants.Count >= _tournamentModel.TournamentMaxParticipants)
+                                        || _isReadOnly)">
                                 Add
                             </button>
                         </div>
@@ -433,14 +433,14 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
     private async Task AddParticipantAndFocus()
     {
         AddParticipant();
-        // Focus the input so subsequent Enter presses add participants rather than submitting the form
+        
         try
         {
             await JS.InvokeVoidAsync("eval", "document.getElementById('participantInput').focus()");
         }
         catch
         {
-            // ignore JS focus errors
+            // Ignores JavaScript focus errors
         }
         StateHasChanged();
     }
@@ -450,7 +450,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
         if (e?.Key == "Enter")
         {
             AddParticipant();
-            // focus again so the input remains ready
+            
             try
             {
                 await JS.InvokeVoidAsync("eval", "document.getElementById('participantInput').focus()");

@@ -54,6 +54,8 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                         <i class="bi bi-check"></i>Create a League
                     </NavLink>
 
+
+
                     <div class="container-fluid me-4 mt-2 mb-2">
 
                         <div class="row mb-3 border-bottom border-2 border-light">
@@ -65,14 +67,12 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                                 <span>Game</span>
                             </div>
 
-                            <div class="col-4 border-end border-1 border-light">
+                            <div class="col-5 border-end border-1 border-light">
                                 <span>Description</span>
                             </div>
 
-                            <div class="col-1 d-flex justify-content-center">
-                            </div>
-
-                            <div class="col-1 d-flex justify-content-center">
+                            <div class="col-2 d-flex justify-content-center">
+                                <span>Actions</span>
                             </div>
                         </div>
 
@@ -94,16 +94,20 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                                     </div>
                                 </div>
 
-                                <div class="col-4 border-end border-1 border-light">
-                                    <div class="league-cell d-flex align-items-center h-100">
-                                        <span>@l.LeagueDescription</span>
+                                <div class="col-5 border-end border-1 border-light">
+                                    <div class="league-cell d-flex align-items-center h-100 desc-cell">
+                                        <NavLink href="@($"/leagues/edit/{l.LeagueId}")" class="text-reset text-decoration-none w-100">
+                                            <span class="truncate">@l.LeagueDescription</span>
+                                        </NavLink>
                                     </div>
                                 </div>
 
-                                <div class="col-1 d-flex justify-content-center">
-                                    <NavLink href="@($"/leagues/edit/{l.LeagueId}")" class="btn btn-primary">
-                                        Edit
-                                    </NavLink>
+                                <div class="col-2 d-flex actions-column justify-content-center">
+                                    <div class="d-flex flex-column gap-2">
+                                        <NavLink href="@($"/leagues/edit/{l.LeagueId}")" class="btn btn-primary">
+                                            Edit
+                                        </NavLink>
+                                    </div>
                                 </div>
                             </div>
                         }

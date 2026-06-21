@@ -320,7 +320,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
             return;
         }
 
-        if (_tournamentModel.TournamentRoundNum >= _tournamentModel.TournamentMaxRoundNum)
+        if (_tournamentModel.TournamentRoundNum >= _tournamentModel.TournamentMaxRoundNum + 1)
         {
             _roundNumNotice = "Maximum number of rounds reached. This can be bypassed if neccesary.";
         }

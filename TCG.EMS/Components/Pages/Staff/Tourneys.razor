@@ -54,6 +54,8 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                             <i class="bi bi-check"></i>Create a Tourney
                         </NavLink>
                         
+
+
                         <div class="container-fluid me-4 mt-2 mb-2">
 
                             <div class="row mb-3 border-bottom border-2 border-light">
@@ -69,21 +71,17 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                                 <div class="col-2 border-end border-1 border-light">
                                     <span>Name</span>
                                 </div>
-                                <div class="col-1 border-end border-1 border-light">
-                                    <span>Format</span>
+                                <div class="col-3 border-end border-1 border-light">
+                                    <span>Description</span>
                                 </div>
                                 <div class="col-1 border-end border-1 border-light">
                                     <span>Date</span>
                                 </div>
-                                <div class="col-1">
+                                <div class="col-1 border-end border-1 border-light">
                                     <span>Time</span>
                                 </div>
-                                <div class="col-1">
-                                    <span>
-
-                                    </span>
-                                </div>
-                                <div class="col-1">
+                                <div class="col-2 d-flex justify-content-center">
+                                    <span>Actions</span>
                                 </div>
                             </div>
 
@@ -139,9 +137,11 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                                             <span>@tournament.TournamentName</span>
                                         </div>
                                     </div>
-                                    <div class="col-1 border-end border-1 border-light">
-                                        <div class="tourney-cell d-flex align-items-center h-100">
-                                            <span>@tournament.TournamentFormat</span>
+                                    <div class="col-3 border-end border-1 border-light">
+                                        <div class="tourney-cell d-flex align-items-center h-100 desc-cell">
+                                            <NavLink href="@($"/tournaments/edit/{tournament.TournamentId}")" class="text-reset text-decoration-none w-100">
+                                                <span class="truncate">@tournament.TournamentDescription</span>
+                                            </NavLink>
                                         </div>
                                     </div>
                                     <div class="col-1 border-end border-1 border-light">
@@ -154,30 +154,31 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                                             <span>@tournament.TournamentTime</span>
                                         </div>
                                     </div>
-                                    <div class="col-1 d-flex justify-content-center">
-                                        @if (!tournament.TournamentStarted)
-                                        {
-                                            <NavLink href="@($"/tournaments/view/{tournament.TournamentId}")" class="btn btn-primary">
-                                                View Details
+                                    <div class="col-2 d-flex actions-column justify-content-center">
+                                        <div class="d-flex flex-column gap-2">
+                                            @if (!tournament.TournamentStarted)
+                                            {
+                                                <NavLink href="@($"/tournaments/view/{tournament.TournamentId}")" class="btn btn-primary">
+                                                    View Details
+                                                </NavLink>
+                                            }
+                                            else if (tournament.TournamentRoundInProgress)
+                                            {
+                                                <NavLink href="@($"/tournaments/inprogress/{tournament.TournamentId}")" class="btn btn-primary">
+                                                    Resume Rounds
+                                                </NavLink>
+                                            }
+                                            else if (tournament.TournamentStarted)
+                                            {
+                                                <NavLink href="@($"/tournaments/results/{tournament.TournamentId}")" class="btn btn-primary">
+                                                    View Results
+                                                </NavLink>
+                                            }
+
+                                            <NavLink href="@($"/tournaments/edit/{tournament.TournamentId}")" class="btn btn-secondary">
+                                                Add Players/Edit
                                             </NavLink>
-                                        }
-                                        else if (tournament.TournamentRoundInProgress)
-                                        {
-                                            <NavLink href="@($"/tournaments/inprogress/{tournament.TournamentId}")" class="btn btn-primary">
-                                                Resume Rounds
-                                            </NavLink>
-                                        }
-                                        else if (tournament.TournamentStarted)
-                                        {
-                                            <NavLink href="@($"/tournaments/results/{tournament.TournamentId}")" class="btn btn-primary">
-                                                View Results
-                                            </NavLink>
-                                        }
-                                    </div>
-                                    <div class="col-1 d-flex justify-content-center">
-                                        <NavLink href="@($"/tournaments/edit/{tournament.TournamentId}")" class="btn btn-secondary">
-                                            Add Players/Edit
-                                        </NavLink>
+                                        </div>
                                     </div>
                                 </div>
                             }
