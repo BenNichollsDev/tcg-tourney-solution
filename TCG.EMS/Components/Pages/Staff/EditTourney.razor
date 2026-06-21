@@ -24,6 +24,8 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 
 @rendermode InteractiveServer
 
+@using Microsoft.AspNetCore.Components.Web
+
 <div class="container py-4">
     <div class="row justify-content-center">
         <div class="col-12 col-md-8 col-lg-8">
@@ -65,14 +67,16 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                         </p>
 
                         <div class="d-flex mb-3">
-                            <InputText class="form-control me-2"
-                                       placeholder="Enter participant name"
-                                       @bind-Value="_newParticipantName"
-                                       disabled="@_isReadOnly" />
+                            <input id="participantInput" @ref="_participantInputRef" class="form-control me-2"
+                                   placeholder="Enter participant name"
+                                   @bind="_newParticipantName"
+                                   disabled="@_isReadOnly"
+                                   @onkeyup="HandleParticipantKeyUp"
+                                   onkeydown="if(event.key==='Enter'){ event.preventDefault(); }" />
 
                             <button type="button"
                                     class="btn btn-primary"
-                                    @onclick="AddParticipant"
+                                    @onclick="AddParticipantAndFocus"
                                     disabled="@((_tournamentModel != null &&
                                                                             _participants.Count >= _tournamentModel.TournamentMaxParticipants)
                                                                             || _isReadOnly)">
@@ -419,6 +423,43 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
         });
 
         _newParticipantName = string.Empty;
+    }
+
+    private ElementReference _participantInputRef;
+
+    [Inject]
+    private IJSRuntime JS { get; set; } = null!;
+
+    private async Task AddParticipantAndFocus()
+    {
+        AddParticipant();
+        // Focus the input so subsequent Enter presses add participants rather than submitting the form
+        try
+        {
+            await JS.InvokeVoidAsync("eval", "document.getElementById('participantInput').focus()");
+        }
+        catch
+        {
+            // ignore JS focus errors
+        }
+        StateHasChanged();
+    }
+
+    private async Task HandleParticipantKeyUp(KeyboardEventArgs e)
+    {
+        if (e?.Key == "Enter")
+        {
+            AddParticipant();
+            // focus again so the input remains ready
+            try
+            {
+                await JS.InvokeVoidAsync("eval", "document.getElementById('participantInput').focus()");
+            }
+            catch
+            {
+            }
+            StateHasChanged();
+        }
     }
 
     // This removes a participant from the local list.
