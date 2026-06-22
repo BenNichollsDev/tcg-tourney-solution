@@ -90,3 +90,18 @@ h1:focus {
     flex-direction: column;
 }
 
+.standings-table {
+    table-layout: fixed;
+}
+
+.standings-table th:first-child,
+.standings-table td:first-child {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 40%;
+}
+
+.standings-table td {
+    vertical-align: middle;
+}

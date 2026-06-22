@@ -217,3 +217,39 @@ body {
 .actions-column .btn {
     width: 10rem;
 }
+
+.participants-panel {
+    background: black;
+    color: white;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.participants-panel .form-control {
+    background: black;
+    color: white;
+}
+
+.participants-list .list-group-item {
+    background: transparent;
+    border: 1px solid rgba(0,0,0,0.06);
+    border-radius: 0.375rem;
+}
+
+.participants-count {
+    color: rgba(0,0,0,0.7);
+}
+
+/* Standings table adjustments */
+.standings-table {
+    table-layout: fixed; /* keep columns stable */
+}
+.standings-table th:first-child,
+.standings-table td:first-child {
+    white-space: nowrap; /* prevent wrapping for player names */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 40%;
+}
+.standings-table td { vertical-align: middle; }

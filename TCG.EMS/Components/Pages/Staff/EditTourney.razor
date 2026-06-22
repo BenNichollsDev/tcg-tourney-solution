@@ -60,50 +60,49 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                                    disabled="@_isReadOnly" />
 
 
-                        <h4>Add Participants</h4>
+                        <div class="participants-panel">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h4 class="mb-0">Add Participants</h4>
+                                <div class="participants-count small text-muted">Players: <strong>@_participants.Count</strong> / @_tournamentModel.TournamentMaxParticipants</div>
+                            </div>
 
-                        <p class="">
-                            Players: @_participants.Count / @_tournamentModel.TournamentMaxParticipants
-                        </p>
+                            <div class="d-flex mb-3">
+                                <input id="participantInput" @ref="_participantInputRef" class="form-control me-2"
+                                       placeholder="Enter participant name"
+                                       @bind="_newParticipantName"
+                                       disabled="@_isReadOnly"
+                                       @onkeyup="HandleParticipantKeyUp"
+                                       onkeydown="if(event.key==='Enter'){ event.preventDefault(); }" />
 
-                        <div class="d-flex mb-3">
-                            <input id="participantInput" @ref="_participantInputRef" class="form-control me-2"
-                                   placeholder="Enter participant name"
-                                   @bind="_newParticipantName"
-                                   disabled="@_isReadOnly"
-                                   @onkeyup="HandleParticipantKeyUp"
-                                   onkeydown="if(event.key==='Enter'){ event.preventDefault(); }" />
+                                <button type="button"
+                                        class="btn btn-primary"
+                                        @onclick="AddParticipantAndFocus"
+                                        disabled="@((_tournamentModel != null &&
+                                            _participants.Count >= _tournamentModel.TournamentMaxParticipants)
+                                            || _isReadOnly)">
+                                    Add
+                                </button>
+                            </div>
 
-                            <button type="button"
-                                    class="btn btn-primary"
-                                    @onclick="AddParticipantAndFocus"
-                                    disabled="@((_tournamentModel != null &&
-                                        _participants.Count >= _tournamentModel.TournamentMaxParticipants)
-                                        || _isReadOnly)">
-                                Add
-                            </button>
-                        </div>
+                            @if (!string.IsNullOrEmpty(_participantErrorMessage))
+                            {
+                                <div class="text-danger mb-3">@_participantErrorMessage</div>
+                            }
 
-                        @if (!string.IsNullOrEmpty(_participantErrorMessage))
-                        {
-                            <div class="text-danger mb-3">@_participantErrorMessage</div>
-                        }
-
-                        @if (_participants.Count > 0)
-                        {
-                            <div class="row mb-3">
-                                @for (int i = 0; i < _participants.Count; i++)
-                                {
-                                    var p = _participants[i];
-                                    <div class="col-12 col-md-6">
+                            @if (_participants.Count > 0)
+                            {
+                                <div class="participants-list mb-0">
+                                    @for (int i = 0; i < _participants.Count; i++)
+                                    {
+                                        var p = _participants[i];
                                         <div class="list-group-item d-flex justify-content-between align-items-center mb-2">
                                             <span class="flex-grow-1">@p.PlayerName</span>
                                             <button type="button" class="btn btn-sm btn-danger" @onclick="() => RemoveParticipant(p)" disabled="@_isReadOnly">Delete</button>
                                         </div>
-                                    </div>
-                                }
-                            </div>
-                        }
+                                    }
+                                </div>
+                            }
+                        </div>
 
 
                         <label for="league">League:</label>
