@@ -83,12 +83,14 @@ builder.Services.AddAutoMapper(cfg => cfg.AddProfile<AutoMapperProfile>());
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IPairingService, PairingService>();
 builder.Services.AddScoped<IStaffService, StaffService>();
+builder.Services.AddScoped<IPlayerService, PlayerService>();
 builder.Services.AddScoped<ILeagueService, LeagueService>();
 builder.Services.AddScoped<ITournamentService, TournamentService>();
 builder.Services.AddScoped<ITournamentPlayerService, TournamentPlayerService>();
 
 builder.Services.AddScoped<ITournamentScoringService, TournamentScoringService>();
 builder.Services.AddScoped<IPasswordHasher<Staff>, PasswordHasher<Staff>>();
+builder.Services.AddScoped<IPasswordHasher<Player>, PasswordHasher<Player>>();
 
 builder.Services.AddScoped<INavigationService, NavigationService>();
 builder.Services.AddScoped<StaffSessionService>();

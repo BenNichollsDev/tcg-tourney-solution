@@ -22,6 +22,7 @@ namespace TCG.Application.Models
     {
         public string Email { get; init; } = "";
         public string Password { get; init; } = "";
+        public bool IsStaff { get; init; } = false;
     }
 }
 

@@ -17,22 +17,38 @@ namespace TCG.Application.Services
     public class LoginAuthService
     {
         private readonly IStaffService _staffService;
+        private readonly IPlayerService _playerService;
 
-        public LoginAuthService(IStaffService staffService)
+        public LoginAuthService(IStaffService staffService, IPlayerService playerService)
         {
             _staffService = staffService;
+            _playerService = playerService;
         }
 
-        public async Task<bool> VerifyLoginAsync(string email, string password)
+        public async Task<bool> VerifyLoginAsync(string email, string password, bool isStaff)
         {
-            var staff = await _staffService.GetByAsync(e => e.StaffEmail == email);
+            if (isStaff)
+            {
+                var staff = await _staffService.GetByAsync(e => e.StaffEmail == email);
 
-            if (staff == null)
-                return false;
+                if (staff == null)
+                    return false;
 
-            var isValid = await _staffService.VerifyPasswordAsync(staff.StaffId, password);
+                var isValid = await _staffService.VerifyPasswordAsync(staff.StaffId, password);
 
-            return isValid;
+                return isValid;
+            }
+            else
+            {
+                var player = await _playerService.GetByAsync(e => e.PlayerEmail == email);
+
+                if (player == null)
+                    return false;
+
+                var isValid = await _playerService.VerifyPasswordAsync(player.PlayerId, password);
+
+                return isValid;
+            }
         }
     }
 }

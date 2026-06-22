@@ -39,7 +39,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
         {
             <p>Loading...</p>
         }
-        else if (CurrentUserId == null || !int.TryParse(CurrentUserId, out var playerId))
+        else if (_authState?.User?.Identity?.IsAuthenticated != true)
         {
             <div class="alert alert-danger">
                 <p>You must be logged in to access this page.</p>
@@ -139,11 +139,13 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
     private string? _currentPassword = string.Empty;
     private string? _errorMessage;
 
+    private AuthenticationState? _authState;
+
     protected override async Task OnInitializedAsync()
     {
 
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        var userId = authState?.User?.Claims?.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        _authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var userId = _authState?.User?.Claims?.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         
         if (string.IsNullOrEmpty(userId))
         {
@@ -178,7 +180,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
             return;
         }
 
-        if (_playerModel == null || !int.TryParse(CurrentUserId, out var playerId))
+        if (_playerModel == null)
         {
             _errorMessage = "Invalid player data.";
             return;
@@ -186,7 +188,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 
         try
         {
-            bool passwordValid = await PlayerService.VerifyPasswordAsync(playerId, _currentPassword);
+            bool passwordValid = await PlayerService.VerifyPasswordAsync(_playerModel.PlayerId, _currentPassword);
             if (!passwordValid)
             {
                 _errorMessage = "Current password is incorrect.";

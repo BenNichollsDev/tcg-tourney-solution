@@ -36,7 +36,7 @@ public class AuthController : Controller
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromForm] LoginRequest request)
     {
-        var result = await _loginService.LoginAsync(request.Email, request.Password);
+        var result = await _loginService.LoginAsync(request.Email, request.Password, true);
 
         if (!result.WasSuccess)
         {
