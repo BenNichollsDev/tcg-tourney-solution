@@ -1,4 +1,4 @@
-﻿//
+//
 // Program: Local Games Store Management System
 // Filename: StaffService.cs
 // Author: Benjamin Nicholls

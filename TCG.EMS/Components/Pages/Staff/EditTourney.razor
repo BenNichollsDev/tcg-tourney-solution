@@ -63,7 +63,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                         <div class="participants-panel">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <h4 class="mb-0">Add Participants</h4>
-                                <div class="participants-count small text-muted">Players: <strong>@_participants.Count</strong> / @_tournamentModel.TournamentMaxParticipants</div>
+                                <div class="participants-count small text-muted" style="color:white">Players: <strong>@_participants.Count</strong> / @_tournamentModel.TournamentMaxParticipants</div>
                             </div>
 
                             <div class="d-flex mb-3">
@@ -95,7 +95,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                                     @for (int i = 0; i < _participants.Count; i++)
                                     {
                                         var p = _participants[i];
-                                        <div class="list-group-item d-flex justify-content-between align-items-center mb-2">
+                                        <div class="list-group-item d-flex justify-content-between align-items-center">
                                             <span class="flex-grow-1">@p.PlayerName</span>
                                             <button type="button" class="btn btn-sm btn-danger" @onclick="() => RemoveParticipant(p)" disabled="@_isReadOnly">Delete</button>
                                         </div>
@@ -172,7 +172,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
                                      class="form-control mb-3"
                                      @bind-Value="_tournamentModel.TournamentPairing"
                                      @bind:after="OnPairingChanged"
-                                     disabled="@(_isReadOnly || IsDraft)">
+                                     disabled="@_isReadOnly">
 
                             <option value="">-- Select Pairing --</option>
                             <option value="Round-Robin">Round-Robin</option>
@@ -432,14 +432,20 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
     private async Task AddParticipantAndFocus()
     {
         AddParticipant();
-        
+
         try
         {
-            await JS.InvokeVoidAsync("eval", "document.getElementById('participantInput').focus()");
+            await _participantInputRef.FocusAsync();
         }
         catch
         {
-            // Ignores JavaScript focus errors
+            try
+            {
+                await JS.InvokeVoidAsync("eval", "document.getElementById('participantInput').focus()");
+            }
+            catch
+            {
+            }
         }
         StateHasChanged();
     }
@@ -449,13 +455,18 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
         if (e?.Key == "Enter")
         {
             AddParticipant();
-            
+
             try
             {
-                await JS.InvokeVoidAsync("eval", "document.getElementById('participantInput').focus()");
+                await _participantInputRef.FocusAsync();
             }
             catch
             {
+                try
+                {
+                    await JS.InvokeVoidAsync("eval", "document.getElementById('participantInput').focus()");
+                }
+                catch { }
             }
             StateHasChanged();
         }
