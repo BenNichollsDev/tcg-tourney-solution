@@ -16,11 +16,14 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 @using System.ComponentModel.DataAnnotations
 @using TCG.Application.Dtos
 @using TCG.Application.Interfaces.Services
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 @inject IPlayerService PlayerService
 @inject ITournamentService TournamentService
 @inject ITournamentPlayerService TournamentPlayerService
 @inject NavigationManager NavManager
 @rendermode InteractiveServer
+@inject AuthenticationStateProvider AuthStateProvider
 
 <PageTitle>Angels of Cards | Register for Tournament</PageTitle>
 
@@ -30,7 +33,7 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
         {
             <p>Loading...</p>
         }
-        else if (string.IsNullOrEmpty(CurrentUserId))
+        else if (_authState?.User?.Identity?.IsAuthenticated != true)
         {
             <div class="alert alert-info">
                 <p>You need to be logged in to register for tournaments.</p>
@@ -87,16 +90,24 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
     private int _participantCount = 0;
     private string? _error;
 
+    private AuthenticationState? _authState;
+
     protected override async Task OnInitializedAsync()
     {
+        _authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var userId = _authState?.User?.Claims?.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
         _tournament = await TournamentService.GetByIdAsync(tournamentId);
 
         var tps = await TournamentPlayerService.GetAllWhereAsync(tp => tp.TournamentId == tournamentId);
         _participantCount = tps.Count();
 
-        if (!string.IsNullOrEmpty(CurrentUserId) && int.TryParse(CurrentUserId, out var currentPlayerId))
+        if (_authState?.User?.Identity?.IsAuthenticated != true)
         {
-            _alreadyParticipant = tps.Any(tp => tp.PlayerId == currentPlayerId);
+            if (!int.TryParse(userId, out var userIdInt))
+            {
+                _alreadyParticipant = tps.Any(tp => tp.PlayerId == userIdInt);
+            }
         }
 
         _hasLoaded = true;
@@ -106,6 +117,10 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
     {
         try
         {
+            var userId = _authState?.User?.Claims?.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var userFirstName = _authState?.User?.Claims?.FirstOrDefault(c => c.Type == "StaffFirstName")?.Value;
+            var userSurname = _authState?.User?.Claims?.FirstOrDefault(c => c.Type == "StaffSurname")?.Value;
+
             var freshTournament = await TournamentService.GetByIdAsync(tournamentId);
             var freshCount = (await TournamentPlayerService.GetAllWhereAsync(tp => tp.TournamentId == tournamentId)).Count();
 
@@ -115,14 +130,19 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
             if (freshCount >= freshTournament.TournamentMaxParticipants)
                 throw new Exception("Tournament is full.");
 
-            var newTp = new TournamentPlayerDto
+            if (int.TryParse(userId, out var userIdInt))
             {
-                TournamentId = tournamentId,
-                PlayerId = int.TryParse(CurrentUserId, out var userId) ? userId : 0,
-                PlayerName = (CurrentUserFirstName ?? "") + " " + (CurrentUserSurname ?? "")
-            };
+                var newTp = new TournamentPlayerDto
+                {
+                    TournamentId = tournamentId,
+                    PlayerId = userIdInt,
+                    PlayerName = userFirstName + " " + userSurname
+                };
 
-            await TournamentPlayerService.CreateAsync(newTp);
+                await TournamentPlayerService.CreateAsync(newTp);
+            }
+
+            
 
             NavManager.NavigateTo($"/viewevent/{tournamentId}");
         }

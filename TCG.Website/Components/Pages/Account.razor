@@ -143,7 +143,6 @@ Copyright (C) Benjamin Nicholls. All Rights Reserved.
 
     protected override async Task OnInitializedAsync()
     {
-
         _authState = await AuthStateProvider.GetAuthenticationStateAsync();
         var userId = _authState?.User?.Claims?.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         
